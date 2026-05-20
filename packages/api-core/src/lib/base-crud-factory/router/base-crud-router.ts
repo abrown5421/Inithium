@@ -1,19 +1,40 @@
 import { Router, Request, Response, RequestHandler } from 'express';
+import { ZodSchema } from 'zod';
 import { CrudService } from '../service/base-crud-service.js';
 
-const asyncHandler = (fn: RequestHandler): RequestHandler => 
+const asyncHandler = (fn: RequestHandler): RequestHandler =>
   (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 
-export const createCrudRouter = <T>(service: CrudService<T>): Router => {
+export const validate = (schema: ZodSchema): RequestHandler =>
+  (req: Request, res: Response, next) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ errors: result.error.flatten() });
+      return;
+    }
+    req.body = result.data;
+    next();
+  };
+
+export interface CrudRouterHooks {
+  onCreate?: ZodSchema;
+  onUpdate?: ZodSchema;
+}
+
+export const createCrudRouter = <T>(
+  service: CrudService<T>,
+  hooks: CrudRouterHooks = {}
+): Router => {
   const router = Router();
 
   router.post(
     '/',
+    ...(hooks.onCreate ? [validate(hooks.onCreate)] : []),
     asyncHandler(async (req: Request, res: Response): Promise<void> => {
       const record = await service.createOne(req.body);
-      res.status(21).json(record);
+      res.status(201).json(record);
     })
   );
 
@@ -25,7 +46,7 @@ export const createCrudRouter = <T>(service: CrudService<T>): Router => {
         res.status(404).end();
         return;
       }
-      res.status(20).json(record);
+      res.status(200).json(record);
     })
   );
 
@@ -34,19 +55,20 @@ export const createCrudRouter = <T>(service: CrudService<T>): Router => {
     asyncHandler(async (req: Request, res: Response): Promise<void> => {
       const { ids } = req.body as { ids: readonly string[] };
       const records = await service.readMany(ids || []);
-      res.status(20).json(records);
+      res.status(200).json(records);
     })
   );
 
   router.put(
     '/:id',
+    ...(hooks.onUpdate ? [validate(hooks.onUpdate)] : []),
     asyncHandler(async (req: Request, res: Response): Promise<void> => {
       const record = await service.updateOne(req.params.id, req.body);
       if (!record) {
         res.status(404).end();
         return;
       }
-      res.status(20).json(record);
+      res.status(200).json(record);
     })
   );
 
@@ -58,7 +80,7 @@ export const createCrudRouter = <T>(service: CrudService<T>): Router => {
         res.status(404).end();
         return;
       }
-      res.status(20).json(record);
+      res.status(200).json(record);
     })
   );
 
@@ -67,7 +89,7 @@ export const createCrudRouter = <T>(service: CrudService<T>): Router => {
     asyncHandler(async (req: Request, res: Response): Promise<void> => {
       const { ids } = req.body as { ids: readonly string[] };
       const outcome = await service.deleteMany(ids || []);
-      res.status(20).json(outcome);
+      res.status(200).json(outcome);
     })
   );
 
