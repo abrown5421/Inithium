@@ -1,0 +1,16 @@
+export type ThemeColor = 
+  | 'primary' 
+  | 'primary-contrast' 
+  | 'secondary' 
+  | 'secondary-contrast' 
+  | 'accent' 
+  | 'accent-contrast' 
+  | 'success' 
+  | 'success-contrast' 
+  | 'warning' 
+  | 'warning-contrast' 
+  | 'danger' 
+  | 'danger-contrast' 
+  | 'surface'
+  | 'surface-contrast'
+  
