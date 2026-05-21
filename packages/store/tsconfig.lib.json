@@ -16,5 +16,16 @@
     "types": ["node", "vite/client"]
   },
   "include": ["src/**/*.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "../types/tsconfig.lib.json"
+    }
+  ],
+  "exports": {
+    ".": {
+      "@inithium/source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  }
 }

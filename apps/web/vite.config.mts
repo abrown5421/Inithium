@@ -13,11 +13,17 @@ export default defineConfig(() => ({
     port: 5173,
     host: 'localhost',
   },
-  plugins: [react()],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [],
-  // },
+  plugins: [
+    react()
+  ],
+  resolve: {
+    tsconfigPaths: true,
+    conditions: ['@inithium/source', 'import', 'module', 'browser', 'default']
+  },
+  envPrefix: ['VITE_', 'API_', 'PORT', 'HOST'],
+  define: {
+    'process.env': {}
+  },
   build: {
     outDir: './dist',
     emptyOutDir: true,
