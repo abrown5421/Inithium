@@ -36,6 +36,7 @@
     "apps/*"
   ],
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^4.21.2",
     "mongoose": "^9.6.2",
     "react": "^19.0.0",
