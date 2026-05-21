@@ -6,12 +6,13 @@ dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '.env') });
 process.env['ASSETS_ROOT'] = path.resolve(__dirname, 'assets');
 
 import express from 'express';
-import { connectDB } from '@inithium/api-core';
+import { connectDB, errorHandler } from '@inithium/api-core';
 import {
   usersRouter,
   pagesRouter,
   assetsRouter,
   assetsService,
+  authRouter,
 } from '@inithium/api-collections';
 import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use('/api/users',  usersRouter);
 app.use('/api/pages',  pagesRouter);
 app.use('/api/assets', assetsRouter);
+app.use('/api/auth', authRouter);
 
 app.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
@@ -50,6 +52,8 @@ async function bootstrap() {
     console.log(`[ ready  ] http://${host}:${port}`);
     console.log(`[ assets ] ${process.env['ASSETS_ROOT']}`);
   });
+
+  app.use(errorHandler);
 }
 
 bootstrap();
