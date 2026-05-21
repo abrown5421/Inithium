@@ -20,6 +20,9 @@
     },
     {
       "path": "./packages/api-collections"
+    },
+    {
+      "path": "./packages/asset-manager"
     }
   ]
 }
