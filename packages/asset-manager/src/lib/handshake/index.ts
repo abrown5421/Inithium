@@ -14,19 +14,9 @@ type FinalizeAsset = (params: {
   sizeBytes:    number;
 }) => Promise<{ asset_id: string }>;
 
-/**
- * POST /intent
- * Body: { filename: string; mimeType: string; size: number }
- * Response: { uploadId, storageKey, uploadUrl, expiresAt }
- *
- * Registers a short-lived upload token and returns a pre-signed upload URL.
- */
 export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
   const router = Router();
 
-  /* ------------------------------------------------------------------ */
-  /* 1. Intent – client declares what it wants to upload                 */
-  /* ------------------------------------------------------------------ */
   router.post(
     '/intent',
     (req: Request, res: Response) => {
@@ -68,10 +58,7 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
       });
     },
   );
-
-  /* ------------------------------------------------------------------ */
-  /* 2. Status – peek at a pending token without consuming it            */
-  /* ------------------------------------------------------------------ */
+  
   router.get(
     '/intent/:uploadId',
     (req: Request, res: Response) => {
@@ -91,9 +78,6 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
     },
   );
 
-  /* ------------------------------------------------------------------ */
-  /* 3. Upload – stream the file body to disk, finalize the asset record */
-  /* ------------------------------------------------------------------ */
   router.put(
     `${PRESIGNED_PATH_PREFIX}/:uploadId`,
     async (req: Request, res: Response, next: NextFunction) => {

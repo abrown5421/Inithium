@@ -1,16 +1,6 @@
 import path from 'node:path';
 import type { FileCategory } from '../types/index.js';
 
-/**
- * ASSETS_ROOT can be overridden via the ASSETS_ROOT env var.
- *
- * Default (production / NX monorepo):
- *   <repo-root>/apps/api/src/assets
- *
- * The env var is resolved at module load time, so set it before
- * importing this package (e.g. at the top of main.ts via dotenv or
- * an explicit `process.env.ASSETS_ROOT = ...` assignment).
- */
 export const ASSETS_ROOT: string = process.env['ASSETS_ROOT']
   ? path.resolve(process.env['ASSETS_ROOT'])
   : path.resolve(process.cwd(), 'apps', 'api', 'src', 'assets');

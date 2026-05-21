@@ -23,6 +23,9 @@
     },
     {
       "path": "./packages/asset-manager"
+    },
+    {
+      "path": "./packages/store"
     }
   ]
 }
