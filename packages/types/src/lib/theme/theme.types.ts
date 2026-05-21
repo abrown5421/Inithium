@@ -13,4 +13,10 @@ export type ThemeColor =
   | 'danger-contrast' 
   | 'surface'
   | 'surface-contrast'
+  | 'surface2'
+  | 'surface2-contrast'
+  | 'surface3'
+  | 'surface3-contrast'
+  | 'surface4'
+  | 'surface4-contrast'
   
