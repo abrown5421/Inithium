@@ -54,7 +54,8 @@
       },
       "library": {
         "style": "css",
-        "linter": "none"
+        "linter": "none",
+        "unitTestRunner": "none"
       }
     }
   },
@@ -70,6 +71,11 @@
           "fields": ["extends", "files", "include"]
         }
       ]
+    }
+  },
+  "release": {
+    "version": {
+      "preVersionCommand": "npx nx run-many -t build"
     }
   }
 }
