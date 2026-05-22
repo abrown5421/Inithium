@@ -3,7 +3,8 @@ import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { createInithiumStore } from '@inithium/store';
-import './style.css';
+import { Button } from '@inithium/ui'
+import './styles.css';
 
 const store = createInithiumStore();
 
@@ -15,7 +16,9 @@ root.render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        Hello WEB
+        <div className="flex flex-col p-4">
+          Battle Ground
+        </div>
       </BrowserRouter>
     </Provider>
   </StrictMode>,
