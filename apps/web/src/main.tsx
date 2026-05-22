@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { createInithiumStore } from '@inithium/store';
-import { Button } from '@inithium/ui'
+import { Text } from '@inithium/ui';
 import './styles.css';
 
 const store = createInithiumStore();
