@@ -1,8 +1,6 @@
 import React, { JSX } from 'react';
 import { TextProps, TextVariant, TextDecorations } from './text.types';
 
-// ─── Tag map ────────────────────────────────────────────────────────────────
-
 const variantTagMap: Record<TextVariant, keyof JSX.IntrinsicElements> = {
   h1:        'h1',
   h2:        'h2',

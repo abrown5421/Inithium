@@ -3,6 +3,7 @@ import { Model, Types, AnyObject } from 'mongoose';
 export interface CrudService<T> {
   readonly createOne: (data: AnyObject | Partial<T>) => Promise<T>;
   readonly readOne: (id: string) => Promise<T | null>;
+  readonly readAll: () => Promise<readonly T[]>;
   readonly readMany: (ids: readonly string[]) => Promise<readonly T[]>;
   readonly updateOne: (id: string, data: Partial<T>) => Promise<T | null>;
   readonly deleteOne: (id: string) => Promise<T | null>;
@@ -18,20 +19,23 @@ export const createCrudService = <T>(model: Model<any>): CrudService<T> => {
       return ArrayResult[0].toObject() as T;
     },
 
-    readOne: async (id) => 
+    readOne: async (id) =>
       model.findById(toObjectId(id)).lean<T>().exec(),
 
-    readMany: async (ids) => 
+    readAll: async () =>
+      model.find().lean<T[]>().exec(),
+
+    readMany: async (ids) =>
       model.find({ _id: { $in: ids.map(toObjectId) } }).lean<T[]>().exec(),
 
-    updateOne: async (id, data) => 
+    updateOne: async (id, data) =>
       model.findByIdAndUpdate(
-        toObjectId(id), 
-        { $set: data as any }, 
+        toObjectId(id),
+        { $set: data as any },
         { new: true }
       ).lean<T>().exec(),
 
-    deleteOne: async (id) => 
+    deleteOne: async (id) =>
       model.findByIdAndDelete(toObjectId(id)).lean<T>().exec(),
 
     deleteMany: async (ids) => {

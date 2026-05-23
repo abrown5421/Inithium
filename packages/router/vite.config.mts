@@ -14,6 +14,12 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
     }),
   ],
+  // Uncomment this if you are using workers.
+  // worker: {
+  //  plugins: [],
+  // },
+  // Configuration for building your library.
+  // See: https://vite.dev/guide/build.html#library-mode
   build: {
     outDir: './dist',
     emptyOutDir: true,
@@ -22,18 +28,24 @@ export default defineConfig(() => ({
       transformMixedEsModules: true,
     },
     lib: {
+      // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: '@inithium/router',
       fileName: 'index',
+      // Change this to the formats you want to support.
+      // Don't forget to update your package.json as well.
       formats: ['es' as const],
     },
     rollupOptions: {
-      external: (id: string) =>
-        id === 'react' ||
-        id === 'react-dom' ||
-        id === 'react/jsx-runtime' ||
-        id === 'react-router-dom' ||
-        id.startsWith('@inithium/'),
+      // External packages that should not be bundled into your library.
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react-router-dom',
+        '@inithium/store',
+        '@inithium/types',
+      ],
     },
   },
 }));
