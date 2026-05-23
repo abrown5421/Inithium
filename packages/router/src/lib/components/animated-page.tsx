@@ -78,7 +78,7 @@ const AnimatedPage = forwardRef<AnimatedPageHandle, AnimatedPageProps>(
     const PageComponent = resolvePageComponent(page.componentKey);
 
     const layoutProps = {
-      className: 'h-screen',
+      className: `h-m-nav ${page.bg && 'bg-' + page.bg}`,
       ...(page.centered && { flex: true, align: 'center' as const, justify: 'center' as const }),
     };
 
