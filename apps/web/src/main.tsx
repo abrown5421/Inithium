@@ -6,6 +6,7 @@ import { createInithiumStore } from '@inithium/store';
 import { bootstrapRegistry, TransitionRouter } from '@inithium/router';
 import 'animate.css';
 import './styles.css';
+import Navbar from '../../../packages/ui/src/lib/composites/navbar/navbar';
 
 bootstrapRegistry(
   import.meta.glob('../../../packages/pages/src/lib/**/*.tsx', { eager: false }) as any,
@@ -21,6 +22,7 @@ root.render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
+        <Navbar />
         <TransitionRouter />
       </BrowserRouter>
     </Provider>
