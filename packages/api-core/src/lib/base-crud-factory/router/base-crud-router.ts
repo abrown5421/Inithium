@@ -29,6 +29,14 @@ export const createCrudRouter = <T>(
 ): Router => {
   const router = Router();
 
+  router.get(
+    '/',
+    asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+      const records = await service.readAll();
+      res.status(200).json(records);
+    })
+  );
+
   router.post(
     '/',
     ...(hooks.onCreate ? [validate(hooks.onCreate)] : []),

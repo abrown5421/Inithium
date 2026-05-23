@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { BoxProps, BoxFlexDirection, BoxJustify, BoxAlign, BoxBorderRadius, BoxBorderWidth } from './box.types';
 import { AnimationPhase } from '@inithium/types';
 
@@ -175,7 +175,7 @@ function buildClasses(
     .trim();
 }
 
-export const Box: React.FC<BoxProps> = ({
+export const Box = forwardRef<HTMLDivElement, BoxProps>(({
   color,
   flex = false,
   direction = 'row',
@@ -194,11 +194,14 @@ export const Box: React.FC<BoxProps> = ({
   style,
   children,
   ...props
-}) => {
+}, forwardedRef) => {
   const [phase, setPhase] = useState<AnimationPhase>(() =>
     animation ? 'entering' : 'entered'
   );
-  const ref = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  // Merge forwarded ref with internal ref
+  const ref = (forwardedRef ?? innerRef) as React.RefObject<HTMLDivElement>;
 
   useEffect((): (() => void) | void => {
     if (!animation) return;
@@ -265,4 +268,6 @@ export const Box: React.FC<BoxProps> = ({
       {children}
     </div>
   );
-};
+});
+
+Box.displayName = 'Box';

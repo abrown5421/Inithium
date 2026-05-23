@@ -3,8 +3,13 @@ import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { createInithiumStore } from '@inithium/store';
+import { bootstrapRegistry, TransitionRouter } from '@inithium/router';
 import 'animate.css';
 import './styles.css';
+
+bootstrapRegistry(
+  import.meta.glob('../../../packages/pages/src/lib/**/*.tsx', { eager: false }) as any,
+);
 
 const store = createInithiumStore();
 
@@ -16,9 +21,7 @@ root.render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <div className="flex flex-col p-4">
-          Battle Ground
-        </div>
+        <TransitionRouter />
       </BrowserRouter>
     </Provider>
   </StrictMode>,
