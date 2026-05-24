@@ -30,30 +30,12 @@ export const activeUserSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
     },
-
-    updateActiveUser(state, action: PayloadAction<Partial<User>>) {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
-    },
-
-    setActiveUserLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
-    },
-
-    setActiveUserError(state, action: PayloadAction<string | null>) {
-      state.error = action.payload;
-      state.isLoading = false;
-    },
   },
 });
 
 export const {
   setActiveUser,
   clearActiveUser,
-  updateActiveUser,
-  setActiveUserLoading,
-  setActiveUserError,
 } = activeUserSlice.actions;
 
 type StateWithActiveUser = { activeUser: ActiveUserState };
