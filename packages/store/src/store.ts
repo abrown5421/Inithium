@@ -1,9 +1,11 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { baseApi } from './lib/base';
+import { activeUserSlice } from './lib/features/active-user/active-user-slice';
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
+  [activeUserSlice.name]: activeUserSlice.reducer,
 });
 
 export const createInithiumStore = (preloadedState?: Partial<RootState>) => {
