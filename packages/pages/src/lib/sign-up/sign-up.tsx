@@ -1,7 +1,284 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+import { Input } from '@inithium/ui';
+import { Button } from '@inithium/ui';
+import { Text } from '@inithium/ui';
+import { Box } from '@inithium/ui';
+import { NavigationLink } from '@inithium/router';
 
-const SignUp: React.FC = () => {
-  return <div>SignUp</div>
+interface SignUpFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface SignUpFormErrors {
+  firstName?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+const PASSWORD_MIN_LENGTH = 8;
+
+const validate = (vals: SignUpFormValues): SignUpFormErrors => {
+  const errs: SignUpFormErrors = {};
+
+  if (!vals.firstName.trim()) {
+    errs.firstName = 'First name is required';
+  }
+
+  if (!vals.email.trim()) {
+    errs.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(vals.email)) {
+    errs.email = 'Enter a valid email address';
+  }
+
+  if (!vals.password) {
+    errs.password = 'Password is required';
+  } else if (vals.password.length < PASSWORD_MIN_LENGTH) {
+    errs.password = `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  }
+
+  if (!vals.confirmPassword) {
+    errs.confirmPassword = 'Please confirm your password';
+  } else if (vals.password !== vals.confirmPassword) {
+    errs.confirmPassword = 'Passwords do not match';
+  }
+
+  return errs;
 };
 
-export default SignUp
+const toggleBtnStyle: React.CSSProperties = {
+  position: 'absolute',
+  right: '12px',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '4px',
+  display: 'flex',
+  alignItems: 'center',
+  color: '#64748b',
+  zIndex: 20,
+};
+
+const SignUp: React.FC = () => {
+  const [values, setValues] = useState<SignUpFormValues>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState<SignUpFormErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange =
+    (field: keyof SignUpFormValues) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const updated = { ...values, [field]: e.target.value };
+      setValues(updated);
+      if (submitted) {
+        setErrors(validate(updated));
+      }
+    };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    const errs = validate(values);
+    setErrors(errs);
+    if (Object.keys(errs).length === 0) {
+      // TODO: dispatch sign-up action
+      console.log('Sign up submitted', values);
+    }
+  };
+
+  return (
+    <Box
+      color="surface-contrast"
+      flex
+      direction="col"
+      justify="center"
+      align="center"
+      fullWidth
+      fullHeight
+    >
+      <Box
+        color="surface"
+        flex
+        direction="col"
+        align="center"
+        padding="xl"
+        borderRadius="lg"
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          boxShadow: '0 4px 32px 0 rgba(15,80,102,0.10)',
+          gap: '24px',
+        }}
+      >
+        <Box flex direction="col" align="center" style={{ gap: '6px', width: '100%' }}>
+          <Text variant="h3" color="primary" decoration={{ bold: true }}>
+            Create an account
+          </Text>
+          <Text variant="body2" overrideClassName="text-slate-500">
+            Fill in the details below to get started
+          </Text>
+        </Box>
+
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}
+        >
+          {/* Name row */}
+          <Box flex direction="row" style={{ gap: '12px', width: '100%' }}>
+            <Box flex direction="col" style={{ gap: '4px', flex: 1 }}>
+              <Input
+                label="First name *"
+                type="text"
+                value={values.firstName}
+                onChange={handleChange('firstName')}
+                color={errors.firstName ? 'danger' : 'primary'}
+                variant="outline"
+                size="md"
+                fullWidth
+              />
+              {errors.firstName && (
+                <Text variant="caption" overrideClassName="text-xs text-danger pl-1">
+                  {errors.firstName}
+                </Text>
+              )}
+            </Box>
+
+            <Box flex direction="col" style={{ gap: '4px', flex: 1 }}>
+              <Input
+                label="Last name"
+                type="text"
+                value={values.lastName}
+                onChange={handleChange('lastName')}
+                color="primary"
+                variant="outline"
+                size="md"
+                fullWidth
+              />
+            </Box>
+          </Box>
+
+          {/* Email */}
+          <Box flex direction="col" style={{ gap: '4px', width: '100%' }}>
+            <Input
+              label="Email *"
+              type="email"
+              value={values.email}
+              onChange={handleChange('email')}
+              color={errors.email ? 'danger' : 'primary'}
+              variant="outline"
+              size="md"
+              fullWidth
+              leadingIcon="mail"
+            />
+            {errors.email && (
+              <Text variant="caption" overrideClassName="text-xs text-danger pl-1">
+                {errors.email}
+              </Text>
+            )}
+          </Box>
+
+          {/* Password */}
+          <Box flex direction="col" style={{ gap: '4px', width: '100%' }}>
+            <Box style={{ position: 'relative', width: '100%' }}>
+              <Input
+                label="Password *"
+                type={showPassword ? 'text' : 'password'}
+                value={values.password}
+                onChange={handleChange('password')}
+                color={errors.password ? 'danger' : 'primary'}
+                variant="outline"
+                size="md"
+                fullWidth
+                leadingIcon="lock"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={toggleBtnStyle}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </Box>
+            {errors.password && (
+              <Text variant="caption" overrideClassName="text-xs text-danger pl-1">
+                {errors.password}
+              </Text>
+            )}
+          </Box>
+
+          {/* Confirm password */}
+          <Box flex direction="col" style={{ gap: '4px', width: '100%' }}>
+            <Box style={{ position: 'relative', width: '100%' }}>
+              <Input
+                label="Confirm password *"
+                type={showConfirm ? 'text' : 'password'}
+                value={values.confirmPassword}
+                onChange={handleChange('confirmPassword')}
+                color={errors.confirmPassword ? 'danger' : 'primary'}
+                variant="outline"
+                size="md"
+                fullWidth
+                leadingIcon="lock-keyhole"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                style={toggleBtnStyle}
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </Box>
+            {errors.confirmPassword && (
+              <Text variant="caption" overrideClassName="text-xs text-danger pl-1">
+                {errors.confirmPassword}
+              </Text>
+            )}
+          </Box>
+
+          <Button
+            type="submit"
+            color="primary"
+            variant="solid"
+            size="lg"
+            fullWidth
+            rounded
+          >
+            Create Account
+          </Button>
+        </form>
+
+        {/* Divider */}
+        <Box flex direction="row" align="center" style={{ width: '100%', gap: '12px' }}>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+          <Text variant="caption" overrideClassName="text-slate-400 text-xs">
+            Already have an account?
+          </Text>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </Box>
+
+        <NavigationLink pageKey="login" asButton>
+          Sign in instead
+        </NavigationLink>
+      </Box>
+    </Box>
+  );
+};
+
+export default SignUp;
