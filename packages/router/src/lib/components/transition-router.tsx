@@ -96,7 +96,7 @@ const TransitionRouter: React.FC = () => {
             path={page.path}
             element={
               currentPage?.key === page.key ? (
-                <AnimatedPage ref={animatedPageRef} page={page} />
+                <AnimatedPage ref={animatedPageRef} key={location.pathname} page={page} />
               ) : (
                 <AnimatedPage page={page} />
               )
