@@ -6,20 +6,21 @@ import { InputProps, InputSize } from './input.types';
 type ColorKey = NonNullable<InputProps['color']>;
 type VariantKey = NonNullable<InputProps['variant']>;
 
-function normalizeIconName(name: string): string {
-  return name
+const normalizeIconName = (name: string): string =>
+  name
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .replace(/[\s_-]+/g, '-')
     .toLowerCase();
-}
 
-const sizeStyles: Record<InputSize, { container: string; input: string; label: string; iconSize: number; leadingIconSpacer: string }> = {
+const sizeStyles: Record<InputSize, { container: string; input: string; label: string; iconSize: number; leadingIconSpacer: string; inlinePad: string; focusPad: string }> = {
   sm: {
     container: 'h-10',
     input: 'pt-4 pb-1 text-sm px-3',
     label: 'text-xs left-3 top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:top-2.5',
     leadingIconSpacer: 'pl-9',
     iconSize: 14,
+    inlinePad: 'left-9',
+    focusPad: 'peer-focus:left-9 peer-:not(:placeholder-shown):left-9 data-[floating=true]:left-9',
   },
   md: {
     container: 'h-12',
@@ -27,6 +28,8 @@ const sizeStyles: Record<InputSize, { container: string; input: string; label: s
     label: 'text-xs left-4 top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:top-3',
     leadingIconSpacer: 'pl-10',
     iconSize: 18,
+    inlinePad: 'left-10',
+    focusPad: 'peer-focus:left-10 peer-:not(:placeholder-shown):left-10 data-[floating=true]:left-10',
   },
   lg: {
     container: 'h-14',
@@ -34,6 +37,8 @@ const sizeStyles: Record<InputSize, { container: string; input: string; label: s
     label: 'text-xs left-5 top-4 peer-placeholder-shown:text-lg peer-placeholder-shown:top-3.5',
     leadingIconSpacer: 'pl-12',
     iconSize: 22,
+    inlinePad: 'left-12',
+    focusPad: 'peer-focus:left-12 peer-:not(:placeholder-shown):left-12 data-[floating=true]:left-12',
   },
 };
 
@@ -67,26 +72,26 @@ const focusColorStyles: Record<ColorKey, string> = {
 };
 
 const labelColorStyles: Record<ColorKey, string> = {
-  primary: 'peer-focus:text-primary',
-  secondary: 'peer-focus:text-secondary',
-  accent: 'peer-focus:text-accent',
-  success: 'peer-focus:text-success',
-  warning: 'peer-focus:text-warning',
-  danger: 'peer-focus:text-danger',
-  surface: 'peer-focus:text-surface',
-  surface2: 'peer-focus:text-surface2',
-  surface3: 'peer-focus:text-surface3',
-  surface4: 'peer-focus:text-surface4',
-  'primary-contrast': 'peer-focus:text-primary-contrast',
-  'secondary-contrast': 'peer-focus:text-secondary-contrast',
-  'accent-contrast': 'peer-focus:text-accent-contrast',
-  'success-contrast': 'peer-focus:text-success-contrast',
-  'warning-contrast': 'peer-focus:text-warning-contrast',
-  'danger-contrast': 'peer-focus:text-danger-contrast',
-  'surface-contrast': 'peer-focus:text-surface-contrast',
-  'surface2-contrast': 'peer-focus:text-surface2-contrast',
-  'surface3-contrast': 'peer-focus:text-surface3-contrast',
-  'surface4-contrast': 'peer-focus:text-surface4-contrast',
+  primary: 'peer-focus:text-primary peer-:not(:placeholder-shown):text-primary data-[floating=true]:text-primary',
+  secondary: 'peer-focus:text-secondary peer-:not(:placeholder-shown):text-secondary data-[floating=true]:text-secondary',
+  accent: 'peer-focus:text-accent peer-:not(:placeholder-shown):text-accent data-[floating=true]:text-accent',
+  success: 'peer-focus:text-success peer-:not(:placeholder-shown):text-success data-[floating=true]:text-success',
+  warning: 'peer-focus:text-warning peer-:not(:placeholder-shown):text-warning data-[floating=true]:text-warning',
+  danger: 'peer-focus:text-danger peer-:not(:placeholder-shown):text-danger data-[floating=true]:text-danger',
+  surface: 'peer-focus:text-surface peer-:not(:placeholder-shown):text-surface data-[floating=true]:text-surface',
+  surface2: 'peer-focus:text-surface2 peer-:not(:placeholder-shown):text-surface2 data-[floating=true]:text-surface2',
+  surface3: 'peer-focus:text-surface3 peer-:not(:placeholder-shown):text-surface3 data-[floating=true]:text-surface3',
+  surface4: 'peer-focus:text-surface4 peer-:not(:placeholder-shown):text-surface4 data-[floating=true]:text-surface4',
+  'primary-contrast': 'peer-focus:text-primary-contrast peer-:not(:placeholder-shown):text-primary-contrast data-[floating=true]:text-primary-contrast',
+  'secondary-contrast': 'peer-focus:text-secondary-contrast peer-:not(:placeholder-shown):text-secondary-contrast data-[floating=true]:text-secondary-contrast',
+  'accent-contrast': 'peer-focus:text-accent-contrast peer-:not(:placeholder-shown):text-accent-contrast data-[floating=true]:text-accent-contrast',
+  'success-contrast': 'peer-focus:text-success-contrast peer-:not(:placeholder-shown):text-success-contrast data-[floating=true]:text-success-contrast',
+  'warning-contrast': 'peer-focus:text-warning-contrast peer-:not(:placeholder-shown):text-warning-contrast data-[floating=true]:text-warning-contrast',
+  'danger-contrast': 'peer-focus:text-danger-contrast peer-:not(:placeholder-shown):text-danger-contrast data-[floating=true]:text-danger-contrast',
+  'surface-contrast': 'peer-focus:text-surface-contrast peer-:not(:placeholder-shown):text-surface-contrast data-[floating=true]:text-surface-contrast',
+  'surface2-contrast': 'peer-focus:text-surface2-contrast peer-:not(:placeholder-shown):text-surface2-contrast data-[floating=true]:text-surface2-contrast',
+  'surface3-contrast': 'peer-focus:text-surface3-contrast peer-:not(:placeholder-shown):text-surface3-contrast data-[floating=true]:text-surface3-contrast',
+  'surface4-contrast': 'peer-focus:text-surface4-contrast peer-:not(:placeholder-shown):text-surface4-contrast data-[floating=true]:text-surface4-contrast',
 };
 
 const INPUT_BASE =
@@ -94,6 +99,11 @@ const INPUT_BASE =
   'placeholder-transparent! text-slate-900 focus:outline-hidden ';
 
 const CONTAINER_BASE = 'relative flex items-center transition-all duration-200 ';
+
+const ANIMATION_STATE_CLASSES = 
+  'peer-focus:top-0.5 peer-focus:scale-85 ' +
+  'peer-:not(:placeholder-shown):top-0.5 peer-:not(:placeholder-shown):scale-85 ' +
+  'data-[floating=true]:top-0.5 data-[floating=true]:scale-85';
 
 interface SafeIconProps {
   name: string;
@@ -124,11 +134,30 @@ export const Input: React.FC<InputProps> = ({
   style,
   onChange,
   id,
+  value,
+  defaultValue,
   ...props
 }) => {
   const generatedId = React.useId();
   const inputId = id ?? generatedId;
   const currentSize = sizeStyles[size];
+
+  const [internalValue, setInternalValue] = React.useState(() => value ?? defaultValue ?? '');
+
+  React.useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInternalValue(e.target.value);
+    if (onChange) {
+      onChange(e);
+    }
+  };
+
+  const isFloating = String(internalValue).length > 0;
 
   const builtInputClasses = overrideClassName
     ? [INPUT_BASE, overrideClassName].filter(Boolean).join(' ')
@@ -150,7 +179,7 @@ export const Input: React.FC<InputProps> = ({
     : currentSize.label;
 
   const shiftedLabelPadding = leadingIcon && variant !== 'standard'
-    ? size === 'sm' ? 'peer-focus:left-3 left-9' : size === 'md' ? 'peer-focus:left-4 left-10' : 'peer-focus:left-5 left-12'
+    ? `${currentSize.inlinePad} ${currentSize.focusPad}`
     : '';
 
   return (
@@ -176,16 +205,19 @@ export const Input: React.FC<InputProps> = ({
       <HeadlessInput
         id={inputId}
         placeholder={label}
+        value={value}
+        defaultValue={defaultValue}
         className={builtInputClasses}
-        onChange={onChange}
+        onChange={handleInputChange}
         {...props}
       />
 
       <label
         htmlFor={inputId}
+        data-floating={isFloating}
         className={[
           'absolute text-slate-400 pointer-events-none origin-top-left transition-all duration-200 ease-in-out z-10',
-          'peer-focus:top-0.5 peer-focus:scale-85',
+          ANIMATION_STATE_CLASSES,
           labelPlacementClasses,
           shiftedLabelPadding,
           labelColorStyles[color],

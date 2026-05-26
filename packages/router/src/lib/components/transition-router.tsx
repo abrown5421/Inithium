@@ -32,7 +32,7 @@ const TransitionRouter: React.FC = () => {
 
   useEffect(() => {
     if (!pages) return;
-    const match = pages.find((p) => p.path === location.pathname) ?? null;
+    const match = pages.find((p: Page) => p.path === location.pathname) ?? null;
     setCurrentPage(match);
   }, [location.pathname, pages]);
 
@@ -89,8 +89,8 @@ const TransitionRouter: React.FC = () => {
   return (
     <Routes>
       {pages
-        .filter((p) => p.isActive)
-        .map((page) => (
+        .filter((p: Page) => p.isActive)
+        .map((page: Page) => (
           <Route
             key={page.key}
             path={page.path}

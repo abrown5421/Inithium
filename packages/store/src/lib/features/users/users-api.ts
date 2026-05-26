@@ -5,18 +5,27 @@ import { baseApi } from '../../base/base-api.js';
 export type CreateUserDto = Omit<User, '_id'>;
 export type UpdateUserDto = Partial<CreateUserDto>;
 
+const endpoints = createCrudEndpoints<User, CreateUserDto, UpdateUserDto>('users', 'User');
+
 export const usersApi = baseApi.injectEndpoints({
-  endpoints: (builder) => ({
-    ...createCrudEndpoints<User, CreateUserDto, UpdateUserDto>('users', 'User')(builder),
-  }),
+  endpoints,
   overrideExisting: false,
 });
 
-export const {
-  useCreateOneMutation: useCreateUserMutation,
-  useReadOneQuery: useUserQuery,
-  useReadManyQuery: useUsersBatchQuery,
-  useUpdateOneMutation: useUpdateUserMutation,
-  useDeleteOneMutation: useDeleteUserMutation,
-  useDeleteManyMutation: useDeleteUsersBatchMutation,
-} = usersApi;
+const {
+  useCreateUserMutation,
+  useReadOneUserQuery:        useUserQuery,
+  useReadManyUserQuery:       useUsersBatchQuery,
+  useUpdateOneUserMutation:   useUpdateUserMutation,
+  useDeleteOneUserMutation:   useDeleteUserMutation,
+  useDeleteManyUserMutation:  useDeleteUsersBatchMutation,
+} = usersApi as any;
+
+export {
+  useCreateUserMutation,
+  useUserQuery,
+  useUsersBatchQuery,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useDeleteUsersBatchMutation,
+};

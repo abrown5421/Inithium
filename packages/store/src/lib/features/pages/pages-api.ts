@@ -4,13 +4,11 @@ import { Page } from '@inithium/types';
 
 export type { Page };
 
+const crudEndpoints = createCrudEndpoints<Page, Omit<Page, '_id'>, Partial<Omit<Page, '_id'>>>('pages', 'Page');
+
 export const pagesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    ...createCrudEndpoints<Page, Omit<Page, '_id'>, Partial<Omit<Page, '_id'>>>(
-      'pages',
-      'Page',
-    )(builder),
-
+    ...crudEndpoints(builder),
     readAllPages: builder.query<Page[], void>({
       query: () => '/pages',
       providesTags: ['Page'],
@@ -19,14 +17,22 @@ export const pagesApi = baseApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const {
-  // Standard CRUD
-  useCreateOneMutation:   useCreatePageMutation,
-  useReadOneQuery:        usePageQuery,
-  useReadManyQuery:       usePagesBatchQuery,
-  useUpdateOneMutation:   useUpdatePageMutation,
-  useDeleteOneMutation:   useDeletePageMutation,
-  useDeleteManyMutation:  useDeletePagesBatchMutation,
-  // Router-specific
+const {
+  useCreatePageMutation,
+  useReadOnePageQuery:        usePageQuery,
+  useReadManyPageQuery:       usePagesBatchQuery,
+  useUpdateOnePageMutation:   useUpdatePageMutation,
+  useDeleteOnePageMutation:   useDeletePageMutation,
+  useDeleteManyPageMutation:  useDeletePagesBatchMutation,
   useReadAllPagesQuery,
-} = pagesApi;
+} = pagesApi as any;
+
+export {
+  useCreatePageMutation,
+  usePageQuery,
+  usePagesBatchQuery,
+  useUpdatePageMutation,
+  useDeletePageMutation,
+  useDeletePagesBatchMutation,
+  useReadAllPagesQuery,
+};
