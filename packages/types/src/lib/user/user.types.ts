@@ -1,4 +1,4 @@
-import { AvatarOptions } from "./avatar.types.js";
+import { AvatarProps } from "./avatar.types.js";
 import { TrianglifyOptions } from "./banner.types.js";
 
 export type GenderSelection = 'Male' | 'Female' | 'Prefer Not to Say' | 'Other';
@@ -23,7 +23,7 @@ export interface User {
     last_name: string;
     role: 'super-admin' | 'admin' | 'editor' | 'writer' | 'user'; 
     user_banner?: TrianglifyOptions;
-    user_avatar?: AvatarOptions;
+    user_avatar?: Omit<AvatarProps, 'onClick' | 'className'>;
     bio?: string;
     gender?: Gender; 
     phone_number?: string;
