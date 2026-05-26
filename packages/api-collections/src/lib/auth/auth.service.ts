@@ -13,6 +13,7 @@ const buildDefaultAvatar = (firstName: string, lastName: string) => ({
   size: 'md' as const,
   status: 'offline' as const,
   shape: 'circle' as const,
+  background: 'linear-gradient(135deg, #0f5066, #e2e8f0)',
 });
 
 const buildDefaultBanner = () => ({

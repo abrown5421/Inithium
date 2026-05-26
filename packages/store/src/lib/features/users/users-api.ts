@@ -15,6 +15,7 @@ export const usersApi = baseApi.injectEndpoints({
 const {
   useCreateUserMutation,
   useReadOneUserQuery:        useUserQuery,
+  useLazyReadOneUserQuery:    useLazyUserQuery,
   useReadManyUserQuery:       useUsersBatchQuery,
   useUpdateOneUserMutation:   useUpdateUserMutation,
   useDeleteOneUserMutation:   useDeleteUserMutation,
@@ -24,6 +25,7 @@ const {
 export {
   useCreateUserMutation,
   useUserQuery,
+  useLazyUserQuery,
   useUsersBatchQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,

@@ -1,13 +1,17 @@
 import React, { useRef, useEffect } from 'react';
 import { Box, Button } from '../../components';
-import { NavigationLink } from '@inithium/router';
 import { AnimationController } from '@inithium/types';
 import { NavbarSlideoutProps } from './navbar.types';
-import { useSelector } from 'react-redux';
-import { selectActiveUser } from '@inithium/store';
 
-const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages, isOpen, onClose }) => {
-  const activeUser = useSelector(selectActiveUser);
+const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({
+  mainPages,
+  profilePages,
+  isOpen,
+  onClose,
+  activeUser,
+  renderLink,
+  onLogout,
+}) => {
   const controllerRef = useRef<AnimationController>({
     phase: 'idle',
     triggerExit: () => Promise.resolve(),
@@ -29,6 +33,12 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
   const handleLinkClick = async () => {
     await controllerRef.current.triggerExit();
     onClose();
+  };
+
+  const handleLogout = async () => {
+    await controllerRef.current.triggerExit();
+    onClose();
+    onLogout?.();
   };
 
   if (!isOpen) return null;
@@ -54,7 +64,7 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
       >
         <Box flex justify="end" padding="sm" className="h-[56px] shrink-0">
           <Button
-            icon="xIcon"
+            icon="x"
             color="primary"
             variant="ghost"
             size="md"
@@ -70,12 +80,10 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
             }
             return (
               <div key={page.key} onClick={handleLinkClick}>
-                <NavigationLink
-                  pageKey={page.key}
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150"
-                >
-                  {page.navigation!.label}
-                </NavigationLink>
+                {renderLink(
+                  page,
+                  'block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150',
+                )}
               </div>
             );
           })}
@@ -94,21 +102,17 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
                         rounded
                         fullWidth
                       >
-                        <NavigationLink pageKey={page.key}>
-                          {page.navigation!.label}
-                        </NavigationLink>
+                        {renderLink(page)}
                       </Button>
                     </div>
                   );
                 }
                 return (
                   <div key={page.key} onClick={handleLinkClick}>
-                    <NavigationLink
-                      pageKey={page.key}
-                      className="block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150"
-                    >
-                      {page.navigation!.label}
-                    </NavigationLink>
+                    {renderLink(
+                      page,
+                      'block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150',
+                    )}
                   </div>
                 );
               })}
@@ -116,9 +120,9 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
           )}
         </Box>
 
-        {!activeUser && (
-          <Box padding="sm" className="shrink-0">
-            {mainPages
+        <Box padding="sm" className="shrink-0">
+          {!activeUser && (
+            mainPages
               .filter((page) => page.navigation?.isButton)
               .map((page) => (
                 <div key={page.key} onClick={handleLinkClick}>
@@ -129,14 +133,25 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages
                     rounded
                     fullWidth
                   >
-                    <NavigationLink pageKey={page.key}>
-                      {page.navigation!.label}
-                    </NavigationLink>
+                    {renderLink(page)}
                   </Button>
                 </div>
-              ))}
-          </Box>
-        )}
+              ))
+          )}
+
+          {activeUser && (
+            <Button
+              color="danger"
+              variant="solid"
+              size="sm"
+              rounded
+              fullWidth
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          )}
+        </Box>
       </Box>
     </div>
   );

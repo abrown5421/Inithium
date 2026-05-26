@@ -22,12 +22,13 @@ const genderSchema = new Schema(
 
 const avatarPropsSchema = new Schema(
   {
-    src:    { type: String },
-    alt:    { type: String },
-    fallback: { type: String },
-    size:   { type: String, enum: ['sm', 'md', 'lg', 'xl'] },
-    status: { type: String, enum: ['online', 'offline', 'away', 'busy'] },
-    shape:  { type: String, enum: ['circle', 'square'] },
+    src:        { type: String },
+    alt:        { type: String },
+    fallback:   { type: String },
+    size:       { type: String, enum: ['sm', 'md', 'lg', 'xl'] },
+    status:     { type: String, enum: ['online', 'offline', 'away', 'busy'] },
+    shape:      { type: String, enum: ['circle', 'square'] },
+    background: { type: String },
   },
   { _id: false }
 );

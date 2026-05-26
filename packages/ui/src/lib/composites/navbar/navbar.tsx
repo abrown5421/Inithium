@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { Box, Button } from '../../components';
 import NavSlot from './nav-slot';
 import LogoSlot from './logo-slot';
-import { selectActiveUser } from '@inithium/store';
-import { useSelector } from 'react-redux';
 import UserSlot from './user-slot';
 import NavbarSlideout from './navbar-slideout';
-import type { Page } from '@inithium/types';
+import { NavbarProps } from './navbar.types';
 
-interface NavbarProps {
-  pages: Page[];
-  profilePages: Page[];
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ pages, profilePages }) => {
-  const activeUser = useSelector(selectActiveUser);
+export const Navbar: React.FC<NavbarProps> = ({
+  pages,
+  profilePages,
+  activeUser,
+  renderLink,
+  onLogout,
+}) => {
   const [slideoutOpen, setSlideoutOpen] = useState(false);
 
   const openSlideout = () => setSlideoutOpen(true);
@@ -27,13 +25,13 @@ export const Navbar: React.FC<NavbarProps> = ({ pages, profilePages }) => {
 
         <Box flex direction="row" align="center">
           <Box className="hidden lg:flex">
-            <NavSlot pages={pages} />
+            <NavSlot pages={pages} renderLink={renderLink} />
           </Box>
 
           <Box className="flex lg:hidden">
             {activeUser ? (
               <Box padding="sm" className="h-[56px]" flex align="center">
-                <UserSlot onAvatarClick={openSlideout} />
+                <UserSlot activeUser={activeUser} onAvatarClick={openSlideout} />
               </Box>
             ) : (
               <Button
@@ -48,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({ pages, profilePages }) => {
           </Box>
 
           <Box className="hidden lg:flex">
-            {activeUser && <UserSlot />}
+            {activeUser && <UserSlot activeUser={activeUser} />}
           </Box>
         </Box>
       </Box>
@@ -58,6 +56,9 @@ export const Navbar: React.FC<NavbarProps> = ({ pages, profilePages }) => {
         profilePages={profilePages}
         isOpen={slideoutOpen}
         onClose={closeSlideout}
+        activeUser={activeUser}
+        renderLink={renderLink}
+        onLogout={onLogout}
       />
     </>
   );

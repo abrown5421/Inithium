@@ -20,12 +20,13 @@ const GenderSchema = z.discriminatedUnion('type', [
 ]);
 
 const AvatarPropsSchema = z.object({
-  src:      z.string().url().optional().or(z.literal('')),
-  alt:      z.string().optional(),
-  fallback: z.string().optional(),
-  size:     z.enum(['sm', 'md', 'lg', 'xl']).default('md'),
-  status:   z.enum(['online', 'offline', 'away', 'busy']).default('offline'),
-  shape:    z.enum(['circle', 'square']).default('circle'),
+  src:        z.string().url().optional().or(z.literal('')),
+  alt:        z.string().optional(),
+  fallback:   z.string().optional(),
+  size:       z.enum(['sm', 'md', 'lg', 'xl']).default('md'),
+  status:     z.enum(['online', 'offline', 'away', 'busy']).default('offline'),
+  shape:      z.enum(['circle', 'square']).default('circle'),
+  background: z.string().optional(),
 });
 
 const TrianglifyOptionsSchema = z.object({
