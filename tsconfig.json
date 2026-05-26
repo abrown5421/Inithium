@@ -35,6 +35,9 @@
     },
     {
       "path": "./packages/router"
+    },
+    {
+      "path": "./packages/utils"
     }
   ]
 }
