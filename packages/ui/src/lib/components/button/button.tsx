@@ -12,9 +12,14 @@ function resolveIcon(name: string): React.ElementType | null {
     .replace(/^(.)/, (_, c: string) => c.toUpperCase());
 
   const candidate = (LucideIcons as Record<string, unknown>)[pascal];
-  return typeof candidate === 'function'
-    ? (candidate as React.ElementType)
-    : null;
+
+  if (candidate === null || candidate === undefined) return null;
+  if (typeof candidate === 'function') return candidate as React.ElementType;
+  if (typeof candidate === 'object' && '$$typeof' in (candidate as object)) {
+    return candidate as React.ElementType;
+  }
+
+  return null;
 }
 
 const variantStyles: Record<VariantKey, (color: ColorKey) => string> = {
@@ -67,7 +72,6 @@ function buildClasses(
   extra: string,
   overrideClassName?: string,
 ): string {
-
   if (overrideClassName !== undefined) {
     return [BASE, overrideClassName].filter(Boolean).join(' ').trim();
   }
@@ -136,7 +140,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <HeadlessButton
       className={resolvedClassName}
-      style={style} 
+      style={style}
       onClick={onClick}
       {...props}
     >

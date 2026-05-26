@@ -1,0 +1,145 @@
+import React, { useRef, useEffect } from 'react';
+import { Box, Button } from '../../components';
+import { NavigationLink } from '@inithium/router';
+import { AnimationController } from '@inithium/types';
+import { NavbarSlideoutProps } from './navbar.types';
+import { useSelector } from 'react-redux';
+import { selectActiveUser } from '@inithium/store';
+
+const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({ mainPages, profilePages, isOpen, onClose }) => {
+  const activeUser = useSelector(selectActiveUser);
+  const controllerRef = useRef<AnimationController>({
+    phase: 'idle',
+    triggerExit: () => Promise.resolve(),
+    triggerEnter: () => {},
+    reset: () => {},
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      controllerRef.current.triggerEnter();
+    }
+  }, [isOpen]);
+
+  const handleClose = async () => {
+    await controllerRef.current.triggerExit();
+    onClose();
+  };
+
+  const handleLinkClick = async () => {
+    await controllerRef.current.triggerExit();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+      <Box
+        color="surface2"
+        flex
+        direction="col"
+        className="relative z-10 w-72 h-full shadow-xl"
+        animation={{
+          entry: 'slideInRight',
+          exit: 'slideOutRight',
+          entrySpeed: 'faster',
+          exitSpeed: 'faster',
+          controller: controllerRef.current,
+        }}
+      >
+        <Box flex justify="end" padding="sm" className="h-[56px] shrink-0">
+          <Button
+            icon="xIcon"
+            color="primary"
+            variant="ghost"
+            size="md"
+            rounded
+            onClick={handleClose}
+          />
+        </Box>
+
+        <Box flex direction="col" padding="sm" className="flex-1 overflow-y-auto">
+          {mainPages.map((page) => {
+            if (page.navigation?.isButton) {
+              return null;
+            }
+            return (
+              <div key={page.key} onClick={handleLinkClick}>
+                <NavigationLink
+                  pageKey={page.key}
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150"
+                >
+                  {page.navigation!.label}
+                </NavigationLink>
+              </div>
+            );
+          })}
+
+          {activeUser && profilePages.length > 0 && (
+            <>
+              <Box className="my-2 border-t border-surface3" />
+              {profilePages.map((page) => {
+                if (page.navigation?.isButton) {
+                  return (
+                    <div key={page.key} onClick={handleLinkClick} className="mt-1">
+                      <Button
+                        color="primary"
+                        variant="solid"
+                        size="sm"
+                        rounded
+                        fullWidth
+                      >
+                        <NavigationLink pageKey={page.key}>
+                          {page.navigation!.label}
+                        </NavigationLink>
+                      </Button>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={page.key} onClick={handleLinkClick}>
+                    <NavigationLink
+                      pageKey={page.key}
+                      className="block px-3 py-2 rounded-md text-sm font-medium text-surface2-contrast hover:text-accent transition-colors duration-150"
+                    >
+                      {page.navigation!.label}
+                    </NavigationLink>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </Box>
+
+        {!activeUser && (
+          <Box padding="sm" className="shrink-0">
+            {mainPages
+              .filter((page) => page.navigation?.isButton)
+              .map((page) => (
+                <div key={page.key} onClick={handleLinkClick}>
+                  <Button
+                    color="primary"
+                    variant="solid"
+                    size="sm"
+                    rounded
+                    fullWidth
+                  >
+                    <NavigationLink pageKey={page.key}>
+                      {page.navigation!.label}
+                    </NavigationLink>
+                  </Button>
+                </div>
+              ))}
+          </Box>
+        )}
+      </Box>
+    </div>
+  );
+};
+
+export default NavbarSlideout;
