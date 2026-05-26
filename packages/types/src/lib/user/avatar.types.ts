@@ -1,15 +1,26 @@
-import { HTMLAttributes } from "react";
+export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
+export type AvatarStatus = 'online' | 'offline' | 'away' | 'busy';
+export type AvatarShape = 'circle' | 'square';
 
-export interface AvatarOptions {
-  gradient?: string;
-  variant?: 'square' | 'circular';
+export interface AvatarProps {
+  src?: string;
+  alt?: string;
+  fallback?: string;
+  size?: AvatarSize;
+  status?: AvatarStatus;
+  shape?: AvatarShape;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  className?: string;
 }
 
-export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
+export interface AvatarFallbackProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+export interface AvatarImageProps {
   src?: string;
-  initials?: string;
-  large?: boolean;
   alt?: string;
-  options?: AvatarOptions;
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  onLoadingStatusChange?: (status: 'loading' | 'loaded' | 'error') => void;
+  className?: string;
 }
