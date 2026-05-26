@@ -1,14 +1,9 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { selectActiveUser } from '@inithium/store';
 import { Box } from '../../components';
 import { Avatar, AvatarImage, AvatarFallback } from '../avatar';
 import { UserSlotProps } from './navbar.types';
 
-
-const UserSlot: React.FC<UserSlotProps> = ({ onAvatarClick }) => {
-  const activeUser = useSelector(selectActiveUser);
-
+const UserSlot: React.FC<UserSlotProps> = ({ activeUser, onAvatarClick }) => {
   const renderAvatar = (avatar: NonNullable<NonNullable<typeof activeUser>['user_avatar']>) => (
     <Avatar
       src={avatar.src}

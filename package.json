@@ -55,6 +55,7 @@
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.2",
     "react": "^19.0.0",

@@ -1,14 +1,22 @@
-import { TransitionRouter } from '@inithium/router';
+import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
 import { Box, Navbar, Text } from '@inithium/ui';
 import React, { useMemo } from 'react';
-import { useReadAllPagesQuery } from '@inithium/store';
-import { selectActiveUser } from '@inithium/store';
+import {
+  useReadAllPagesQuery,
+  selectActiveUser,
+  useAuthBootstrap,
+  useLogoutMutation,
+} from '@inithium/store';
 import { useSelector } from 'react-redux';
 import type { Page } from '@inithium/types';
 
 const App: React.FC = () => {
+  useAuthBootstrap();
+
   const { data, isLoading, error } = useReadAllPagesQuery();
   const activeUser = useSelector(selectActiveUser);
+  const [logout] = useLogoutMutation();
+  const { navigateToKey } = useNavigation();
 
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];
@@ -26,6 +34,17 @@ const App: React.FC = () => {
       .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
   }, [data, activeUser]);
 
+  const renderLink = (page: Page, className?: string) => (
+    <NavigationLink pageKey={page.key} className={className}>
+      {page.navigation!.label}
+    </NavigationLink>
+  );
+
+  const handleLogout = async () => {
+    await logout();
+    navigateToKey('login');
+  };
+
   return (
     <Box color="surface-contrast" className="h-screen w-screen">
       {isLoading ? (
@@ -38,7 +57,13 @@ const App: React.FC = () => {
         </Box>
       ) : (
         <Box>
-          <Navbar pages={mainNavPages} profilePages={profileNavPages} />
+          <Navbar
+            pages={mainNavPages}
+            profilePages={profileNavPages}
+            activeUser={activeUser}
+            renderLink={renderLink}
+            onLogout={handleLogout}
+          />
           <TransitionRouter />
         </Box>
       )}
