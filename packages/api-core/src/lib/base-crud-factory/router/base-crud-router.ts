@@ -29,6 +29,24 @@ export const createCrudRouter = <T>(
 ): Router => {
   const router = Router();
 
+  router.post(
+    '/batch-read',
+    asyncHandler(async (req: Request, res: Response): Promise<void> => {
+      const { ids } = req.body as { ids: readonly string[] };
+      const records = await service.readMany(ids || []);
+      res.status(200).json(records);
+    })
+  );
+
+  router.post(
+    '/batch-delete',
+    asyncHandler(async (req: Request, res: Response): Promise<void> => {
+      const { ids } = req.body as { ids: readonly string[] };
+      const outcome = await service.deleteMany(ids || []);
+      res.status(200).json(outcome);
+    })
+  );
+
   router.get(
     '/',
     asyncHandler(async (_req: Request, res: Response): Promise<void> => {
@@ -58,15 +76,6 @@ export const createCrudRouter = <T>(
     })
   );
 
-  router.post(
-    '/batch-read',
-    asyncHandler(async (req: Request, res: Response): Promise<void> => {
-      const { ids } = req.body as { ids: readonly string[] };
-      const records = await service.readMany(ids || []);
-      res.status(200).json(records);
-    })
-  );
-
   router.put(
     '/:id',
     ...(hooks.onUpdate ? [validate(hooks.onUpdate)] : []),
@@ -89,15 +98,6 @@ export const createCrudRouter = <T>(
         return;
       }
       res.status(200).json(record);
-    })
-  );
-
-  router.post(
-    '/batch-delete',
-    asyncHandler(async (req: Request, res: Response): Promise<void> => {
-      const { ids } = req.body as { ids: readonly string[] };
-      const outcome = await service.deleteMany(ids || []);
-      res.status(200).json(outcome);
     })
   );
 

@@ -6,6 +6,22 @@ import type { SignupDto } from './auth.validators.js';
 
 const SALT_ROUNDS = 12;
 
+const buildDefaultAvatar = (firstName: string, lastName: string) => ({
+  src: '',
+  alt: `${firstName} ${lastName}`,
+  fallback: `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`,
+  size: 'md' as const,
+  status: 'offline' as const,
+  shape: 'circle' as const,
+});
+
+const buildDefaultBanner = () => ({
+  variance: 0.75,
+  cell_size: 40,
+  x_colors: ['#0f5066', '#115e7a', '#1e293b'],
+  y_colors: ['#1e293b', '#64748b', '#e2e8f0'],
+});
+
 export const authService = {
 
   async signup(dto: SignupDto): Promise<AuthTokens> {
@@ -16,7 +32,18 @@ export const authService = {
 
     const hashed = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
-    const created = await UserModel.create([{ ...dto, password: hashed }]);
+    const userPayload = {
+      ...dto,
+      password: hashed,
+      user_avatar: dto.user_avatar && Object.keys(dto.user_avatar).length > 0
+        ? dto.user_avatar 
+        : buildDefaultAvatar(dto.first_name, dto.last_name),
+      user_banner: dto.user_banner && Object.keys(dto.user_banner).length > 0
+        ? dto.user_banner
+        : buildDefaultBanner(),
+    };
+
+    const created = await UserModel.create([userPayload]);
     const user = created[0].toObject();
 
     return signTokens({

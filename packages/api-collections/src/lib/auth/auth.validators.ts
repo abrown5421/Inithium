@@ -1,5 +1,40 @@
 import { z } from 'zod';
 
+const AddressSchema = z.object({
+  street:  z.string().optional(),
+  city:    z.string().optional(),
+  state:   z.string().optional(),
+  zip:     z.string().optional(),
+  country: z.string().optional(),
+});
+
+const GenderSchema = z.discriminatedUnion('type', [
+  z.object({
+    type:   z.enum(['Male', 'Female', 'Prefer Not to Say']),
+    custom: z.never().optional(),
+  }),
+  z.object({
+    type:   z.literal('Other'),
+    custom: z.string().min(1),
+  }),
+]);
+
+const AvatarPropsSchema = z.object({
+  src:      z.string().url().optional().or(z.literal('')),
+  alt:      z.string().optional(),
+  fallback: z.string().optional(),
+  size:     z.enum(['sm', 'md', 'lg', 'xl']).default('md'),
+  status:   z.enum(['online', 'offline', 'away', 'busy']).default('offline'),
+  shape:    z.enum(['circle', 'square']).default('circle'),
+});
+
+const TrianglifyOptionsSchema = z.object({
+  variance:  z.number().default(0.75),
+  cell_size: z.number().default(40),
+  x_colors:  z.union([z.string(), z.array(z.string())]).default('random'),
+  y_colors:  z.union([z.string(), z.array(z.string())]).default('random'),
+});
+
 export const LoginSchema = z.object({
   email:    z.string().email(),
   password: z.string().min(1),
@@ -11,13 +46,13 @@ export const SignupSchema = z.object({
   first_name:   z.string().min(1),
   last_name:    z.string().min(1),
   role:         z.enum(['super-admin', 'admin', 'editor', 'writer', 'user']).default('user'),
-  user_banner:  z.any().optional(),
-  user_avatar:  z.any().optional(),
-  bio:          z.string().optional(),
-  gender:       z.any().optional(),
-  phone_number: z.string().optional(),
-  dob:          z.string().optional(),
-  address:      z.any().optional(),
+  user_banner:  TrianglifyOptionsSchema.partial().default({}),
+  user_avatar:  AvatarPropsSchema.partial().default({}),
+  bio:          z.string().default(''),
+  gender:       GenderSchema.optional(),
+  phone_number: z.string().default(''),
+  dob:          z.string().default(''),
+  address:      AddressSchema.default({}),
   dark_mode:    z.boolean().default(false),
 });
 
@@ -25,6 +60,6 @@ export const RefreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-export type LoginDto    = z.infer<typeof LoginSchema>;
-export type SignupDto   = z.infer<typeof SignupSchema>;
-export type RefreshDto  = z.infer<typeof RefreshSchema>;
+export type LoginDto   = z.infer<typeof LoginSchema>;
+export type SignupDto  = z.infer<typeof SignupSchema>;
+export type RefreshDto = z.infer<typeof RefreshSchema>;
