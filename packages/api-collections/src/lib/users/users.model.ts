@@ -20,10 +20,14 @@ const genderSchema = new Schema(
   { _id: false }
 );
 
-const avatarOptionsSchema = new Schema(
+const avatarPropsSchema = new Schema(
   {
-    gradient: { type: String },
-    variant:  { type: String, enum: ['square', 'circular'] },
+    src:    { type: String },
+    alt:    { type: String },
+    fallback: { type: String },
+    size:   { type: String, enum: ['sm', 'md', 'lg', 'xl'] },
+    status: { type: String, enum: ['online', 'offline', 'away', 'busy'] },
+    shape:  { type: String, enum: ['circle', 'square'] },
   },
   { _id: false }
 );
@@ -46,7 +50,7 @@ const userSchema = new Schema<User>(
     last_name:    { type: String, required: true, trim: true },
     role:         { type: String, enum: ['super-admin', 'admin', 'editor', 'writer', 'user'], required: true, default: 'user' },
     user_banner:  { type: trianglifyOptionsSchema },
-    user_avatar:  { type: avatarOptionsSchema },
+    user_avatar:  { type: avatarPropsSchema },
     bio:          { type: String },
     gender:       { type: genderSchema },
     phone_number: { type: String },

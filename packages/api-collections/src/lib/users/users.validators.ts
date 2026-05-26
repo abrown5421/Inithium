@@ -20,9 +20,13 @@ const GenderSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
-const AvatarOptionsSchema = z.object({
-  gradient: z.string().optional(),
-  variant:  z.enum(['square', 'circular']).optional(),
+const AvatarPropsSchema = z.object({
+  src:      z.string().url().optional().or(z.literal('')),
+  alt:      z.string().optional(),
+  fallback: z.string().optional(),
+  size:     z.enum(['sm', 'md', 'lg', 'xl']).optional(),
+  status:   z.enum(['online', 'offline', 'away', 'busy']).optional(),
+  shape:    z.enum(['circle', 'square']).optional(),
 });
 
 const TrianglifyOptionsSchema = z.object({
@@ -39,7 +43,7 @@ export const CreateUserSchema = z.object({
   last_name:    z.string().min(1),
   role:         z.enum(['super-admin', 'admin', 'editor', 'writer', 'user']).default('user'),
   user_banner:  TrianglifyOptionsSchema.optional(),
-  user_avatar:  AvatarOptionsSchema.optional(),
+  user_avatar:  AvatarPropsSchema.optional(),
   bio:          z.string().optional(),
   gender:       GenderSchema.optional(),
   phone_number: z.string().optional(),
