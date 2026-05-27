@@ -32,7 +32,6 @@ const App: React.FC = () => {
     if (!data) return [];
     return [...data]
       .filter((page) => page.navigation?.location === 'profile')
-      .filter((page) => activeUser ? !page.navigation?.anonymous : !page.navigation?.authenticated)
       .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
   }, [data, activeUser]);
 

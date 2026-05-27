@@ -9,6 +9,7 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Page } from '@inithium/types';
 import { useReadAllPagesQuery } from '@inithium/store';
 import { navigationService } from '../navigation/navigation-service';
+import { useRouteGuard } from '../hooks/use-route-guard';
 import AnimatedPage, { AnimatedPageHandle } from './animated-page';
 import { Box } from '@inithium/ui';
 import { Text } from '@inithium/ui';
@@ -30,6 +31,9 @@ const TransitionRouter: React.FC = () => {
       navigationService.setPages(pages);
     }
   }, [pages]);
+
+  // Redirect users who navigate directly to a URL they're not permitted to access.
+  useRouteGuard(pages, location.pathname);
 
   useEffect(() => {
     if (!pages) return;
