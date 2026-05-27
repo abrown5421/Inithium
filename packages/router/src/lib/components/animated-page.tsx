@@ -11,10 +11,10 @@ import { Box } from '@inithium/ui';
 import { Text } from '@inithium/ui';
 
 const speedClassMap: Record<string, string> = {
-  slow:   'animate__slow',
-  slower: 'animate__slower',
-  fast:   'animate__fast',
-  faster: 'animate__faster',
+  slow:    'animate__slow',
+  slower:  'animate__slower',
+  fast:    'animate__fast',
+  faster:  'animate__faster',
 };
 
 export interface AnimatedPageHandle {
@@ -24,6 +24,20 @@ export interface AnimatedPageHandle {
 interface AnimatedPageProps {
   page: Page;
 }
+
+const resolveBaseClasses = (page: Page): string =>
+  [
+    'h-m-nav',
+    page.bg ? `bg-${page.bg}` : '',
+    page.color ? `text-${page.color}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+const resolveLayoutProps = (page: Page) => ({
+  className: resolveBaseClasses(page),
+  ...(page.centered && { flex: true, align: 'center' as const, justify: 'center' as const }),
+});
 
 const AnimatedPage = forwardRef<AnimatedPageHandle, AnimatedPageProps>(
   ({ page }, ref) => {
@@ -76,11 +90,7 @@ const AnimatedPage = forwardRef<AnimatedPageHandle, AnimatedPageProps>(
     }, [page]);
 
     const PageComponent = resolvePageComponent(page.componentKey);
-
-    const layoutProps = {
-      className: `h-m-nav ${page.bg && 'bg-' + page.bg}`,
-      ...(page.centered && { flex: true, align: 'center' as const, justify: 'center' as const }),
-    };
+    const layoutProps = resolveLayoutProps(page);
 
     if (!PageComponent) {
       return (

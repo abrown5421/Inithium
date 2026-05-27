@@ -2,15 +2,18 @@ import React from 'react';
 import { Box } from '../../components';
 import { Avatar, AvatarImage, AvatarFallback } from '../avatar';
 import { UserSlotProps } from './navbar.types';
+import { useUserStatus } from '@inithium/store';
 
 const UserSlot: React.FC<UserSlotProps> = ({ activeUser, onAvatarClick }) => {
+  const status = useUserStatus();
+
   const renderAvatar = (avatar: NonNullable<NonNullable<typeof activeUser>['user_avatar']>) => (
     <Avatar
       src={avatar.src}
       alt={avatar.alt}
       fallback={avatar.fallback}
       size={avatar.size}
-      status={avatar.status}
+      status={status}
       shape={avatar.shape}
       background={avatar.background}
       onClick={onAvatarClick}
@@ -23,7 +26,7 @@ const UserSlot: React.FC<UserSlotProps> = ({ activeUser, onAvatarClick }) => {
   if (!activeUser || !activeUser.user_avatar) {
     return (
       <Box flex align="center" padding="sm" className="h-[56px] w-full">
-        <Avatar size="md" shape="circle" status="offline" onClick={onAvatarClick}>
+        <Avatar size="md" shape="circle" status={status} onClick={onAvatarClick}>
           <AvatarFallback>??</AvatarFallback>
         </Avatar>
       </Box>
