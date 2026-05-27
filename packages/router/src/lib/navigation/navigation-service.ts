@@ -50,13 +50,15 @@ class NavigationService {
     this._navigate(path);
   }
 
-  async navigateToKey(key: string): Promise<void> {
-    const page = this._pagesByKey.get(key);
-    if (!page) {
-      console.warn(`[NavigationService] No page found for key "${key}"`);
-      return;
-    }
-    return this.navigate(page.path);
+  async navigateToKey(key: string, params?: Record<string, string>): Promise<void> {
+    const page = this.getPageByKey(key);
+    if (!page) return Promise.resolve();
+    
+    const resolvedPath = params
+      ? page.path.replace(/:([^/]+)/g, (_, token) => params[token] ?? `:${token}`)
+      : page.path;
+
+    return this.navigate(resolvedPath);
   }
 
   getPageByPath(path: string): Page | undefined {

@@ -1,7 +1,7 @@
 import React from 'react';
 
-const Documentation: React.FC = () => {
-  return <div>Documentation</div>
+const DocumentationPage: React.FC = () => {
+  return <div>DocumentationPage</div>
 };
 
-export default Documentation
+export default DocumentationPage

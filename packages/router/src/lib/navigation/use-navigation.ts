@@ -6,8 +6,8 @@ export function useNavigation() {
     return navigationService.navigate(path);
   }, []);
 
-  const navigateToKey = useCallback((key: string) => {
-    return navigationService.navigateToKey(key);
+  const navigateToKey = useCallback((key: string, params?: Record<string, string>) => {
+    return navigationService.navigateToKey(key, params);
   }, []);
 
   const getPageByPath = useCallback((path: string) => {
