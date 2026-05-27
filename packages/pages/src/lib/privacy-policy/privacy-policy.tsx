@@ -1,7 +1,7 @@
 import React from 'react';
 
-const PrivacyPolicy: React.FC = () => {
-  return <div>PrivacyPolicy</div>
+const PrivacyPolicyPage: React.FC = () => {
+  return <div>PrivacyPolicyPage</div>
 };
 
-export default PrivacyPolicy
+export default PrivacyPolicyPage

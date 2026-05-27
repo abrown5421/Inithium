@@ -1,7 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { Box, Button } from '../../components';
+import { Box, Button, Text } from '../../components';
 import { AnimationController } from '@inithium/types';
 import { NavbarSlideoutProps } from './navbar.types';
+import { getGreeting } from '@inithium/utils';
 
 const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({
   mainPages,
@@ -62,13 +63,14 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({
           controller: controllerRef.current,
         }}
       >
-        <Box flex justify="end" padding="sm" className="h-[56px] shrink-0">
+        <Box flex justify="between" align="center" padding="sm" className="h-[56px] shrink-0">
+          <Text variant="h5" color="primary">{getGreeting()}</Text>
           <Button
             icon="x"
             color="primary"
             variant="ghost"
             size="md"
-            rounded
+            rounded={false}
             onClick={handleClose}
           />
         </Box>

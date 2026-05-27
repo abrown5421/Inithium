@@ -1,6 +1,6 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
 import { Box, Navbar, Text } from '@inithium/ui';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
   selectActiveUser,
@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
 
+  useEffect(() => console.log(data), [data])
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];
     return [...data]
@@ -34,11 +35,14 @@ const App: React.FC = () => {
       .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
   }, [data, activeUser]);
 
-  const renderLink = (page: Page, className?: string) => (
-    <NavigationLink pageKey={page.key} className={className}>
-      {page.navigation!.label}
-    </NavigationLink>
-  );
+  const renderLink = (page: Page, className?: string) => {
+    const params = activeUser?._id ? { id: activeUser._id } : undefined;
+    return (
+      <NavigationLink pageKey={page.key} params={params} className={className}>
+        {page.navigation!.label}
+      </NavigationLink>
+    );
+  };
 
   const handleLogout = async () => {
     await logout();

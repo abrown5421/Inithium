@@ -4,6 +4,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { matchPath } from 'react-router-dom'; 
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Page } from '@inithium/types';
 import { useReadAllPagesQuery } from '@inithium/store';
@@ -32,7 +33,8 @@ const TransitionRouter: React.FC = () => {
 
   useEffect(() => {
     if (!pages) return;
-    const match = pages.find((p: Page) => p.path === location.pathname) ?? null;
+    const match =
+      pages.find((p: Page) => matchPath({ path: p.path, end: true }, location.pathname)) ?? null;
     setCurrentPage(match);
   }, [location.pathname, pages]);
 

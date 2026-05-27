@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 color="primary"
                 variant="ghost"
                 size="md"
-                rounded
+                rounded={false}
                 onClick={openSlideout}
               />
             )}
