@@ -1,5 +1,5 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text } from '@inithium/ui';
+import { Box, Navbar, Text, Loader } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
@@ -18,7 +18,8 @@ const App: React.FC = () => {
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
 
-  useEffect(() => console.log(data), [data])
+  useEffect(() => console.log(data), [data]);
+
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];
     return [...data]
@@ -53,7 +54,7 @@ const App: React.FC = () => {
     <Box color="surface-contrast" className="h-screen w-screen">
       {isLoading ? (
         <Box flex justify="center" align="center" className="h-full w-full">
-          <Text color="primary">Loading..</Text>
+          <Loader variant="spinner" size="lg" color="primary" />
         </Box>
       ) : error ? (
         <Box flex justify="center" align="center" className="h-full w-full">
