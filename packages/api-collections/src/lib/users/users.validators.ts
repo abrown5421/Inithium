@@ -25,7 +25,7 @@ const AvatarPropsSchema = z.object({
   alt:        z.string().optional(),
   fallback:   z.string().optional(),
   size:       z.enum(['sm', 'md', 'lg', 'xl']).optional(),
-  status:     z.enum(['online', 'offline', 'away', 'busy']).optional(),
+  status:     z.enum(['online', 'offline', 'away']).optional(),
   shape:      z.enum(['circle', 'square']).optional(),
   background: z.string().optional(),
 });

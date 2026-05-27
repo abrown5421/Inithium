@@ -18,7 +18,6 @@ const statusColorMap = {
   online: 'bg-[var(--color-success)] border-[var(--color-surface)]',
   offline: 'bg-[var(--color-surface4)] border-[var(--color-surface)]',
   away: 'bg-[var(--color-warning)] border-[var(--color-surface)]',
-  busy: 'bg-[var(--color-danger)] border-[var(--color-surface)]'
 };
 
 const statusSizeMap = {
@@ -67,9 +66,9 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
 
   return (
     <AvatarContext.Provider value={{ size, shape, hasImageLoaded, setHasImageLoaded, hasBackground: !!background }}>
-      <div 
-        className={containerClasses} 
-        style={background ? { background: background } : undefined} 
+      <div
+        className={containerClasses}
+        style={background ? { background: background } : undefined}
         onClick={onClick}
       >
         {children}

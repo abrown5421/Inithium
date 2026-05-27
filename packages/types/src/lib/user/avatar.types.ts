@@ -1,7 +1,7 @@
 import type { MouseEvent, ReactNode } from "react";
 
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
-export type AvatarStatus = 'online' | 'offline' | 'away' | 'busy';
+export type AvatarStatus = 'online' | 'offline' | 'away';
 export type AvatarShape = 'circle' | 'square';
 
 export interface AvatarProps {

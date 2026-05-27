@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from 'react-redux';
-import { setActiveUser, clearActiveUser } from '../features/active-user/active-user-slice';
+import { setActiveUser, clearActiveUser, setBootstrappingComplete } from '../features/active-user/active-user-slice';
 import { useRefreshMutation } from '../features/auth/auth-api';
 import { AppDispatch } from '../../store';
 import { useLazyUserQuery } from '../features/users/users-api';
@@ -45,9 +45,15 @@ export const useAuthBootstrap = () => {
 
       if (expiresInMs < EXPIRY_THRESHOLD_MS) {
         const refreshed = await attemptRefresh();
-        if (!refreshed) return;
+        if (!refreshed) {
+          dispatch(setBootstrappingComplete());
+          return;
+        }
         const newToken = localStorage.getItem('auth_token');
-        if (!newToken) return;
+        if (!newToken) {
+          dispatch(setBootstrappingComplete());
+          return;
+        }
         return bootstrapUser(newToken);
       }
 
@@ -79,10 +85,12 @@ export const useAuthBootstrap = () => {
     const token = localStorage.getItem('auth_token');
     if (token) {
       bootstrapUser(token);
+    } else {
+      dispatch(setBootstrappingComplete());
     }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
-};
+};  
