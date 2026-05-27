@@ -12,6 +12,7 @@ const UserSlot: React.FC<UserSlotProps> = ({ activeUser, onAvatarClick }) => {
       size={avatar.size}
       status={avatar.status}
       shape={avatar.shape}
+      background={avatar.background}
       onClick={onAvatarClick}
     >
       {avatar.src && <AvatarImage src={avatar.src} alt={avatar.alt} />}

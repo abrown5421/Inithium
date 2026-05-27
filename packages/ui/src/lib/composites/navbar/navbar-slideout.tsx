@@ -44,6 +44,8 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({
 
   if (!isOpen) return null;
 
+  const hasVisibleMainLinks = mainPages.some((page) => !page.navigation?.isButton);
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div
@@ -92,7 +94,7 @@ const NavbarSlideout: React.FC<NavbarSlideoutProps> = ({
 
           {activeUser && profilePages.length > 0 && (
             <>
-              <Box className="my-2 border-t border-surface3" />
+              {hasVisibleMainLinks && <Box className="my-2 border-t border-surface3" />}
               {profilePages.map((page) => {
                 if (page.navigation?.isButton) {
                   return (
