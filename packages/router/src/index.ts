@@ -5,6 +5,7 @@ export type { AnimatedPageHandle }      from './lib/components/animated-page';
 
 export { navigationService }            from './lib/navigation/navigation-service';
 export { useNavigation }                from './lib/navigation/use-navigation';
+export { useRouteGuard }                from './lib/hooks/use-route-guard';
 
 export {
   bootstrapRegistry,
