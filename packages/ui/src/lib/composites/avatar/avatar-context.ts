@@ -5,6 +5,7 @@ export interface AvatarContextProps {
   shape: 'circle' | 'square';
   hasImageLoaded: boolean;
   setHasImageLoaded: (loaded: boolean) => void;
+  hasBackground: boolean;
 }
 
 export const AvatarContext = React.createContext<AvatarContextProps | undefined>(undefined);

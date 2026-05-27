@@ -31,7 +31,7 @@ const statusSizeMap = {
 export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
   src,
   alt,
-  fallback,
+  background,
   size = 'md',
   status,
   shape = 'circle',
@@ -47,7 +47,6 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
     'items-center',
     'justify-center',
     'select-none',
-    'bg-[var(--color-surface3)]',
     'text-[var(--color-primary)]',
     'font-semibold',
     'transition-all',
@@ -67,8 +66,12 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
   ].filter(Boolean).join(' ') : '';
 
   return (
-    <AvatarContext.Provider value={{ size, shape, hasImageLoaded, setHasImageLoaded }}>
-      <div className={containerClasses} onClick={onClick}>
+    <AvatarContext.Provider value={{ size, shape, hasImageLoaded, setHasImageLoaded, hasBackground: !!background }}>
+      <div 
+        className={containerClasses} 
+        style={background ? { background: background } : undefined} 
+        onClick={onClick}
+      >
         {children}
         {status && <span className={statusClasses} aria-hidden="true" />}
       </div>

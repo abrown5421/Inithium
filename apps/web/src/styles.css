@@ -8,3 +8,7 @@
 .h-m-nav {
   height: calc(100vh - 56px);
 }
+
+::-webkit-scrollbar {
+    display: none;
+}

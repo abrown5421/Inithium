@@ -11,7 +11,7 @@ export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
   children,
   className = ''
 }) => {
-  const { hasImageLoaded, shape } = useAvatarContext();
+  const { hasImageLoaded, shape, hasBackground } = useAvatarContext();
 
   if (hasImageLoaded) return null;
 
@@ -23,9 +23,10 @@ export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
     'justify-center',
     'uppercase',
     'tracking-wider',
-    'bg-gradient-to-br',
-    'from-[var(--color-surface3)]',
-    'to-[var(--color-surface4)]',
+    // Only apply default bg when there's no custom gradient on the parent
+    !hasBackground && 'bg-gradient-to-br',
+    !hasBackground && 'from-[var(--color-surface3)]',
+    !hasBackground && 'to-[var(--color-surface4)]',
     'text-[var(--color-primary)]',
     shapeMap[shape],
     className

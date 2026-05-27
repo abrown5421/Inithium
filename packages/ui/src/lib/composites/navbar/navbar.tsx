@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button } from '../../components';
 import NavSlot from './nav-slot';
 import LogoSlot from './logo-slot';
@@ -14,9 +14,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
 }) => {
   const [slideoutOpen, setSlideoutOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth >= 1024
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handler = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches);
+    mq.addEventListener('change', handler);
+    setIsLargeScreen(mq.matches);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const openSlideout = () => setSlideoutOpen(true);
   const closeSlideout = () => setSlideoutOpen(false);
+
+  const showMainLinksInSlideout = !isLargeScreen;
 
   return (
     <>
@@ -46,13 +59,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Box>
 
           <Box className="hidden lg:flex">
-            {activeUser && <UserSlot activeUser={activeUser} />}
+            {activeUser && (
+              <UserSlot activeUser={activeUser} onAvatarClick={openSlideout} />
+            )}
           </Box>
         </Box>
       </Box>
 
       <NavbarSlideout
-        mainPages={pages}
+        mainPages={showMainLinksInSlideout ? pages : []}
         profilePages={profilePages}
         isOpen={slideoutOpen}
         onClose={closeSlideout}
