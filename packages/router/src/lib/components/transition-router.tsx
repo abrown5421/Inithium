@@ -7,6 +7,7 @@ import React, {
 import { matchPath } from 'react-router-dom'; 
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Page } from '@inithium/types';
+import { PageNotFound } from'@inithium/pages'
 import { useReadAllPagesQuery } from '@inithium/store';
 import { navigationService } from '../navigation/navigation-service';
 import { useRouteGuard } from '../hooks/use-route-guard';
@@ -31,8 +32,7 @@ const TransitionRouter: React.FC = () => {
       navigationService.setPages(pages);
     }
   }, [pages]);
-
-  // Redirect users who navigate directly to a URL they're not permitted to access.
+  
   useRouteGuard(pages, location.pathname);
 
   useEffect(() => {
@@ -113,16 +113,7 @@ const TransitionRouter: React.FC = () => {
       <Route
         path="*"
         element={
-          <Box flex align="center" justify="center" fullWidth fullHeight className="h-screen">
-            <Box flex direction="col" align="center">
-              <Text variant="h2" overrideClassName="inline-block text-4xl leading-tight tracking-tight font-bold text-primary opacity-20">
-                404
-              </Text>
-              <Text variant="body2" overrideClassName="inline-block text-sm leading-relaxed font-normal text-primary mt-2 opacity-40">
-                Page not found
-              </Text>
-            </Box>
-          </Box>
+          <PageNotFound />
         }
       />
     </Routes>
