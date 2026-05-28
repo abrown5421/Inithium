@@ -53,7 +53,7 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
     'ease-out',
     sizeMap[size],
     shapeMap[shape],
-    onClick ? 'cursor-pointer hover:scale-105 hover:shadow-lg hover:ring-2 hover:ring-[var(--color-accent)] active:scale-95 active:duration-75' : '',
+    onClick ? 'cursor-pointer hover:scale-105' : '',
     className
   ].filter(Boolean).join(' ');
 

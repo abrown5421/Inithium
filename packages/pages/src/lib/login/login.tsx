@@ -9,7 +9,6 @@ import { useDispatch } from 'react-redux';
 import { useLoginMutation, useUserQuery } from '@inithium/store';
 import { decodeJwt } from '@inithium/utils';
 import { setActiveUser } from '@inithium/store';
-import { useNavigation } from '@inithium/router';
 
 interface LoginFormValues {
   email: string;
@@ -23,7 +22,6 @@ interface LoginFormErrors {
 
 const Login: React.FC = () => {
   const dispatch = useDispatch();
-  const { navigateToKey } = useNavigation();
   const [login, { isLoading }] = useLoginMutation();
 
   const [values, setValues] = useState<LoginFormValues>({ email: '', password: '' });
@@ -62,7 +60,6 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (fetchedUser) {
       dispatch(setActiveUser(fetchedUser));
-      navigateToKey('dashboard');
     }
   }, [fetchedUser]);
 

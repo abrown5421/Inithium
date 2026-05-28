@@ -1,6 +1,16 @@
+// packages/store/src/lib/base/base-api.ts
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { clearActiveUser } from '../features/active-user/active-user-slice';
+
+// Each app sets VITE_LOGIN_PATH in its own .env — defaults to /auth/login
+const getLoginPath = (): string => {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env['VITE_LOGIN_PATH'] ?? '/auth/login';
+  }
+  return '/auth/login';
+};
 
 const getApiBaseUrl = (): string => {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -56,12 +66,12 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
         api.dispatch(clearActiveUser());
-        window.location.href = '/auth/login';
+        window.location.href = getLoginPath(); // ← was hardcoded
       }
     } else {
       localStorage.removeItem('auth_token');
       api.dispatch(clearActiveUser());
-      window.location.href = '/auth/login';
+      window.location.href = getLoginPath(); // ← was hardcoded
     }
   }
 

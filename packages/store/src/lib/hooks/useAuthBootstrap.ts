@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from 'react-redux';
-import { setActiveUser, clearActiveUser, setBootstrappingComplete } from '../features/active-user/active-user-slice';
+import {
+  setActiveUser,
+  clearActiveUser,
+  setBootstrappingComplete,
+} from '../features/active-user/active-user-slice';
 import { useRefreshMutation } from '../features/auth/auth-api';
 import { AppDispatch } from '../../store';
-import { useLazyUserQuery } from '../features/users/users-api';
 
 interface AccessTokenPayload {
   sub: string;
@@ -16,10 +19,25 @@ interface AccessTokenPayload {
 const REFRESH_INTERVAL_MS = 14 * 60 * 1000;
 const EXPIRY_THRESHOLD_MS = 60 * 1000;
 
+const getApiBaseUrl = (): string => {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const origin = import.meta.env['API_ORIGIN'] || import.meta.env['VITE_PUBLIC_API_URL'];
+    return origin ? `${origin}/api` : 'http://localhost:3000/api';
+  }
+  return 'http://localhost:3000/api';
+};
+
+const fetchUserById = async (id: string, token: string) => {
+  const res = await fetch(`${getApiBaseUrl()}/users/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch user: ${res.status}`);
+  return res.json();
+};
+
 export const useAuthBootstrap = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [refresh] = useRefreshMutation();
-  const [fetchUser] = useLazyUserQuery();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const attemptRefresh = async (): Promise<boolean> => {
@@ -33,7 +51,6 @@ export const useAuthBootstrap = () => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
       dispatch(clearActiveUser());
-      window.location.href = '/auth/login';
       return false;
     }
   };
@@ -57,7 +74,7 @@ export const useAuthBootstrap = () => {
         return bootstrapUser(newToken);
       }
 
-      const user = await fetchUser(payload.sub).unwrap();
+      const user = await fetchUserById(payload.sub, token);
       dispatch(setActiveUser(user));
 
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -74,10 +91,12 @@ export const useAuthBootstrap = () => {
         }
       }, REFRESH_INTERVAL_MS);
 
-    } catch {
+    } catch (e) {
+      console.error('[useAuthBootstrap] failed:', e);
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
       dispatch(clearActiveUser());
+      dispatch(setBootstrappingComplete());
     }
   };
 
@@ -93,4 +112,4 @@ export const useAuthBootstrap = () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
-};  
+};

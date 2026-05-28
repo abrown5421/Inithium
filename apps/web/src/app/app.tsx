@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
 
-  useEffect(() => console.log(data), [data]);
+  useEffect(() => console.log(activeUser), [activeUser]);
 
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];

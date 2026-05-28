@@ -9,7 +9,6 @@ import { useDispatch } from 'react-redux';
 import { SignupDto, useSignupMutation, useUserQuery } from '@inithium/store';
 import { decodeJwt } from '@inithium/utils';
 import { setActiveUser } from '@inithium/store';
-import { useNavigation } from '@inithium/router';
 
 interface SignUpFormValues {
   firstName: string;
@@ -57,7 +56,6 @@ const toggleBtnStyle: React.CSSProperties = {
 
 const SignUp: React.FC = () => {
   const dispatch = useDispatch();
-  const { navigateToKey } = useNavigation();
   const [signup, { isLoading }] = useSignupMutation();
 
   const [values, setValues] = useState<SignUpFormValues>({
@@ -75,7 +73,6 @@ const SignUp: React.FC = () => {
   useEffect(() => {
     if (fetchedUser) {
       dispatch(setActiveUser(fetchedUser));
-      navigateToKey('dashboard');
     }
   }, [fetchedUser]);
 
