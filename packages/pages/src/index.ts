@@ -5,3 +5,4 @@ export * from './lib/sign-up/index';
 export * from './lib/privacy-policy/index';
 export * from './lib/settings/index'
 export * from './lib/profile/index'
+export * from './lib/page-not-found/index';
