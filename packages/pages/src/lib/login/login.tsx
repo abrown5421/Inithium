@@ -6,7 +6,7 @@ import { Text } from '@inithium/ui';
 import { Box } from '@inithium/ui';
 import { NavigationLink } from '@inithium/router';
 import { useDispatch } from 'react-redux';
-import { useLoginMutation, useUserQuery } from '@inithium/store';
+import { useLoginMutation, useLogoutMutation, useUserQuery } from '@inithium/store';
 import { decodeJwt } from '@inithium/utils';
 import { setActiveUser } from '@inithium/store';
 
@@ -20,10 +20,15 @@ interface LoginFormErrors {
   password?: string;
 }
 
-const Login: React.FC = () => {
+interface LoginProps {
+  cmsMode?: boolean
+  restrictedRoles?: string[];
+}
+
+const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
-
+  const [logout] = useLogoutMutation();
   const [values, setValues] = useState<LoginFormValues>({ email: '', password: '' });
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
@@ -59,9 +64,16 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (fetchedUser) {
+      if (restrictedRoles.length > 0 && restrictedRoles.includes(fetchedUser.role)) {
+        logout();
+        setApiError('You do not have permission to access this area.');
+        setUserId(null);
+        return;
+      }
       dispatch(setActiveUser(fetchedUser));
     }
   }, [fetchedUser]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +110,8 @@ const Login: React.FC = () => {
         </Box>
 
         {apiError && (
-          <Box color="danger" borderRadius="md" padding="sm" style={{ width: '100%' }}>
-            <Text variant="caption" overrideClassName="text-xs text-danger">{apiError}</Text>
+          <Box color="danger" borderRadius="md" padding="sm" style={{ width: '100%', textAlign: 'center' }}>
+            <Text variant="caption" overrideClassName="text-xs text-danger-contrast text-center">{apiError}</Text>
           </Box>
         )}
 
@@ -136,13 +148,16 @@ const Login: React.FC = () => {
           </Button>
         </form>
 
-        <Box flex direction="row" align="center" style={{ width: '100%', gap: '12px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-          <Text variant="caption" overrideClassName="text-slate-400 text-xs">Don't have an account?</Text>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </Box>
-
-        <NavigationLink pageKey="sign-up" asButton className='text-primary hover:text-accent hover:cursor-pointer'>Create an account</NavigationLink>
+        {!cmsMode && (
+          <Box flex direction="row" align="center" style={{ width: '100%', gap: '12px' }}>
+            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+            <Text variant="caption" overrideClassName="text-slate-400 text-xs">Don't have an account?</Text>
+            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+          </Box>
+        )}
+        {!cmsMode && (
+          <NavigationLink pageKey="sign-up" asButton className='text-primary hover:text-accent hover:cursor-pointer'>Create an account</NavigationLink>
+        )}
       </Box>
     </Box>
   );
