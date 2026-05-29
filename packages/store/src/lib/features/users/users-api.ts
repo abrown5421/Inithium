@@ -8,7 +8,13 @@ export type UpdateUserDto = Partial<CreateUserDto>;
 const endpoints = createCrudEndpoints<User, CreateUserDto, UpdateUserDto>('users', 'User');
 
 export const usersApi = baseApi.injectEndpoints({
-  endpoints,
+  endpoints: (builder) => ({
+    ...endpoints(builder),
+    readAllUsers: builder.query<readonly User[], void>({
+      query: () => '/users',
+      providesTags: ['User'],
+    }),
+  }),
   overrideExisting: false,
 });
 
@@ -20,6 +26,7 @@ const {
   useUpdateOneUserMutation:   useUpdateUserMutation,
   useDeleteOneUserMutation:   useDeleteUserMutation,
   useDeleteManyUserMutation:  useDeleteUsersBatchMutation,
+  useReadAllUsersQuery,
 } = usersApi as any;
 
 export {
@@ -30,4 +37,5 @@ export {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useDeleteUsersBatchMutation,
+  useReadAllUsersQuery,
 };
