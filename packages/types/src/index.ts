@@ -1,3 +1,4 @@
+export * from './lib/alert/alert.types.js'
 export * from './lib/animations/animations.types.js'
 export * from './lib/assets/asset.types.js'
 export * from './lib/pages/pages.types.js'

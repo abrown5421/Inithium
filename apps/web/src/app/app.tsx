@@ -1,20 +1,25 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text, Loader } from '@inithium/ui';
+import { Box, Navbar, Text, Loader, Alert } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
   selectActiveUser,
   useAuthBootstrap,
   useLogoutMutation,
+  hideAlert,
+  clearAlert,
+  RootState,
 } from '@inithium/store';
-import { useSelector } from 'react-redux';
-import type { Page } from '@inithium/types';
+import { useSelector, useDispatch } from 'react-redux';
+import type { AlertPosition, Page } from '@inithium/types';
 
 const App: React.FC = () => {
   useAuthBootstrap();
+  const dispatch = useDispatch();
 
   const { data, isLoading, error } = useReadAllPagesQuery();
   const activeUser = useSelector(selectActiveUser);
+  const alertData = useSelector((state: RootState) => state.alert.current);
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
 
@@ -50,7 +55,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box color="surface-contrast" className="h-screen w-screen">
+    <Box color="surface-contrast" className="h-screen w-screen relative">
+      {alertData && (
+        <Alert
+          alertData={alertData}
+          onDismiss={() => dispatch(hideAlert())}
+          onExited={() => dispatch(clearAlert())}
+        />
+      )}
+
       {isLoading ? (
         <Box flex justify="center" align="center" className="h-full w-full">
           <Loader variant="spinner" size="lg" color="primary" />

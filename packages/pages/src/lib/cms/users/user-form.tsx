@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Box, Button, Input, Select, Text } from '@inithium/ui';
 import { User } from '@inithium/types';
-import { CreateUserDto, UpdateUserDto } from '@inithium/store';
+import { CreateUserDto, UpdateUserDto, showAlert } from '@inithium/store';
 
 type UserRole = 'super-admin' | 'admin' | 'editor' | 'writer' | 'user';
 
@@ -67,6 +68,8 @@ export const UserForm: React.FC<UserFormProps> = ({
   loggedInRole,
 }) => {
   const isEdit = Boolean(user);
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState<UserFormData>({
     first_name: user?.first_name ?? '',
     last_name: user?.last_name ?? '',
@@ -78,6 +81,26 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [validationErrors, setValidationErrors] = useState<FormErrors>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
+  // Surface database or server validation errors caught by parent container component
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showAlert({
+          message: error,
+          severity: 'danger',
+          closeable: true,
+          position: 'top-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+    }
+  }, [error, dispatch]);
+
   const isFieldDisabled = useMemo(() => {
     const rules = {
       first_name: false,
@@ -88,24 +111,20 @@ export const UserForm: React.FC<UserFormProps> = ({
     };
 
     if (loggedInRole === 'super-admin') return rules;
-
     if (loggedInRole === 'admin') {
       rules.role = true;
       return rules;
     }
-
     if (loggedInRole === 'editor') {
       rules.role = true;
       rules.password = true;
       return rules;
     }
-
     if (loggedInRole === 'writer' || loggedInRole === 'user') {
       rules.email = true;
       rules.password = true;
       rules.role = true;
     }
-
     return rules;
   }, [loggedInRole]);
 
@@ -131,7 +150,24 @@ export const UserForm: React.FC<UserFormProps> = ({
 
     const errs = validate(formData, isEdit);
     setValidationErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+
+    if (Object.keys(errs).length > 0) {
+      dispatch(
+        showAlert({
+          message: 'Please resolve the invalid form fields highlighted in red before submission.',
+          severity: 'danger',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+      return;
+    }
     
     const payload = isEdit && !formData.password
       ? (() => { const { password, ...rest } = formData; return rest; })()
@@ -143,12 +179,6 @@ export const UserForm: React.FC<UserFormProps> = ({
   return (
     <form onSubmit={handleSubmit} noValidate className="w-full">
       <Box flex direction="col" className="gap-2 py-2">
-        {error && (
-          <Text variant="caption" overrideClassName="text-xs text-danger font-medium text-center">
-            {error}
-          </Text>
-        )}
-
         <Box flex direction="col" className="gap-1">
           <Input
             label="First Name *"

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { Input } from '@inithium/ui';
-import { Button } from '@inithium/ui';
-import { Text } from '@inithium/ui';
-import { Box } from '@inithium/ui';
+import { Input, Button, Text, Box } from '@inithium/ui';
 import { NavigationLink } from '@inithium/router';
 import { useDispatch } from 'react-redux';
-import { SignupDto, useSignupMutation, useUserQuery } from '@inithium/store';
+import { SignupDto, useSignupMutation, useUserQuery, setActiveUser, showAlert } from '@inithium/store';
 import { decodeJwt } from '@inithium/utils';
-import { setActiveUser } from '@inithium/store';
 
 interface SignUpFormValues {
   firstName: string;
@@ -71,19 +67,36 @@ const SignUp: React.FC = () => {
   const { data: fetchedUser } = useUserQuery(userId!, { skip: !userId });
 
   useEffect(() => {
+    if (apiError) {
+      dispatch(
+        showAlert({
+          message: apiError,
+          severity: 'danger',
+          closeable: true,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+    }
+  }, [apiError, dispatch]);
+
+  useEffect(() => {
     if (fetchedUser) {
       dispatch(setActiveUser(fetchedUser));
     }
-  }, [fetchedUser]);
+  }, [fetchedUser, dispatch]);
 
-  const handleChange =
-    (field: keyof SignUpFormValues) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const updated = { ...values, [field]: e.target.value };
-      setValues(updated);
-      setApiError(null);
-      if (submitted) setErrors(validate(updated));
-    };
+  const handleChange = (field: keyof SignUpFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updated = { ...values, [field]: e.target.value };
+    setValues(updated);
+    setApiError(null);
+    if (submitted) setErrors(validate(updated));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +105,24 @@ const SignUp: React.FC = () => {
 
     const errs = validate(values);
     setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    
+    if (Object.keys(errs).length > 0) {
+      dispatch(
+        showAlert({
+          message: 'Please clear up form configuration rejections to complete account registration.',
+          severity: 'danger',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+      return;
+    }
 
     const signupPayload: SignupDto = {
       first_name: values.firstName,
@@ -122,12 +152,6 @@ const SignUp: React.FC = () => {
         <Box flex direction="col" align="center" style={{ gap: '6px', width: '100%' }}>
           <Text variant="h3" color="primary" decoration={{ bold: true }}>Signup</Text>
         </Box>
-
-        {apiError && (
-          <Box color="danger" borderRadius="md" padding="sm" style={{ width: '100%' }}>
-            <Text variant="caption" overrideClassName="text-xs text-danger">{apiError}</Text>
-          </Box>
-        )}
 
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
           <Box flex direction="row" style={{ gap: '12px', width: '100%' }}>

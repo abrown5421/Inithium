@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Checkbox, Loader, Pagination, Text, Dialog } from '@inithium/ui';
 import { 
   useReadAllUsersQuery, 
@@ -7,7 +7,8 @@ import {
   useUpdateUserMutation, 
   useDeleteUserMutation, 
   useDeleteUsersBatchMutation,
-  selectActiveUser
+  selectActiveUser,
+  showAlert
 } from '@inithium/store';
 import { User } from '@inithium/types';
 import { UserItem } from './user-item';
@@ -43,6 +44,7 @@ const filterUsers = (query: string) => (users: readonly User[]): readonly User[]
 };
 
 const CmsUsersPage: React.FC = () => {
+  const dispatch = useDispatch();
   const loggedInUser = useSelector(selectActiveUser);
   const loggedInRole = loggedInUser?.role ?? 'user';
 
@@ -118,6 +120,21 @@ const CmsUsersPage: React.FC = () => {
       }
       setIsFormOpen(false);
       setActiveUser(undefined);
+
+      dispatch(
+        showAlert({
+          message: activeUser ? 'Account profiles saved successfully.' : 'New management operator created successfully.',
+          severity: 'success',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
     } catch (err: any) {
       const msg = err?.data?.message ?? err?.error ?? 'An unexpected validation rejection occurred.';
       setApiError(typeof msg === 'string' ? msg : JSON.stringify(msg));
@@ -276,7 +293,7 @@ const CmsUsersPage: React.FC = () => {
         open={isFormOpen}
         onClose={handleFormClose}
         title={activeUser ? `Modify Account: ${activeUser.first_name}` : 'Register New Manager Account'}
-        size="sm"
+        size="xl"
         variant="default"
         backdrop={true}
         transition={true}
@@ -297,7 +314,7 @@ const CmsUsersPage: React.FC = () => {
         open={Boolean(deleteContext)}
         onClose={() => setDeleteContext(null)}
         title="Confirm Destructive Action"
-        size="sm"
+        size="xl"
         variant="alert"
         backdrop={true}
         transition={true}

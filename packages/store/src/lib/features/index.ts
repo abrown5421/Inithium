@@ -1,4 +1,5 @@
 export * from './active-user/active-user-slice'
+export * from './alert/alert-slice'
 export * from './assets/assets-api'
 export * from './auth/auth-api'
 export * from './pages/pages-api'
