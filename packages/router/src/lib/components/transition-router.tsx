@@ -7,13 +7,13 @@ import React, {
 import { matchPath } from 'react-router-dom'; 
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Page } from '@inithium/types';
-import { PageNotFound } from'@inithium/pages'
 import { useReadAllPagesQuery } from '@inithium/store';
 import { navigationService } from '../navigation/navigation-service';
 import { useRouteGuard } from '../hooks/use-route-guard';
 import AnimatedPage, { AnimatedPageHandle } from './animated-page';
 import { Box } from '@inithium/ui';
 import { Text } from '@inithium/ui';
+import PageNotFound from './page-not-found';
 
 const TransitionRouter: React.FC = () => {
   const navigate = useNavigate();
