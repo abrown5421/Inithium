@@ -9,7 +9,7 @@ import {
 } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '../button/button';
-import { DialogAction, DialogDrawerPosition, DialogProps, DialogSize, DialogVariant } from './dialogue.types';
+import { DialogAction, DialogDrawerPosition, DialogProps, DialogSize, DialogVariant } from './dialog.types';
 
 const sizeStyles: Record<DialogSize, string> = {
   sm:   'w-full max-w-sm',
