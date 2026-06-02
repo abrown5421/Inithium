@@ -87,7 +87,7 @@ const labelColorStyles: Record<ColorKey, string> = {
   'accent-contrast': 'peer-focus:text-accent-contrast peer-:not(:placeholder-shown):text-accent-contrast data-[floating=true]:text-accent-contrast',
   'success-contrast': 'peer-focus:text-success-contrast peer-:not(:placeholder-shown):text-success-contrast data-[floating=true]:text-success-contrast',
   'warning-contrast': 'peer-focus:text-warning-contrast peer-:not(:placeholder-shown):text-warning-contrast data-[floating=true]:text-warning-contrast',
-  'danger-contrast': 'peer-focus:text-danger-contrast peer-:not(:placeholder-shown):text-danger-contrast data-[floating=true]:text-danger-contrast',
+  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast text-slate-900',
   'surface-contrast': 'peer-focus:text-surface-contrast peer-:not(:placeholder-shown):text-surface-contrast data-[floating=true]:text-surface-contrast',
   'surface2-contrast': 'peer-focus:text-surface2-contrast peer-:not(:placeholder-shown):text-surface2-contrast data-[floating=true]:text-surface2-contrast',
   'surface3-contrast': 'peer-focus:text-surface3-contrast peer-:not(:placeholder-shown):text-surface3-contrast data-[floating=true]:text-surface3-contrast',
@@ -136,6 +136,7 @@ export const Input: React.FC<InputProps> = ({
   id,
   value,
   defaultValue,
+  disabled,
   ...props
 }) => {
   const generatedId = React.useId();
@@ -159,8 +160,12 @@ export const Input: React.FC<InputProps> = ({
 
   const isFloating = String(internalValue).length > 0;
 
+  const disabledStyles = disabled 
+    ? 'bg-slate-100! text-slate-400! border-slate-200! cursor-not-allowed select-none' 
+    : '';
+
   const builtInputClasses = overrideClassName
-    ? [INPUT_BASE, overrideClassName].filter(Boolean).join(' ')
+    ? [INPUT_BASE, overrideClassName, disabledStyles].filter(Boolean).join(' ')
     : [
         INPUT_BASE,
         currentSize.input,
@@ -169,6 +174,7 @@ export const Input: React.FC<InputProps> = ({
         rounded && variant !== 'standard' ? 'rounded-md' : 'rounded-none',
         leadingIcon ? currentSize.leadingIconSpacer : '',
         trailingIcon ? 'pr-10' : '',
+        disabledStyles,
         typeof className === 'string' ? className : '',
       ]
         .filter(Boolean)
@@ -188,6 +194,7 @@ export const Input: React.FC<InputProps> = ({
         CONTAINER_BASE,
         currentSize.container,
         fullWidth ? 'w-full' : 'w-72',
+        disabled ? 'cursor-not-allowed' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -195,7 +202,7 @@ export const Input: React.FC<InputProps> = ({
     >
       {leadingIcon && (
         <span 
-          className="absolute flex items-center pointer-events-none text-slate-400 transition-colors peer-focus:text-slate-600 z-10"
+          className={`absolute flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}
           style={{ left: variant === 'standard' ? '0px' : '12px' }}
         >
           <SafeIcon name={leadingIcon} size={currentSize.iconSize} />
@@ -209,6 +216,7 @@ export const Input: React.FC<InputProps> = ({
         defaultValue={defaultValue}
         className={builtInputClasses}
         onChange={handleInputChange}
+        disabled={disabled}
         {...props}
       />
 
@@ -220,7 +228,7 @@ export const Input: React.FC<InputProps> = ({
           ANIMATION_STATE_CLASSES,
           labelPlacementClasses,
           shiftedLabelPadding,
-          labelColorStyles[color],
+          disabled ? 'peer-focus:text-slate-400! data-[floating=true]:text-slate-400!' : labelColorStyles[color],
         ]
           .filter(Boolean)
           .join(' ')}
@@ -229,7 +237,7 @@ export const Input: React.FC<InputProps> = ({
       </label>
 
       {trailingIcon && (
-        <span className="absolute right-3 flex items-center pointer-events-none text-slate-400 transition-colors peer-focus:text-slate-600 z-10">
+        <span className={`absolute right-3 flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}>
           <SafeIcon name={trailingIcon} size={currentSize.iconSize} />
         </span>
       )}

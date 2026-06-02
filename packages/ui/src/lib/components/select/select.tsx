@@ -126,6 +126,7 @@ export const Select: React.FC<SelectProps> = ({
   id,
   value,
   defaultValue = '',
+  disabled,
   ...props
 }) => {
   const generatedId = React.useId();
@@ -152,8 +153,12 @@ export const Select: React.FC<SelectProps> = ({
     if (onChange) onChange(e);
   };
 
+  const disabledStyles = disabled
+    ? 'bg-slate-100! text-slate-400! border-slate-200! cursor-not-allowed select-none'
+    : '';
+
   const builtSelectClasses = overrideClassName
-    ? [SELECT_BASE, overrideClassName].filter(Boolean).join(' ')
+    ? [SELECT_BASE, overrideClassName, disabledStyles].filter(Boolean).join(' ')
     : [
         SELECT_BASE,
         currentSize.select,
@@ -161,6 +166,7 @@ export const Select: React.FC<SelectProps> = ({
         focusColorStyles[color],
         rounded && variant !== 'standard' ? 'rounded-md' : 'rounded-none',
         leadingIcon ? currentSize.leadingIconSpacer : '',
+        disabledStyles,
         typeof className === 'string' ? className : '',
       ]
         .filter(Boolean)
@@ -182,6 +188,7 @@ export const Select: React.FC<SelectProps> = ({
         CONTAINER_BASE,
         currentSize.container,
         fullWidth ? 'w-full' : 'w-72',
+        disabled ? 'cursor-not-allowed' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -189,7 +196,7 @@ export const Select: React.FC<SelectProps> = ({
     >
       {leadingIcon && (
         <span 
-          className="absolute flex items-center pointer-events-none text-slate-400 transition-colors peer-focus:text-slate-600 z-10"
+          className={`absolute flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}
           style={{ left: variant === 'standard' ? '0px' : '12px' }}
         >
           <SafeIcon name={leadingIcon} size={currentSize.iconSize} />
@@ -203,6 +210,7 @@ export const Select: React.FC<SelectProps> = ({
         value={value}
         defaultValue={defaultValue}
         data-has-value={hasValue ? 'true' : undefined}
+        disabled={disabled}
         {...props}
       >
         <option value="" disabled hidden>
@@ -222,7 +230,7 @@ export const Select: React.FC<SelectProps> = ({
           hasValue ? 'top-0.5 scale-85' : 'peer-focus:top-0.5 peer-focus:scale-85',
           labelPlacementClasses,
           shiftedLabelPadding,
-          labelColorStyles[color],
+          disabled ? 'peer-focus:text-slate-400!' : labelColorStyles[color],
         ]
           .filter(Boolean)
           .join(' ')}
@@ -230,7 +238,7 @@ export const Select: React.FC<SelectProps> = ({
         {label}
       </label>
 
-      <span className="absolute right-3 flex items-center pointer-events-none text-slate-400 transition-colors peer-focus:text-slate-600 z-10">
+      <span className={`absolute right-3 flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}>
         <SafeIcon name="chevron-down" size={currentSize.iconSize} />
       </span>
     </div>
