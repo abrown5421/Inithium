@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { Input } from '@inithium/ui';
-import { Button } from '@inithium/ui';
-import { Text } from '@inithium/ui';
-import { Box } from '@inithium/ui';
+import { Input, Button, Text, Box } from '@inithium/ui';
 import { NavigationLink } from '@inithium/router';
 import { useDispatch } from 'react-redux';
-import { useLoginMutation, useLogoutMutation, useUserQuery } from '@inithium/store';
+import { useLoginMutation, useLogoutMutation, useUserQuery, setActiveUser, showAlert } from '@inithium/store';
 import { decodeJwt } from '@inithium/utils';
-import { setActiveUser } from '@inithium/store';
 
 interface LoginFormValues {
   email: string;
@@ -21,7 +17,7 @@ interface LoginFormErrors {
 }
 
 interface LoginProps {
-  cmsMode?: boolean
+  cmsMode?: boolean;
   restrictedRoles?: string[];
 }
 
@@ -51,16 +47,33 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
     return errs;
   };
 
-  const handleChange =
-    (field: keyof LoginFormValues) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const updated = { ...values, [field]: (e.target as HTMLInputElement).value };
-      setValues(updated);
-      setApiError(null);
-      if (submitted) {
-        setErrors(validate(updated));
-      }
-    };
+  const handleChange = (field: keyof LoginFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updated = { ...values, [field]: e.target.value };
+    setValues(updated);
+    setApiError(null);
+    if (submitted) {
+      setErrors(validate(updated));
+    }
+  };
+
+  useEffect(() => {
+    if (apiError) {
+      dispatch(
+        showAlert({
+          message: apiError,
+          severity: 'danger',
+          closeable: true,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+    }
+  }, [apiError, dispatch]);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -72,8 +85,7 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
       }
       dispatch(setActiveUser(fetchedUser));
     }
-  }, [fetchedUser]);
-
+  }, [fetchedUser, restrictedRoles, logout, dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +94,24 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
 
     const errs = validate(values);
     setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    
+    if (Object.keys(errs).length > 0) {
+      dispatch(
+        showAlert({
+          message: 'Please complete all required fields correctly before signing in.',
+          severity: 'danger',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+        })
+      );
+      return;
+    }
 
     try {
       const { accessToken } = await login({ email: values.email, password: values.password }).unwrap();
@@ -108,12 +137,6 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
         <Box flex direction="col" align="center" style={{ gap: '6px', width: '100%' }}>
           <Text variant="h3" color="primary" decoration={{ bold: true }}>Login</Text>
         </Box>
-
-        {apiError && (
-          <Box color="danger" borderRadius="md" padding="sm" style={{ width: '100%', textAlign: 'center' }}>
-            <Text variant="caption" overrideClassName="text-xs text-danger-contrast text-center">{apiError}</Text>
-          </Box>
-        )}
 
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
           <Box flex direction="col" style={{ gap: '4px', width: '100%' }}>
