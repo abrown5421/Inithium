@@ -59,6 +59,7 @@
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.2",
     "react": "^19.0.0",
+    "react-colorful": "^5.7.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.3.0",
     "react-router-dom": "6.30.3",
