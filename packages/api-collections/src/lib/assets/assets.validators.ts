@@ -11,6 +11,8 @@ export const CreateAssetSchema = z.object({
   storage_key:     z.string().min(1),
   category:        AssetCategorySchema,
   is_system_asset: z.boolean().default(false),
+  owner_type:      z.enum(['app', 'user']).default('app'),
+  owner_id:        z.string().nullable().default(null),
 }) satisfies z.ZodType<Omit<Asset, '_id' | 'createdAt' | 'updatedAt'>>;
 
 export const UpdateAssetSchema = CreateAssetSchema.partial();

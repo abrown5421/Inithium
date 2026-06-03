@@ -9,12 +9,14 @@ export type FileCategory =
 export type StorageKey = string;
 
 export interface UploadToken {
-  uploadId:     string;
-  storageKey:   StorageKey;
-  mimeType:     string;
+  uploadId: string;
+  storageKey: StorageKey;
+  mimeType: string;
   originalName: string;
-  size:         number;
-  expiresAt:    number;
+  size: number;
+  expiresAt: number;
+  ownerType: 'app' | 'user';
+  ownerId: string | null; 
 }
 
 export interface FileMetadata {
@@ -24,6 +26,8 @@ export interface FileMetadata {
   originalName: string;
   sizeBytes:    number;
   absolutePath: string;
+  ownerType:    'app' | 'user';
+  ownerId:      string | null; 
 }
 
 export interface AdapterResult<T> {

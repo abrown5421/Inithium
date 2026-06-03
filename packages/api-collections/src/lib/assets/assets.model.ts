@@ -12,6 +12,8 @@ const assetSchema = new Schema<Asset>(
     storage_key:     { type: String, required: true, unique: true, trim: true },
     category:        { type: String, enum: assetCategoryValues, required: true },
     is_system_asset: { type: Boolean, required: true, default: false },
+    owner_type:      { type: String, enum: ['app', 'user'], required: true, default: 'app' },
+    owner_id:        { type: String, default: null },
   },
   { timestamps: true }
 );

@@ -12,41 +12,41 @@ export const TOKEN_TTL_MS = 15 * 60 * 1_000;
 export const PRESIGNED_PATH_PREFIX = '/presigned';
 
 const MIME_TO_CATEGORY: Record<string, FileCategory> = {
-  'image/jpeg':    'images',
-  'image/png':     'images',
-  'image/gif':     'images',
-  'image/webp':    'images',
+  'image/jpeg': 'images',
+  'image/png': 'images',
+  'image/gif': 'images',
+  'image/webp': 'images',
   'image/svg+xml': 'images',
-  'image/avif':    'images',
-  'image/bmp':     'images',
-  'image/tiff':    'images',
+  'image/avif': 'images',
+  'image/bmp': 'images',
+  'image/tiff': 'images',
 
-  'font/ttf':                   'fonts',
-  'font/otf':                   'fonts',
-  'font/woff':                  'fonts',
-  'font/woff2':                 'fonts',
-  'application/font-woff':      'fonts',
+  'font/ttf': 'fonts',
+  'font/otf': 'fonts',
+  'font/woff':'fonts',
+  'font/woff2': 'fonts',
+  'application/font-woff':'fonts',
   'application/font-woff2':     'fonts',
   'application/x-font-ttf':     'fonts',
   'application/x-font-opentype':'fonts',
 
   'audio/mpeg': 'audio',
-  'audio/ogg':  'audio',
-  'audio/wav':  'audio',
+  'audio/ogg': 'audio',
+  'audio/wav': 'audio',
   'audio/webm': 'audio',
   'audio/flac': 'audio',
-  'audio/aac':  'audio',
+  'audio/aac': 'audio',
 
-  'video/mp4':  'videos',
+  'video/mp4': 'videos',
   'video/webm': 'videos',
-  'video/ogg':  'videos',
+  'video/ogg': 'videos',
 
-  'application/pdf':                                                       'documents',
-  'text/plain':                                                            'documents',
-  'application/msword':                                                    'documents',
+  'application/pdf': 'documents',
+  'text/plain':'documents',
+  'application/msword': 'documents',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'documents',
-  'application/vnd.ms-excel':                                              'documents',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':     'documents',
+  'application/vnd.ms-excel': 'documents',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'documents',
 };
 
 const FILE_CATEGORY_TO_SCHEMA: Record<FileCategory, string> = {
@@ -55,7 +55,7 @@ const FILE_CATEGORY_TO_SCHEMA: Record<FileCategory, string> = {
   audio:     'audio',
   videos:    'other',
   documents: 'document',
-  misc:      'other',
+  misc:'other',
 };
 
 export const resolveCategory = (mimeType: string): FileCategory =>
@@ -64,14 +64,38 @@ export const resolveCategory = (mimeType: string): FileCategory =>
 export const toSchemaCategory = (category: FileCategory): string =>
   FILE_CATEGORY_TO_SCHEMA[category];
 
-export const categoryDir = (category: FileCategory): string =>
-  path.join(ASSETS_ROOT, category);
+export const categoryDir = (
+  category:  FileCategory,
+  ownerType: 'app' | 'user',
+  ownerId:   string | null,
+): string => {
+  const ownerSegment = ownerType === 'user' && ownerId
+    ? path.join('user', ownerId)
+    : 'app';
+  return path.join(ASSETS_ROOT, category, ownerSegment);
+};
 
-export const trashDir = (category: FileCategory): string =>
-  path.join(TRASH_ROOT, category);
+export const trashDir = (
+  category:  FileCategory,
+  ownerType: 'app' | 'user',
+  ownerId:   string | null,
+): string => {
+  const ownerSegment = ownerType === 'user' && ownerId
+    ? path.join('user', ownerId)
+    : 'app';
+  return path.join(TRASH_ROOT, category, ownerSegment);
+};
 
-export const buildAbsolutePath = (category: FileCategory, storageKey: string): string =>
-  path.join(categoryDir(category), storageKey);
+export const buildAbsolutePath = (
+  category:  FileCategory,
+  storageKey: string,
+  ownerType: 'app' | 'user',
+  ownerId:   string | null,
+): string => path.join(categoryDir(category, ownerType, ownerId), storageKey);
 
-export const buildTrashPath = (category: FileCategory, storageKey: string): string =>
-  path.join(trashDir(category), storageKey);
+export const buildTrashPath = (
+  category:  FileCategory,
+  storageKey: string,
+  ownerType: 'app' | 'user',
+  ownerId:   string | null,
+): string => path.join(trashDir(category, ownerType, ownerId), storageKey);

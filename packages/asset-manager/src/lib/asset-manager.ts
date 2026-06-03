@@ -46,6 +46,8 @@ export const createAssetManager = async (
     originalName: string;
     size:         number;
     sizeBytes:    number;
+    ownerType:    'app' | 'user';  // ADD
+    ownerId:      string | null;   // ADD
   }): Promise<{ asset_id: string }> => {
     const category = resolveCategory(params.mimeType);
 
@@ -57,6 +59,8 @@ export const createAssetManager = async (
       storage_key:     params.storageKey,
       category:        toSchemaCategory(category),
       is_system_asset: false,
+      owner_type:      params.ownerType,  // now valid
+      owner_id:        params.ownerId,    // now valid
     });
 
     return { asset_id: String(created._id) };
@@ -66,9 +70,14 @@ export const createAssetManager = async (
     const record = await deps.assetsService.readOne(id);
     if (!record) return null;
     return {
-      absolutePath: resolveStoragePath(record.storage_key, record.mimetype),
-      mimeType:     record.mimetype,
-      storageKey:   record.storage_key,
+      absolutePath: resolveStoragePath(
+        record.storage_key,
+        record.mimetype,
+        record.owner_type,
+        record.owner_id,
+      ),
+      mimeType:   record.mimetype,
+      storageKey: record.storage_key,
     };
   };
 
@@ -76,9 +85,14 @@ export const createAssetManager = async (
     const record = await deps.assetsService.findOne({ storage_key: storageKey });
     if (!record) return null;
     return {
-      absolutePath: resolveStoragePath(record.storage_key, record.mimetype),
-      mimeType:     record.mimetype,
-      storageKey:   record.storage_key,
+      absolutePath: resolveStoragePath(
+        record.storage_key,
+        record.mimetype,
+        record.owner_type,
+        record.owner_id,
+      ),
+      mimeType:   record.mimetype,
+      storageKey: record.storage_key,
     };
   };
 

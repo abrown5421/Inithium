@@ -1,5 +1,7 @@
 export type AssetCategory = 'image' | 'font' | 'audio' | 'document' | 'other';
 
+export type AssetOwnerType = 'app' | 'user';
+
 export interface AssetBase {
   filename: string;
   original_name: string;
@@ -8,6 +10,8 @@ export interface AssetBase {
   storage_key: string;
   category: AssetCategory;
   is_system_asset: boolean;
+  owner_type: AssetOwnerType;
+  owner_id: string | null; 
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }
@@ -21,6 +25,8 @@ export interface AssetUploadIntent {
   mimetype: string;
   size: number;
   category: AssetCategory;
+  owner_type: AssetOwnerType;
+  owner_id: string | null;
 }
 
 export interface AssetUploadResponse {
