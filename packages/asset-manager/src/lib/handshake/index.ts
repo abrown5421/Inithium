@@ -12,27 +12,31 @@ type FinalizeAsset = (params: {
   originalName: string;
   size:         number;
   sizeBytes:    number;
+  ownerType:    'app' | 'user';
+  ownerId:      string | null;
 }) => Promise<{ asset_id: string }>;
 
 export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
   const router = Router();
 
-  router.post(
-    '/intent',
-    (req: Request, res: Response) => {
-      const { filename, mimeType, size } = req.body as {
-        filename: string;
-        mimeType: string;
-        size:     number;
-      };
+  router.post('/intent', (req, res) => {
+    const { filename, mimeType, size, ownerType, ownerId } = req.body;
 
-      if (!filename || !mimeType || !size) {
-        res.status(400).json({
-          error: 'filename, mimeType and size are required',
-          code:  'MISSING_FIELDS',
-        });
-        return;
-      }
+    if (!filename || !mimeType || !size || !ownerType) {
+      res.status(400).json({ error: '...', code: 'MISSING_FIELDS' });
+      return;
+    }
+
+    if (ownerType !== 'app' && ownerType !== 'user') {
+      res.status(400).json({ error: 'ownerType must be app or user', code: 'INVALID_OWNER_TYPE' });
+      return;
+    }
+
+    if (ownerType === 'user' && !ownerId) {
+      res.status(400).json({ error: 'ownerId required for user assets', code: 'MISSING_OWNER_ID' });
+      return;
+    }
+
 
       const uploadId   = crypto.randomUUID();
       const ext        = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : '';
@@ -46,6 +50,8 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
         originalName: filename,
         size,
         expiresAt,
+        ownerType,
+        ownerId: ownerType === 'user' ? ownerId : null,
       };
 
       registerToken(token);
@@ -88,7 +94,13 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
         return;
       }
 
-      const writeResult = await writeFileStream(req, token.storageKey, token.mimeType);
+      const writeResult = await writeFileStream(
+        req, 
+        token.storageKey, 
+        token.mimeType,
+        token.ownerType,
+        token.ownerId,
+      );
 
       if (!writeResult.ok) {
         res.status(500).json({ error: writeResult.error, code: writeResult.code });
@@ -97,12 +109,14 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
 
       try {
         const { asset_id } = await finalizeAsset({
-          uploadId:     token.uploadId,
-          storageKey:   token.storageKey,
-          mimeType:     token.mimeType,
+          uploadId: token.uploadId,
+          storageKey: token.storageKey,
+          mimeType: token.mimeType,
           originalName: token.originalName,
-          size:         token.size,
-          sizeBytes:    writeResult.data.sizeBytes,
+          size: token.size,
+          sizeBytes: writeResult.data.sizeBytes,
+          ownerType: token.ownerType,
+          ownerId: token.ownerId,
         });
 
         res.status(201).json({

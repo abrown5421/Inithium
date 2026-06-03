@@ -11,7 +11,6 @@ import {
   resolveCategory,
   ASSETS_ROOT,
   TRASH_ROOT,
-  trashDir,
 } from '../config/index.js';
 import type { AdapterOutcome, FileCategory, FileMetadata } from '../types/index.js';
 
@@ -30,8 +29,8 @@ export const initStorageDirs = async (): Promise<void> => {
   await Promise.all([
     ensureDir(ASSETS_ROOT),
     ensureDir(TRASH_ROOT),
-    ...categories.map((c) => ensureDir(categoryDir(c))),
-    ...categories.map((c) => ensureDir(trashDir(c))),
+    ...categories.map((c) => ensureDir(path.join(ASSETS_ROOT, c))),
+    ...categories.map((c) => ensureDir(path.join(TRASH_ROOT, c))),
   ]);
 };
 
@@ -39,11 +38,13 @@ export const writeFileStream = async (
   source:     Readable | IncomingMessage,
   storageKey: string,
   mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
 ): Promise<AdapterOutcome<FileMetadata>> => {
-  const category    = resolveCategory(mimeType);
-  const absolutePath = buildAbsolutePath(category, storageKey);
+  const category     = resolveCategory(mimeType);
+  const absolutePath = buildAbsolutePath(category, storageKey, ownerType, ownerId);
 
-  await ensureDir(categoryDir(category));
+  await ensureDir(categoryDir(category, ownerType, ownerId));
 
   try {
     const dest = fs.createWriteStream(absolutePath);
@@ -58,6 +59,8 @@ export const writeFileStream = async (
         originalName: storageKey,
         sizeBytes:    size,
         absolutePath,
+        ownerType,
+        ownerId,
       },
     };
   } catch (err) {
@@ -74,23 +77,29 @@ export const readFileStream = (
   return { ok: true, data: fs.createReadStream(absolutePath) };
 };
 
-export const resolveStoragePath = (storageKey: string, mimeType: string): string => {
+export const resolveStoragePath = (
+  storageKey: string,
+  mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
+): string => {
   const category = resolveCategory(mimeType);
-  return buildAbsolutePath(category, storageKey);
+  return buildAbsolutePath(category, storageKey, ownerType, ownerId);
 };
 
 export const softDeleteFile = async (
   storageKey: string,
   mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
 ): Promise<AdapterOutcome<string>> => {
   const category = resolveCategory(mimeType);
-  const src  = buildAbsolutePath(category, storageKey);
-  const dest = buildTrashPath(category, storageKey);
+  const src  = buildAbsolutePath(category, storageKey, ownerType, ownerId);
+  const dest = buildTrashPath(category, storageKey, ownerType, ownerId);
 
   if (!fs.existsSync(src)) {
     return { ok: false, error: 'File not found', code: 'NOT_FOUND' };
   }
-
   try {
     await ensureDir(path.dirname(dest));
     await fsp.rename(src, dest);
@@ -103,10 +112,11 @@ export const softDeleteFile = async (
 export const permanentDeleteFile = async (
   storageKey: string,
   mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
 ): Promise<AdapterOutcome<void>> => {
   const category  = resolveCategory(mimeType);
-  const trashPath = buildTrashPath(category, storageKey);
-
+  const trashPath = buildTrashPath(category, storageKey, ownerType, ownerId);
   try {
     await fsp.unlink(trashPath);
     return { ok: true, data: undefined };
@@ -118,16 +128,16 @@ export const permanentDeleteFile = async (
 export const restoreFile = async (
   storageKey: string,
   mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
 ): Promise<AdapterOutcome<string>> => {
-  const category  = resolveCategory(mimeType);
-  const activePath = buildAbsolutePath(category, storageKey);
-
-  const fromTrash = buildTrashPath(category, storageKey);
+  const category   = resolveCategory(mimeType);
+  const activePath = buildAbsolutePath(category, storageKey, ownerType, ownerId);
+  const fromTrash  = buildTrashPath(category, storageKey, ownerType, ownerId);
 
   if (!fs.existsSync(fromTrash)) {
     return { ok: false, error: 'File not found in trash', code: 'NOT_IN_TRASH' };
   }
-
   try {
     await fsp.rename(fromTrash, activePath);
     return { ok: true, data: activePath };
@@ -136,7 +146,12 @@ export const restoreFile = async (
   }
 };
 
-export const fileExists = (storageKey: string, mimeType: string): boolean => {
+export const fileExists = (
+  storageKey: string,
+  mimeType:   string,
+  ownerType:  'app' | 'user',
+  ownerId:    string | null,
+): boolean => {
   const category = resolveCategory(mimeType);
-  return fs.existsSync(buildAbsolutePath(category, storageKey));
+  return fs.existsSync(buildAbsolutePath(category, storageKey, ownerType, ownerId));
 };
