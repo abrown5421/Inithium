@@ -23,11 +23,9 @@ export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
     'justify-center',
     'uppercase',
     'tracking-wider',
-    // Only apply default bg when there's no custom gradient on the parent
     !hasBackground && 'bg-gradient-to-br',
     !hasBackground && 'from-[var(--color-surface3)]',
     !hasBackground && 'to-[var(--color-surface4)]',
-    'text-[var(--color-primary)]',
     shapeMap[shape],
     className
   ].filter(Boolean).join(' ');

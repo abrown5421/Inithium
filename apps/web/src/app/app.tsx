@@ -11,7 +11,7 @@ import {
   RootState,
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
-import type { AlertPosition, Page } from '@inithium/types';
+import type { Page } from '@inithium/types';
 
 const App: React.FC = () => {
   useAuthBootstrap();

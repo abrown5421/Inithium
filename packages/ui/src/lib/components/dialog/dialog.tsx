@@ -113,11 +113,12 @@ export const Dialog: React.FC<DialogProps> = ({
     ? overridePanelClassName
     : [
         'relative flex flex-col bg-white shadow-xl overflow-hidden',
+        'max-h-[calc(100vh-2rem)]',
         isDrawer
           ? drawerSizeStyles[size][drawerPosition]
           : ['rounded-xl', sizeStyles[size]].join(' '),
         variant === 'alert' ? 'border-t-4 border-danger' : '',
-        size === 'full' && !isDrawer ? 'h-full rounded-none' : '',
+        size === 'full' && !isDrawer ? 'h-full rounded-none max-h-full' : '',
         panelClassName ?? '',
       ]
         .filter(Boolean)
