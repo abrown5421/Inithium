@@ -29,6 +29,7 @@ const avatarPropsSchema = new Schema(
     status:     { type: String, enum: ['online', 'offline', 'away', 'busy'] },
     shape:      { type: String, enum: ['circle', 'square'] },
     background: { type: String },
+    fontColor:  { type: String }, 
   },
   { _id: false }
 );

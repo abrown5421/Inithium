@@ -28,8 +28,7 @@ const statusSizeMap = {
 };
 
 export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
-  src,
-  alt,
+  fontColor,
   background,
   size = 'md',
   status,
@@ -46,7 +45,6 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
     'items-center',
     'justify-center',
     'select-none',
-    'text-[var(--color-primary)]',
     'font-semibold',
     'transition-all',
     'duration-300',
@@ -64,11 +62,16 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
     statusSizeMap[size]
   ].filter(Boolean).join(' ') : '';
 
+  const inlineStyle: React.CSSProperties = {
+    ...(background ? { background } : {}),
+    ...(fontColor  ? { color: fontColor } : {}),
+  };
+
   return (
     <AvatarContext.Provider value={{ size, shape, hasImageLoaded, setHasImageLoaded, hasBackground: !!background }}>
       <div
         className={containerClasses}
-        style={background ? { background: background } : undefined}
+        style={inlineStyle}
         onClick={onClick}
       >
         {children}

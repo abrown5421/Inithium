@@ -1,34 +1,60 @@
-import { useUserQuery } from '@inithium/store';
-import { Avatar, AvatarFallback, AvatarImage, Box } from '@inithium/ui';
-import React, { useEffect } from 'react';
+import { selectActiveUser, useUserQuery } from '@inithium/store';
+import { Avatar, AvatarFallback, AvatarImage, Box, Button } from '@inithium/ui';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { extractAvatarProps } from './avatar-utils';
+import { AvatarEditDialog } from './avatar-edit-dialog';
 
 const ProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  
   const { data: profileUser } = useUserQuery(id ?? '', { skip: !id });
+  const activeUser = useSelector(selectActiveUser);
 
-  const isOwnProfile = profileUser?._id === id;
+  const isOwnProfile = !!activeUser && profileUser?._id === activeUser._id;
+  const avatar = extractAvatarProps(profileUser);
 
-  useEffect(() => {
-    console.log(profileUser);
-  }, [id, profileUser, isOwnProfile]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <Box className="h-full w-full">
-      <Box padding="md">
+    <Box fullHeight fullWidth>
+      <Box padding="md" className="relative inline-block group">
         <Avatar
-          src={profileUser.user_avatar.src}
-          alt={profileUser.user_avatar.alt}
-          fallback={profileUser.user_avatar.fallback}
+          src={avatar.src}
+          alt={avatar.alt}
+          fallback={avatar.fallback}
           size="xl"
-          shape={profileUser.user_avatar.shape}
-          background={profileUser.user_avatar.background}
+          shape={avatar.shape}
+          background={avatar.background}
+          fontColor={avatar.fontColor}
         >
-          {profileUser.user_avatar.src && <AvatarImage src={profileUser.user_avatar.src} alt={profileUser.user_avatar.alt} />}
-          <AvatarFallback>{profileUser.user_avatar.fallback || '??'}</AvatarFallback>
+          {avatar.src && <AvatarImage src={avatar.src} alt={avatar.alt} />}
+          <AvatarFallback>{avatar.fallback}</AvatarFallback>
         </Avatar>
+
+        {isOwnProfile && (
+          <Box className='absolute bottom-0 right-0 -translate-x-full -translate-y-full'>
+            <Button
+              variant="solid"
+              color="surface3"
+              size="sm"
+              icon="Camera"
+              onClick={() => setIsDialogOpen(true)}
+              aria-label="Edit Avatar"
+            />
+          </Box>
+        )}
       </Box>
+
+      {isOwnProfile && (
+        <AvatarEditDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          profileUser={profileUser}
+          activeUser={activeUser}
+          avatar={avatar}
+        />
+      )}
     </Box>
   );
 };

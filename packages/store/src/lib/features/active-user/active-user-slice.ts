@@ -39,6 +39,18 @@ export const activeUserSlice = createSlice({
       state.isBootstrapping = false;
     },
   },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      (action) =>
+        action.type.startsWith('api/executeMutation/fulfilled') &&
+        action.meta?.arg?.endpointName === 'updateOneUser',
+      (state, action: PayloadAction<User>) => {
+        if (state.user && state.user._id === action.payload._id) {
+          state.user = action.payload;
+        }
+      }
+    );
+  },
 });
 
 export const {

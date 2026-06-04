@@ -5,6 +5,8 @@ export type CreateAssetIntentDto = {
   filename: string;
   mimeType: string;
   size: number;
+  ownerType: 'app' | 'user';
+  ownerId: string | null;
 };
 
 export type AssetIntentResponseDto = {
@@ -49,7 +51,7 @@ export const assetsApi = baseApi.injectEndpoints({
 
     createAssetIntent: builder.mutation<AssetIntentResponseDto, CreateAssetIntentDto>({
       query: (body) => ({
-        url: '/assets/handshake/intent',
+        url: '/asset-manager/intent',
         method: 'POST',
         body,
       }),
@@ -57,7 +59,7 @@ export const assetsApi = baseApi.injectEndpoints({
 
     uploadAssetBinary: builder.mutation<AssetUploadResponseDto, { uploadUrl: string; file: File | Blob }>({
       query: ({ uploadUrl, file }) => ({
-        url: uploadUrl,
+        url: `/asset-manager${uploadUrl}`,
         method: 'PUT',
         body: file,
         headers: {

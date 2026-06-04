@@ -5,7 +5,7 @@ const AddressSchema = z.object({
   street:  z.string().optional(),
   city:    z.string().optional(),
   state:   z.string().optional(),
-  zip:     z.string().optional(),
+  zip:z.string().optional(),
   country: z.string().optional(),
 });
 
@@ -21,13 +21,14 @@ const GenderSchema = z.discriminatedUnion('type', [
 ]);
 
 const AvatarPropsSchema = z.object({
-  src:        z.string().url().optional().or(z.literal('')),
-  alt:        z.string().optional(),
+  src: z.string().url().optional().or(z.literal('')),
+  alt: z.string().optional(),
   fallback:   z.string().optional(),
-  size:       z.enum(['sm', 'md', 'lg', 'xl']).optional(),
-  status:     z.enum(['online', 'offline', 'away']).optional(),
-  shape:      z.enum(['circle', 'square']).optional(),
+  size:z.enum(['sm', 'md', 'lg', 'xl']).optional(),
+  status:z.enum(['online', 'offline', 'away']).optional(),
+  shape: z.enum(['circle', 'square']).optional(),
   background: z.string().optional(),
+  fontColor:  z.string().optional(),
 });
 
 const TrianglifyOptionsSchema = z.object({
@@ -38,18 +39,18 @@ const TrianglifyOptionsSchema = z.object({
 });
 
 export const CreateUserSchema = z.object({
-  email:        z.string().email(),
-  password:     z.string().min(8),
+  email: z.string().email(),
+  password:z.string().min(8),
   first_name:   z.string().min(1),
   last_name:    z.string().min(1),
-  role:         z.enum(['super-admin', 'admin', 'editor', 'writer', 'user']).default('user'),
+  role:  z.enum(['super-admin', 'admin', 'editor', 'writer', 'user']).default('user'),
   user_banner:  TrianglifyOptionsSchema.optional(),
   user_avatar:  AvatarPropsSchema.optional(),
-  bio:          z.string().optional(),
-  gender:       GenderSchema.optional(),
+  bio:   z.string().optional(),
+  gender:GenderSchema.optional(),
   phone_number: z.string().optional(),
-  dob:          z.string().optional(),
-  address:      AddressSchema.optional(),
+  dob:   z.string().optional(),
+  address: AddressSchema.optional(),
   dark_mode:    z.boolean().default(false),
 }) satisfies z.ZodType<Omit<User, '_id'>>;
 

@@ -12,6 +12,7 @@ export interface AvatarProps {
   status?: AvatarStatus;
   shape?: AvatarShape;
   background?: string;
+  fontColor?: string; 
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   className?: string;
 }
