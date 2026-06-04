@@ -34,8 +34,9 @@ const avatarPropsSchema = new Schema(
   { _id: false }
 );
 
-const trianglifyOptionsSchema = new Schema(
+const userBannerSchema = new Schema(
   {
+    src:       { type: String },
     variance:  { type: Number },
     cell_size: { type: Number },
     x_colors:  { type: Schema.Types.Mixed },
@@ -51,7 +52,7 @@ const userSchema = new Schema<User>(
     first_name:   { type: String, required: true, trim: true },
     last_name:    { type: String, required: true, trim: true },
     role:         { type: String, enum: ['super-admin', 'admin', 'editor', 'writer', 'user'], required: true, default: 'user' },
-    user_banner:  { type: trianglifyOptionsSchema },
+    user_banner:  { type: userBannerSchema },
     user_avatar:  { type: avatarPropsSchema },
     bio:          { type: String },
     gender:       { type: genderSchema },
