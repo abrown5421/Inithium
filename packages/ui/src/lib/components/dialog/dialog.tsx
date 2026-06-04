@@ -62,17 +62,17 @@ function getPanelTransition(
 function getContainerClasses(variant: DialogVariant, drawerPosition: DialogDrawerPosition): string {
   if (variant === 'drawer') {
     const map: Record<DialogDrawerPosition, string> = {
-      left:   'fixed inset-0 flex items-stretch justify-start',
-      right:  'fixed inset-0 flex items-stretch justify-end',
-      top:    'fixed inset-0 flex flex-col items-stretch justify-start',
-      bottom: 'fixed inset-0 flex flex-col items-stretch justify-end',
+      left:   'fixed inset-0 z-50 flex items-stretch justify-start',
+      right:  'fixed inset-0 z-50 flex items-stretch justify-end',
+      top:    'fixed inset-0 z-50 flex flex-col items-stretch justify-start',
+      bottom: 'fixed inset-0 z-50 flex flex-col items-stretch justify-end',
     };
     return map[drawerPosition];
   }
   if (variant === 'alert') {
-    return 'fixed inset-0 flex items-center justify-center p-4';
+    return 'fixed inset-0 z-50 flex items-center justify-center p-4';
   }
-  return 'fixed inset-0 flex items-center justify-center p-4';
+  return 'fixed inset-0 z-50 flex items-center justify-center p-4';
 }
 
 const footerAlignStyles: Record<NonNullable<DialogProps['actionsAlign']>, string> = {
@@ -209,7 +209,7 @@ export const Dialog: React.FC<DialogProps> = ({
         {backdrop && (
           <div
             className={[
-              'fixed inset-0 bg-black/40',
+              'fixed inset-0 z-40 bg-black/40',
               backdropClassName ?? '',
             ]
               .filter(Boolean)
@@ -240,7 +240,7 @@ export const Dialog: React.FC<DialogProps> = ({
           >
             <div
               className={[
-                'fixed inset-0 bg-black/40',
+                'fixed inset-0 z-40 bg-black/40',
                 backdropClassName ?? '',
               ]
                 .filter(Boolean)

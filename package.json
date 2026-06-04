@@ -25,6 +25,7 @@
     "@types/node": "20.19.9",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
+    "@types/trianglify": "^4.1.2",
     "@vitejs/plugin-react": "^6.0.0",
     "@vitest/ui": "~4.1.0",
     "ajv": "^8.0.0",
@@ -63,6 +64,7 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.3.0",
     "react-router-dom": "6.30.3",
+    "trianglify": "^4.1.1",
     "zod": "^4.4.3"
   },
   "nx": {
