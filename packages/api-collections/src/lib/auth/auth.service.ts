@@ -36,6 +36,12 @@ export const authService = {
     const userPayload = {
       ...dto,
       password: hashed,
+      bio:          dto.bio          ?? '',
+      phone_number: dto.phone_number ?? '',
+      dob:          dto.dob          ?? '',
+      address: (dto.address && Object.keys(dto.address).length > 0)
+        ? dto.address
+        : { street: '', city: '', state: '', zip: '', country: '' },
       user_avatar: dto.user_avatar && Object.keys(dto.user_avatar).length > 0
         ? dto.user_avatar 
         : buildDefaultAvatar(dto.first_name, dto.last_name),
