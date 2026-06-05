@@ -22,6 +22,7 @@ const MIME_TO_CATEGORY: Record<string, FileCategory> = {
   'image/tiff': 'images',
 
   'font/ttf': 'fonts',
+  'font/sfnt': 'fonts',
   'font/otf': 'fonts',
   'font/woff':'fonts',
   'font/woff2': 'fonts',
@@ -58,8 +59,21 @@ const FILE_CATEGORY_TO_SCHEMA: Record<FileCategory, string> = {
   misc:'other',
 };
 
-export const resolveCategory = (mimeType: string): FileCategory =>
-  MIME_TO_CATEGORY[mimeType] ?? 'misc';
+const EXT_TO_CATEGORY: Record<string, FileCategory> = {
+  '.ttf':   'fonts',
+  '.otf':   'fonts',
+  '.woff':  'fonts',
+  '.woff2': 'fonts',
+};
+
+export const resolveCategory = (mimeType: string, originalName?: string): FileCategory => {
+  if (MIME_TO_CATEGORY[mimeType]) return MIME_TO_CATEGORY[mimeType];
+  if (originalName) {
+    const ext = originalName.slice(originalName.lastIndexOf('.')).toLowerCase();
+    if (EXT_TO_CATEGORY[ext]) return EXT_TO_CATEGORY[ext];
+  }
+  return 'misc';
+};
 
 export const toSchemaCategory = (category: FileCategory): string =>
   FILE_CATEGORY_TO_SCHEMA[category];

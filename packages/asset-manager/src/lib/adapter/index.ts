@@ -35,13 +35,14 @@ export const initStorageDirs = async (): Promise<void> => {
 };
 
 export const writeFileStream = async (
-  source:     Readable | IncomingMessage,
-  storageKey: string,
-  mimeType:   string,
-  ownerType:  'app' | 'user',
-  ownerId:    string | null,
+  source:       Readable | IncomingMessage,
+  storageKey:   string,
+  mimeType:     string,
+  ownerType:    'app' | 'user',
+  ownerId:      string | null,
+  originalName: string,   // add
 ): Promise<AdapterOutcome<FileMetadata>> => {
-  const category     = resolveCategory(mimeType);
+  const category = resolveCategory(mimeType, originalName);
   const absolutePath = buildAbsolutePath(category, storageKey, ownerType, ownerId);
 
   await ensureDir(categoryDir(category, ownerType, ownerId));

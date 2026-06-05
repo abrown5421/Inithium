@@ -100,6 +100,7 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
         token.mimeType,
         token.ownerType,
         token.ownerId,
+        token.originalName,
       );
 
       if (!writeResult.ok) {
