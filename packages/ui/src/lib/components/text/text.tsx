@@ -48,6 +48,42 @@ const COLOR_CLASS_MAP: Record<string, string> = {
   danger:    'text-danger',
 };
 
+const CLASS_CATEGORIES: Array<{ prefix: string; propClasses: (variant: TextVariant, decoration?: TextDecorations) => string[] }> = [
+  {
+    prefix: 'text-',
+    propClasses: (_, __) => Object.values(COLOR_CLASS_MAP),
+  },
+  {
+    prefix: 'font-',
+    propClasses: (variant, decoration) => {
+      const weight = decoration?.bold ? 'font-bold' : variantDefaultWeights[variant];
+      return [weight];
+    },
+  },
+  {
+    // italic
+    prefix: 'italic',
+    propClasses: (_, decoration) => decoration?.italic ? ['italic'] : [],
+  },
+  {
+    prefix: 'underline',
+    propClasses: (_, decoration) => decoration?.underline ? ['underline'] : [],
+  },
+];
+
+function overriddenCategories(overrideClassName: string): Set<string> {
+  const overrides = overrideClassName.split(/\s+/).filter(Boolean);
+  const covered = new Set<string>();
+  for (const cls of overrides) {
+    for (const { prefix } of CLASS_CATEGORIES) {
+      if (cls === prefix || cls.startsWith(prefix)) {
+        covered.add(prefix);
+      }
+    }
+  }
+  return covered;
+}
+
 const BASE = 'inline-block';
 
 function buildClasses(
@@ -57,24 +93,35 @@ function buildClasses(
   font: string | undefined,
   overrideClassName?: string,
 ): string {
-  if (overrideClassName !== undefined) {
-    return [BASE, overrideClassName].filter(Boolean).join(' ').trim();
-  }
+  const weight   = decoration?.bold ? 'font-bold' : variantDefaultWeights[variant];
+  const colorCls = COLOR_CLASS_MAP[color] ?? 'text-primary';
 
-  const weight = decoration?.bold ? 'font-bold' : variantDefaultWeights[variant];
-
-  return [
+  const propDriven = [
     BASE,
     variantStyles[variant],
     weight,
-    COLOR_CLASS_MAP[color] ?? 'text-primary',
+    colorCls,
     decoration?.italic    ? 'italic'    : '',
     decoration?.underline ? 'underline' : '',
     font ? `font-[${font}]` : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .trim();
+  ].filter(Boolean);
+
+  if (!overrideClassName) {
+    return propDriven.join(' ').trim();
+  }
+
+  const covered = overriddenCategories(overrideClassName);
+
+  const filtered = propDriven.filter((cls) => {
+    for (const { prefix, propClasses } of CLASS_CATEGORIES) {
+      if (covered.has(prefix) && propClasses(variant, decoration).includes(cls)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  return [...filtered, overrideClassName].join(' ').trim();
 }
 
 export const Text: React.FC<React.PropsWithChildren<TextProps>> = ({
