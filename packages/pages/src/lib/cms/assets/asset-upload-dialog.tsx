@@ -1,10 +1,18 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Box, Button, Dialog, Text } from '@inithium/ui';
+import { Box, Button, Dialog, Text, Combobox, ComboboxOption } from '@inithium/ui';
+import { useReadAllUsersQuery } from '@inithium/store';
 import type {
   CreateAssetIntentDto,
   AssetIntentResponseDto,
   AssetUploadResponseDto,
 } from '@inithium/store';
+
+interface StoreUser {
+  _id: { $oid: string };
+  email: string;
+  first_name: string;
+  last_name: string;
+}
 
 type UploadStatus = 'pending' | 'intent' | 'uploading' | 'done' | 'error';
 
@@ -12,7 +20,7 @@ interface FileEntry {
   id: string;
   file: File;
   status: UploadStatus;
-  progress: number; // 0–100
+  progress: number;
   error?: string;
 }
 
@@ -89,10 +97,39 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [ownerType, setOwnerType] = useState<'app' | 'user'>(defaultOwnerContext);
   const [ownerId, setOwnerId] = useState('');
+  const [userQuery, setUserQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { data: users, isLoading: usersLoading } = useReadAllUsersQuery();
+
+  const typedUsers = (users ?? []) as StoreUser[];
+
+  const comboboxOptions = React.useMemo((): ComboboxOption<string>[] => {
+    const q = userQuery.toLowerCase();
+    return typedUsers
+      .filter((u: StoreUser) =>
+        q === '' ||
+        u.first_name.toLowerCase().includes(q) ||
+        u.last_name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q),
+      )
+      .map((u: StoreUser): ComboboxOption<string> => ({
+        value: u._id.$oid,
+        label: `${u.first_name} ${u.last_name} (${u.email})`,
+      }));
+  }, [typedUsers, userQuery]);
+
+  const emailByOid = React.useMemo((): Record<string, string> =>
+    Object.fromEntries(
+      typedUsers.map((u: StoreUser) => [u._id.$oid, u.email]),
+    ),
+  [typedUsers]);
+
   const ownerIdRequired = ownerType === 'user';
-  const canUpload = files.length > 0 && !isUploading && (!ownerIdRequired || ownerId.trim() !== '');
+  const canUpload =
+    files.length > 0 &&
+    !isUploading &&
+    (!ownerIdRequired || ownerId.trim() !== '');
 
   const addFiles = useCallback((incoming: FileList | File[]) => {
     const arr = Array.from(incoming);
@@ -118,7 +155,6 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) addFiles(e.target.files);
-    // Reset so the same file can be re-added after removal
     e.target.value = '';
   };
 
@@ -170,7 +206,10 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
         successCount++;
       } catch (err: any) {
         const msg = err?.data?.message ?? err?.message ?? 'Upload failed';
-        updateEntry(entry.id, { status: 'error', error: typeof msg === 'string' ? msg : 'Upload failed' });
+        updateEntry(entry.id, {
+          status: 'error',
+          error: typeof msg === 'string' ? msg : 'Upload failed',
+        });
       }
     }
 
@@ -188,6 +227,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
     setFiles([]);
     setOwnerType(defaultOwnerContext);
     setOwnerId('');
+    setUserQuery('');
   };
 
   const handleClose = () => {
@@ -213,15 +253,20 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
           <Text variant="body2" overrideClassName="text-sm font-semibold">
             Asset Owner
           </Text>
-          <Box flex align="center" className="gap-3">
-            {(['app', 'user'] as const).map((t) => (
-              <label key={t} className="flex items-center gap-1.5 cursor-pointer text-sm">
+
+          <Box flex align="center" className="gap-2">
+            {((['app', 'user'] as const)).map((t) => (
+              <label key={t} className="flex items-center gap-2 cursor-pointer text-sm">
                 <input
                   type="radio"
                   name="ownerType"
                   value={t}
                   checked={ownerType === t}
-                  onChange={() => setOwnerType(t)}
+                  onChange={() => {
+                    setOwnerType(t);
+                    setOwnerId('');
+                    setUserQuery('');
+                  }}
                   disabled={isUploading}
                   className="accent-primary"
                 />
@@ -229,22 +274,31 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
               </label>
             ))}
           </Box>
+
           {ownerType === 'user' && (
-            <input
-              type="text"
-              placeholder="User GUID / owner ID *"
-              value={ownerId}
-              onChange={(e) => setOwnerId(e.target.value)}
-              disabled={isUploading}
-              className={[
-                'w-full text-sm px-3 py-2 rounded-md border bg-transparent outline-none transition-colors',
-                'border-surface3 focus:border-primary placeholder:text-secondary',
-                isUploading ? 'opacity-50 cursor-not-allowed' : '',
-              ].join(' ')}
-            />
+            <Box flex direction="col" className="gap-2 my-2">
+              <Combobox<string>
+                label={usersLoading ? 'Loading users…' : 'Search user by name or email *'}
+                options={comboboxOptions}
+                value={ownerId || null}
+                onChange={(val) => setOwnerId(val ?? '')}
+                onQueryChange={setUserQuery}
+                color="primary"
+                variant="outline"
+                size="md"
+                fullWidth
+                leadingIcon="user"
+                disabled={isUploading || usersLoading}
+              />
+
+              {ownerId && emailByOid[ownerId] && (
+                <Text variant="caption" overrideClassName="text-xs text-secondary pl-1">
+                  {emailByOid[ownerId]}
+                </Text>
+              )}
+            </Box>
           )}
         </Box>
-
         <div
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
@@ -253,7 +307,9 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
           className={[
             'border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center gap-2 transition-colors',
             isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-            isDragging ? 'border-primary bg-primary/5' : 'border-surface3 hover:border-primary/50',
+            isDragging
+              ? 'border-primary bg-primary/5'
+              : 'border-surface3 hover:border-primary/50',
           ].join(' ')}
         >
           <span className="text-3xl">📂</span>
@@ -272,7 +328,6 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
             className="hidden"
           />
         </div>
-
         {files.length > 0 && (
           <Box flex direction="col" className="gap-2 max-h-56 overflow-y-auto">
             {files.map((entry) => (
@@ -285,7 +340,6 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
             ))}
           </Box>
         )}
-
         <Box flex justify="end" className="gap-2 mt-2">
           <Button
             variant="ghost"
@@ -308,7 +362,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
           >
             {isUploading
               ? `Uploading… (${files.filter((f) => f.status === 'done').length}/${files.length})`
-              : `Upload ${files.length > 0 ? `${files.length} File${files.length !== 1 ? 's' : ''}` : ''}`}
+              : `Upload${files.length > 0 ? ` ${files.length} File${files.length !== 1 ? 's' : ''}` : ''}`}
           </Button>
         </Box>
       </Box>
@@ -334,20 +388,11 @@ const FileRow: React.FC<FileRowProps> = ({ entry, onRemove, isUploading }) => {
   const sizeMB = (entry.file.size / (1024 * 1024)).toFixed(2);
 
   return (
-    <Box
-      flex
-      direction="col"
-      color="surface"
-      borderRadius="md"
-      className="px-3 py-2 gap-1"
-    >
+    <Box flex direction="col" color="surface" borderRadius="md" className="px-3 py-2 gap-2">
       <Box flex align="center" justify="between">
         <Box flex align="center" className="gap-2 min-w-0">
           <span className="text-sm shrink-0">{STATUS_ICON[entry.status]}</span>
-          <Text
-            variant="caption"
-            overrideClassName="text-xs font-medium truncate"
-          >
+          <Text variant="caption" overrideClassName="text-xs font-medium truncate">
             {entry.file.name}
           </Text>
           <Text variant="caption" color="secondary" overrideClassName="text-xs shrink-0">
@@ -365,7 +410,8 @@ const FileRow: React.FC<FileRowProps> = ({ entry, onRemove, isUploading }) => {
           </button>
         )}
       </Box>
-      {(entry.status === 'uploading' || entry.status === 'done') && (
+
+      {((entry.status === 'uploading' || entry.status === 'done')) && (
         <div className="w-full bg-surface3 rounded-full h-1.5 overflow-hidden">
           <div
             className={[
