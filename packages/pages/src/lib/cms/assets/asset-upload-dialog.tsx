@@ -312,7 +312,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
               : 'border-surface3 hover:border-primary/50',
           ].join(' ')}
         >
-          <span className="text-3xl">📂</span>
+          
           <Text variant="body2" overrideClassName="text-sm font-medium">
             Drop files here or click to browse
           </Text>
