@@ -9,6 +9,7 @@ import {
   Dialog,
   Input,
   Text,
+  Switch,
 } from '@inithium/ui';
 import React from 'react';
 import { ExtractedAvatarProps } from './avatar-utils';
@@ -87,20 +88,18 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
       <Box flex direction="col" className="gap-2 py-2">
 
         <Box>
-          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
-            Avatar Asset Type
+          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-2">
+            Avatar Asset Source
           </Text>
-          <Box flex className="gap-2">
-            <Button fullWidth variant={formState.mode === 'gradient' ? 'solid' : 'outline'} color="primary" onClick={handleUpdateMode('gradient')}>
-              Dynamic Gradient
-            </Button>
-            <Button fullWidth variant={formState.mode === 'image' ? 'solid' : 'outline'} color="primary" onClick={handleUpdateMode('image')}>
-              Image Reference
-            </Button>
-          </Box>
+          <Switch
+            label="Use custom image asset"
+            checked={formState.mode === 'image'}
+            onChange={(checked) => handleUpdateMode(checked ? 'image' : 'gradient')()}
+            color="primary"
+          />
         </Box>
 
-        <Box flex direction="col" align="center" justify="center" padding="md" borderRadius="xl" className="bg-slate-50 border border-slate-100">
+        <Box flex direction="col" align="center" justify="center" padding="md" borderRadius="xl" className="border border-surface3-contrast">
           <Avatar
             src={previewSrc}
             fallback={avatar.fallback}
@@ -113,10 +112,10 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
             <AvatarFallback>{avatar.fallback}</AvatarFallback>
           </Avatar>
           {uploadStatus === 'requesting-intent' && (
-            <Text variant="caption" overrideClassName="text-slate-400 mt-2 text-xs">Preparing upload…</Text>
+            <Text variant="caption" overrideClassName="text-surface3-contrast mt-2 text-xs">Preparing upload…</Text>
           )}
           {uploadStatus === 'uploading' && (
-            <Text variant="caption" overrideClassName="text-slate-400 mt-2 text-xs">Uploading image…</Text>
+            <Text variant="caption" overrideClassName="text-surface3-contrast mt-2 text-xs">Uploading image…</Text>
           )}
           {uploadStatus === 'done' && (
             <Text variant="caption" overrideClassName="text-green-500 mt-2 text-xs">Upload complete</Text>
@@ -124,7 +123,7 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
         </Box>
 
         <Box className="my-2">
-          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
             Geometric Silhouette
           </Text>
           <Box flex className="gap-2">
@@ -153,11 +152,11 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
             <Box flex direction="col" align="center" className="relative w-full">
               <Box flex align="center" justify="center" className="w-full gap-2 my-1">
                 <Box className="h-px bg-slate-200 grow" />
-                <Text variant="caption" overrideClassName="text-slate-400 font-medium px-2">OR</Text>
+                <Text variant="caption" overrideClassName="text-surface3-contrast font-medium px-2">OR</Text>
                 <Box className="h-px bg-slate-200 grow" />
               </Box>
               <Box className="w-full my-2">
-                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
+                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block">
                   Upload Local Image
                 </Text>
                 <label className="block w-full cursor-pointer">
@@ -166,7 +165,7 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
                     <Text variant="subtitle2" overrideClassName="text-slate-600 font-semibold">
                       {pendingFile ? pendingFile.name : 'Click to upload asset file'}
                     </Text>
-                    <Text variant="caption" overrideClassName="text-slate-400 mt-1">
+                    <Text variant="caption" overrideClassName="text-surface3-contrast mt-1">
                       PNG, JPG, or GIF up to 5MB
                     </Text>
                   </Box>
@@ -184,7 +183,7 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
           </Box>
         ) : (
           <Box className="my-2">
-            <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+            <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
                 Initials Text Color
             </Text>
             <ColorPicker
@@ -193,10 +192,10 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
                 value={formState.fontColor}
                 onColorChange={handleFontColorChange}
             />
-            <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+            <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
               Color Vector Elements
             </Text>
-            <Box borderRadius="lg" className="max-h-[220px] overflow-y-auto pr-2 border border-slate-100 p-2 bg-slate-50/50 relative">
+            <Box borderRadius="lg" className="max-h-[220px] overflow-y-auto pr-2 border border-surface3-contrast p-2 bg-slate-50/50 relative">
               <AutoIncrementingList
                 items={formState.colors}
                 onAdd={handleAddColor}
@@ -211,7 +210,6 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
           </Box>
         )}
 
-        {/* ── Error feedback ── */}
         {uploadError && (
           <Text variant="caption" overrideClassName="text-red-500 text-xs mt-1">
             {uploadError}

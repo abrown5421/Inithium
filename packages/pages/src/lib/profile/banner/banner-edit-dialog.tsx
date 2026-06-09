@@ -8,6 +8,7 @@ import {
   Input,
   Text,
   Slider,
+  Switch,
 } from '@inithium/ui';
 import React from 'react';
 import { useBannerForm } from './use-banner-form';
@@ -96,27 +97,15 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
       <Box flex direction="col" className="gap-4 py-2">
 
         <Box>
-          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
-            Banner Asset Type
+          <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-2">
+            Banner Asset Source
           </Text>
-          <Box flex className="gap-2">
-            <Button
-              fullWidth
-              variant={formState.mode === 'trianglify' ? 'solid' : 'outline'}
-              color="primary"
-              onClick={handleUpdateMode('trianglify')}
-            >
-              Dynamic Pattern
-            </Button>
-            <Button
-              fullWidth
-              variant={formState.mode === 'image' ? 'solid' : 'outline'}
-              color="primary"
-              onClick={handleUpdateMode('image')}
-            >
-              Image
-            </Button>
-          </Box>
+          <Switch
+            label="Use custom image asset"
+            checked={formState.mode === 'image'}
+            onChange={(checked) => handleUpdateMode(checked ? 'image' : 'trianglify')()}
+            color="primary"
+          />
         </Box>
 
         <Box flex direction="col" align="center" justify="center" borderRadius="xl" className="overflow-hidden border border-slate-100">
@@ -158,7 +147,7 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
               </Box>
 
               <Box className="w-full my-2">
-                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
+                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block">
                   Upload Local Image
                 </Text>
                 <label className="block w-full cursor-pointer">
@@ -206,7 +195,7 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
         ) : (
           <>
             <Box flex direction="col" className="gap-1">
-              <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
+              <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block">
                 Variance
               </Text>
               <Text variant="caption" overrideClassName="text-slate-400 text-xs mb-1">
@@ -227,7 +216,7 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
             </Box>
 
             <Box flex direction="col" className="gap-1">
-              <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
+              <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block">
                 Cell Size
               </Text>
               <Text variant="caption" overrideClassName="text-slate-400 text-xs mb-1">
@@ -249,7 +238,7 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
 
             <Box flex direction="row" className="gap-4">
               <Box flex direction="col" className="gap-1 flex-1 min-w-0">
-                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
                   X Color Stops
                 </Text>
                 <Box borderRadius="lg" className="max-h-[220px] overflow-y-auto pr-2 border border-slate-100 p-2 bg-slate-50/50">
@@ -267,7 +256,7 @@ export const BannerEditDialog: React.FC<BannerEditDialogProps> = ({
               </Box>
 
               <Box flex direction="col" className="gap-1 flex-1 min-w-0">
-                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+                <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
                   Y Color Stops
                 </Text>
                 <Box borderRadius="lg" className="max-h-[220px] overflow-y-auto pr-2 border border-slate-100 p-2 bg-slate-50/50">

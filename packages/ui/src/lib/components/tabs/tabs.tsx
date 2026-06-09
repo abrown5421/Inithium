@@ -46,7 +46,7 @@ const listVariantStyles = (variant: TabsVariant, vertical: boolean): string => {
   const maps: Record<TabsVariant, string> = {
     line: vertical ? 'border-r border-slate-200' : 'border-b border-slate-200 w-full',
     pills: 'gap-1 p-1 bg-slate-100 rounded-lg',
-    enclosed: 'border border-slate-200 rounded-xl p-1.5 gap-1 bg-slate-50',
+    enclosed: 'border border-surface2 rounded-xl p-1.5 gap-1 bg-surface3',
   };
   
   return [base, maps[variant]].join(' ');
