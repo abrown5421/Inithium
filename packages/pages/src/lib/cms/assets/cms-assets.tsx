@@ -16,7 +16,7 @@ import { AssetUploadDialog } from './asset-upload-dialog';
 export type AssetCategory = 'all' | 'images' | 'fonts' | 'audio' | 'videos' | 'documents' | 'misc';
 export type AssetOwnerContext = 'all' | 'app' | 'user';
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 8;
 
 const filterAssets = (
   assets: readonly Asset[],

@@ -15,7 +15,7 @@ import { UserItem } from './user-item';
 import { Input } from '@inithium/ui';
 import { UserForm } from './user-form';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 8;
 
 const paginate = (size: number) => (page: number) => (items: readonly User[]): readonly User[] =>
   items.slice((page - 1) * size, page * size);
