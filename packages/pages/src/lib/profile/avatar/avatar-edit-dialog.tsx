@@ -126,14 +126,12 @@ export const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
           <Text variant="caption" overrideClassName="text-xs font-semibold uppercase tracking-wider text-surface3-contrast block mb-1">
             Geometric Silhouette
           </Text>
-          <Box flex className="gap-2">
-            <Button fullWidth variant={formState.shape === 'circle' ? 'solid' : 'outline'} color="primary" onClick={handleUpdateShape('circle')}>
-              Circle
-            </Button>
-            <Button fullWidth variant={formState.shape === 'square' ? 'solid' : 'outline'} color="primary" onClick={handleUpdateShape('square')}>
-              Square
-            </Button>
-          </Box>
+          <Switch
+            label={formState.shape === 'circle' ? "Circular" : "Square"}
+            checked={formState.shape === 'circle'}
+            onChange={(checked) => handleUpdateShape(checked ? 'circle' : 'square')()}
+            color="primary"
+          />
         </Box>
 
         {formState.mode === 'image' ? (

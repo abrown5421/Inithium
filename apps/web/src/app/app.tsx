@@ -69,7 +69,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box color="surface-contrast" className="h-screen w-screen relative">
+    <Box color="surface4-contrast" className="h-screen w-screen relative">
       {alertData && (
         <Alert
           alertData={alertData}
