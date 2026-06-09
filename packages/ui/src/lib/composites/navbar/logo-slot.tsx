@@ -1,8 +1,12 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectSettingByKey } from '@inithium/store';
 import { Box, Text } from '../../components';
 
 const LogoSlot: React.FC = () => {
-  const logoUrl = import.meta.env.VITE_LOGO_URL;
+  const logoUrlSetting = useSelector(selectSettingByKey('logo-asset'));
+  
+  const logoUrl = typeof logoUrlSetting?.value === 'string' ? logoUrlSetting.value : undefined;
 
   return (
     <Box flex align="center" className="h-[56px]">

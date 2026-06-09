@@ -14,6 +14,7 @@ import {
   assetsRouter,
   assetsService,
   authRouter,
+  settingsRouter,
 } from '@inithium/api-collections';
 import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
@@ -43,6 +44,7 @@ app.use('/api/users',  usersRouter);
 app.use('/api/pages',  pagesRouter);
 app.use('/api/assets', assetsRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/settings', settingsRouter);
 
 app.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });

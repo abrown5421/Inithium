@@ -3,11 +3,13 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { baseApi } from './lib/base';
 import { activeUserSlice } from './lib/features/active-user/active-user-slice';
 import { alertSlice } from './lib/features/alert/alert-slice';
+import { settingsSlice } from './lib/features/settings/settings-slice';
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   [activeUserSlice.name]: activeUserSlice.reducer,
   [alertSlice.name]: alertSlice.reducer,
+  [settingsSlice.name]: settingsSlice.reducer,
 });
 
 export const createInithiumStore = (preloadedState?: Partial<RootState>) => {
