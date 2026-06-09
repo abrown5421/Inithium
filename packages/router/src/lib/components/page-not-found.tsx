@@ -1,4 +1,4 @@
-import { NavigationLink } from '@inithium/router';
+import NavigationLink from './navigation-link';
 import { Box, Button, Text } from '@inithium/ui';
 import React from 'react';
 
@@ -23,5 +23,4 @@ const PageNotFound: React.FC = () => {
 };
 
 export default PageNotFound;
-export { PageNotFound }
-          
+export { PageNotFound };

@@ -112,7 +112,7 @@ export const Dialog: React.FC<DialogProps> = ({
   const builtPanelClasses = overridePanelClassName
     ? overridePanelClassName
     : [
-        'relative flex flex-col bg-white shadow-xl overflow-hidden',
+        'relative flex flex-col bg-surface3 text-surface3-contrast shadow-xl overflow-hidden',
         'max-h-[calc(100vh-2rem)]',
         isDrawer
           ? drawerSizeStyles[size][drawerPosition]
@@ -137,11 +137,11 @@ export const Dialog: React.FC<DialogProps> = ({
   const panel = (
     <DialogPanel className={builtPanelClasses}>
       {hasHeader && (
-        <div className="flex items-start justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-surface3-contrast">
           {title && (
             <DialogTitle
               as="h2"
-              className="text-base font-semibold text-slate-900 leading-snug pr-4"
+              className="text-base font-semibold leading-snug pr-4"
             >
               {title}
             </DialogTitle>
@@ -153,8 +153,8 @@ export const Dialog: React.FC<DialogProps> = ({
               aria-label="Close dialog"
               className={[
                 'ml-auto -mr-1 -mt-0.5 flex items-center justify-center w-7 h-7 rounded-md',
-                'text-slate-400 hover:text-slate-700 hover:bg-slate-100',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400',
+                'text-surface3-contrast hover:bg-surface3-contrast',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 'transition-colors duration-150',
               ].join(' ')}
             >
@@ -166,7 +166,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {description && (
-          <Description className="text-sm text-slate-500 mb-3">{description}</Description>
+          <Description className="text-sm text-surface3-contrast mb-3">{description}</Description>
         )}
         {children}
       </div>
@@ -174,7 +174,7 @@ export const Dialog: React.FC<DialogProps> = ({
       {hasFooter && (
         <div
           className={[
-            'flex flex-wrap gap-2 px-6 py-4 border-t border-slate-100',
+            'flex flex-wrap gap-2 px-6 py-4 border-t border-surface3-contrast',
             footerAlignStyles[actionsAlign],
           ].join(' ')}
         >

@@ -48,27 +48,52 @@ const variantBaseStyles: Record<VariantKey, string> = {
   standard: 'bg-transparent border-b-2 border-slate-300 rounded-none! px-0!',
 };
 
+// Maps variants cleanly to theme dynamic border/rings while using semantic text color tokens
 const focusColorStyles: Record<ColorKey, string> = {
-  primary: 'focus:border-primary focus:ring-primary text-slate-900',
-  secondary: 'focus:border-secondary focus:ring-secondary text-slate-900',
-  accent: 'focus:border-accent focus:ring-accent text-slate-900',
-  success: 'focus:border-success focus:ring-success text-slate-900',
-  warning: 'focus:border-warning focus:ring-warning text-slate-900',
-  danger: 'focus:border-danger focus:ring-danger text-slate-900',
-  surface: 'focus:border-surface focus:ring-surface text-slate-900',
-  surface2: 'focus:border-surface2 focus:ring-surface2 text-slate-900',
-  surface3: 'focus:border-surface3 focus:ring-surface3 text-slate-900',
-  surface4: 'focus:border-surface4 focus:ring-surface4 text-slate-900',
-  'primary-contrast': 'focus:border-primary-contrast focus:ring-primary-contrast text-slate-900',
-  'secondary-contrast': 'focus:border-secondary-contrast focus:ring-secondary-contrast text-slate-900',
-  'accent-contrast': 'focus:border-accent-contrast focus:ring-accent-contrast text-slate-900',
-  'success-contrast': 'focus:border-success-contrast focus:ring-success-contrast text-slate-900',
-  'warning-contrast': 'focus:border-warning-contrast focus:ring-warning-contrast text-slate-900',
-  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast text-slate-900',
-  'surface-contrast': 'focus:border-surface-contrast focus:ring-surface-contrast text-slate-900',
-  'surface2-contrast': 'focus:border-surface2-contrast focus:ring-surface2-contrast text-slate-900',
-  'surface3-contrast': 'focus:border-surface3-contrast focus:ring-surface3-contrast text-slate-900',
-  'surface4-contrast': 'focus:border-surface4-contrast focus:ring-surface4-contrast text-slate-900',
+  primary: 'focus:border-primary focus:ring-primary',
+  secondary: 'focus:border-secondary focus:ring-secondary',
+  accent: 'focus:border-accent focus:ring-accent',
+  success: 'focus:border-success focus:ring-success',
+  warning: 'focus:border-warning focus:ring-warning',
+  danger: 'focus:border-danger focus:ring-danger',
+  surface: 'focus:border-surface focus:ring-surface',
+  surface2: 'focus:border-surface2 focus:ring-surface2',
+  surface3: 'focus:border-surface3 focus:ring-surface3',
+  surface4: 'focus:border-surface4 focus:ring-surface4',
+  'primary-contrast': 'focus:border-primary-contrast focus:ring-primary-contrast',
+  'secondary-contrast': 'focus:border-secondary-contrast focus:ring-secondary-contrast',
+  'accent-contrast': 'focus:border-accent-contrast focus:ring-accent-contrast',
+  'success-contrast': 'focus:border-success-contrast focus:ring-success-contrast',
+  'warning-contrast': 'focus:border-warning-contrast focus:ring-warning-contrast',
+  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast',
+  'surface-contrast': 'focus:border-surface-contrast focus:ring-surface-contrast',
+  'surface2-contrast': 'focus:border-surface2-contrast focus:ring-surface2-contrast',
+  'surface3-contrast': 'focus:border-surface3-contrast focus:ring-surface3-contrast',
+  'surface4-contrast': 'focus:border-surface4-contrast focus:ring-surface4-contrast',
+};
+
+// Controls semantic fallback colors matching the respective input content states
+const textColorStyles: Record<ColorKey, string> = {
+  primary: 'text-primary-contrast',
+  secondary: 'text-secondary-contrast',
+  accent: 'text-accent-contrast',
+  success: 'text-success-contrast',
+  warning: 'text-warning-contrast',
+  danger: 'text-danger-contrast',
+  surface: 'text-surface-contrast',
+  surface2: 'text-surface2-contrast',
+  surface3: 'text-surface3-contrast',
+  surface4: 'text-surface4-contrast',
+  'primary-contrast': 'text-primary',
+  'secondary-contrast': 'text-secondary',
+  'accent-contrast': 'text-accent',
+  'success-contrast': 'text-success',
+  'warning-contrast': 'text-warning',
+  'danger-contrast': 'text-danger',
+  'surface-contrast': 'text-surface',
+  'surface2-contrast': 'text-surface2',
+  'surface3-contrast': 'text-surface3',
+  'surface4-contrast': 'text-surface4',
 };
 
 const labelColorStyles: Record<ColorKey, string> = {
@@ -87,7 +112,7 @@ const labelColorStyles: Record<ColorKey, string> = {
   'accent-contrast': 'peer-focus:text-accent-contrast peer-:not(:placeholder-shown):text-accent-contrast data-[floating=true]:text-accent-contrast',
   'success-contrast': 'peer-focus:text-success-contrast peer-:not(:placeholder-shown):text-success-contrast data-[floating=true]:text-success-contrast',
   'warning-contrast': 'peer-focus:text-warning-contrast peer-:not(:placeholder-shown):text-warning-contrast data-[floating=true]:text-warning-contrast',
-  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast text-slate-900',
+  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast',
   'surface-contrast': 'peer-focus:text-surface-contrast peer-:not(:placeholder-shown):text-surface-contrast data-[floating=true]:text-surface-contrast',
   'surface2-contrast': 'peer-focus:text-surface2-contrast peer-:not(:placeholder-shown):text-surface2-contrast data-[floating=true]:text-surface2-contrast',
   'surface3-contrast': 'peer-focus:text-surface3-contrast peer-:not(:placeholder-shown):text-surface3-contrast data-[floating=true]:text-surface3-contrast',
@@ -96,7 +121,7 @@ const labelColorStyles: Record<ColorKey, string> = {
 
 const INPUT_BASE =
   'peer block w-full appearance-none outline-hidden transition-all duration-200 ease-in-out ' +
-  'placeholder-transparent! text-slate-900 focus:outline-hidden ';
+  'placeholder-transparent! focus:outline-hidden ';
 
 const CONTAINER_BASE = 'relative flex items-center transition-all duration-200 ';
 
@@ -171,6 +196,7 @@ export const Input: React.FC<InputProps> = ({
         currentSize.input,
         variantBaseStyles[variant],
         focusColorStyles[color],
+        textColorStyles[color],
         rounded && variant !== 'standard' ? 'rounded-md' : 'rounded-none',
         leadingIcon ? currentSize.leadingIconSpacer : '',
         trailingIcon ? 'pr-10' : '',

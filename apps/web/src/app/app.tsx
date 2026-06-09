@@ -1,5 +1,5 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text, Loader, Alert } from '@inithium/ui';
+import { Box, Navbar, Text, Loader, Alert, useDarkMode } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
@@ -25,6 +25,8 @@ const App: React.FC = () => {
   const activeUser = useSelector(selectActiveUser);
   const settings = useSelector(selectAllSettings);
   const alertData = useSelector((state: RootState) => state.alert.current);
+  
+  useDarkMode(activeUser?.dark_mode);
   
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
