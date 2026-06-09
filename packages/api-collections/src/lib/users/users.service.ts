@@ -48,6 +48,7 @@ export const usersService: UsersService = {
       bio: rawInput.bio ?? '',
       phone_number: rawInput.phone_number ?? '',
       dob: rawInput.dob ?? '',
+      gender: rawInput.gender ?? { type: 'Prefer Not to Say' },
       address: rawInput.address ?? {
         street: '',
         city: '',
