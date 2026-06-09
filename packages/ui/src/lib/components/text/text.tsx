@@ -41,11 +41,26 @@ const variantDefaultWeights: Record<TextVariant, string> = {
 };
 
 const COLOR_CLASS_MAP: Record<string, string> = {
-  primary:   'text-primary',
+  primary: 'text-primary',
   secondary: 'text-secondary',
-  success:   'text-success',
-  warning:   'text-warning',
-  danger:    'text-danger',
+  accent: 'text-accent',
+  success: 'text-success',
+  warning: 'text-warning',
+  danger: 'text-danger',
+  surface: 'text-surface',
+  surface2: 'text-surface2',
+  surface3: 'text-surface3',
+  surface4: 'text-surface4',
+  'primary-contrast': 'text-primary-contrast',
+  'secondary-contrast': 'text-secondary-contrast',
+  'accent-contrast': 'text-accent-contrast',
+  'success-contrast': 'text-success-contrast',
+  'warning-contrast': 'text-warning-contrast',
+  'danger-contrast': 'text-danger-contrast',
+  'surface-contrast': 'text-surface-contrast',
+  'surface2-contrast': 'text-surface2-contrast',
+  'surface3-contrast': 'text-surface3-contrast',
+  'surface4-contrast': 'text-surface4-contrast',
 };
 
 const CLASS_CATEGORIES: Array<{ prefix: string; propClasses: (variant: TextVariant, decoration?: TextDecorations) => string[] }> = [

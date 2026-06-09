@@ -22,10 +22,6 @@
 }
 
 html[data-theme='dark'] {
-  --color-primary-contrast: #115e7a;
-  --color-primary: #e6f2f5;
-  --color-secondary-contrast: #0f6666;
-  --color-secondary: #e6f2f5;
   --color-surface: #121314;
   --color-surface-contrast: #ffffff;
   --color-surface2: #1f1f1e;
