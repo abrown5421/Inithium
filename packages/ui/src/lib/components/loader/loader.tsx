@@ -1,14 +1,28 @@
 import { JSX } from 'react';
-import { LoaderColor, LoaderProps, LoaderSize, LoaderVariant } from './loader.types';
+import { LoaderProps, LoaderSize, LoaderVariant } from './loader.types';
+import { ThemeColor } from '@inithium/types';
 
-const colorStyles: Record<LoaderColor, string> = {
-  'primary':          'text-primary border-primary',
-  'secondary':        'text-secondary border-secondary',
-  'accent':           'text-accent border-accent',
-  'success':          'text-success border-success',
-  'warning':          'text-warning border-warning',
-  'danger':           'text-danger border-danger',
+const colorStyles: Record<ThemeColor, string> = {
+  'primary': 'text-primary border-primary',
+  'secondary': 'text-secondary border-secondary',
+  'accent': 'text-accent border-accent',
+  'success': 'text-success border-success',
+  'warning': 'text-warning border-warning',
+  'danger':  'text-danger border-danger',
+  'surface': 'text-surface border-surface',
+  'surface2': 'text-surface2 border-surface2',
+  'surface3': 'text-surface3 border-surface3',
+  'surface4': 'text-surface4 border-surface4',
+  'primary-contrast' : 'text-primary-contrast border-primary-contrast',
+  'secondary-contrast' : 'text-secondary-contrast border-secondary-contrast',
+  'accent-contrast' : 'text-accent-contrast border-accent-contrast',
+  'success-contrast' : 'text-success-contrast border-success-contrast',
+  'warning-contrast' : 'text-warning-contrast border-warning-contrast',
+  'danger-contrast' : 'text-danger-contrast border-danger-contrast',
   'surface-contrast': 'text-surface-contrast border-surface-contrast',
+  'surface2-contrast': 'text-surface2-contrast border-surface2-contrast',
+  'surface3-contrast': 'text-surface3-contrast border-surface3-contrast',
+  'surface4-contrast': 'text-surface4-contrast border-surface4-contrast',
 };
 
 const sizeStyles: Record<LoaderVariant, Record<LoaderSize, string>> = {
