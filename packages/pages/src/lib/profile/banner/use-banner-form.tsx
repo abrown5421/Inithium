@@ -6,14 +6,8 @@ import {
 } from '@inithium/store';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {
-  BannerMode,
-  BannerState,
-  clampCellSize,
-  clampVariance,
-  extractBannerProps,
-} from './banner-utils';
-import { buildProxyUrl, UploadStatus } from './avatar-utils';
+import { BannerMode, BannerState, clampCellSize, clampVariance, extractBannerProps } from './banner-utils';
+import { buildProxyUrl, UploadStatus } from '../avatar/avatar-utils';
 
 interface UseBannerFormOptions {
   profileUser: any;

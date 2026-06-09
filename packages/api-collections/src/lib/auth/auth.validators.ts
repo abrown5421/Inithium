@@ -50,7 +50,7 @@ export const SignupSchema = z.object({
   user_banner:  TrianglifyOptionsSchema.partial().default({}),
   user_avatar:  AvatarPropsSchema.partial().default({}),
   bio:          z.string().default(''),
-  gender:       GenderSchema.optional(),
+  gender: GenderSchema.default({ type: 'Prefer Not to Say' }),
   phone_number: z.string().default(''),
   dob:          z.string().default(''),
   address:      AddressSchema.default({}),

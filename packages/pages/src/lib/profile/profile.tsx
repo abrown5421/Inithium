@@ -3,10 +3,13 @@ import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { extractAvatarProps } from './avatar-utils';
-import { AvatarEditDialog } from './avatar-edit-dialog';
-import { BannerEditDialog } from './banner-edit-dialog';
+import { BannerEditDialog } from './banner/banner-edit-dialog';
 import { ProfileInfoSection } from './profile-info-section';
+import { extractAvatarProps } from './avatar/avatar-utils';
+import { AvatarEditDialog } from './avatar/avatar-edit-dialog';
+import { ProfileTabs } from './tabs/profile-tabs';
+import './tabs/register-profile-tabs'; 
+import { User } from '@inithium/types';
 
 const formatDate = (dateString?: string): string =>
   dateString ? new Date(dateString).toLocaleDateString() : '';
@@ -19,7 +22,7 @@ interface ProfileRowProps {
 
 const ProfileRow: React.FC<ProfileRowProps> = ({ left, right = null, className = '' }) => (
   <div className={`flex flex-row w-auto mx-8 ${className}`}>
-    <div className="flex flex-col flex-1/4 items-center justify-center">
+    <div className="flex flex-col flex-1/4 items-center">
       {left}
     </div>
     <div className="flex flex-col flex-3/4">
@@ -119,11 +122,13 @@ const ProfileIdentityHeader: React.FC<ProfileIdentityHeaderProps> = ({ profileUs
 
 interface ContentSectionProps {
   profileUser: any;
+  isOwnProfile: boolean;
+  activeUser: User | null;
 }
 
-const ContentSection: React.FC<ContentSectionProps> = ({ profileUser }) => (
+const ContentSection: React.FC<ContentSectionProps> = ({ profileUser, isOwnProfile, activeUser }) => (
   <ProfileRow
-    className="mt-6 overflow-scroll"
+    className="mt-6"
     left={
       <Box flex direction="col" className="w-full">
         <ProfileIdentityHeader profileUser={profileUser} />
@@ -132,7 +137,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({ profileUser }) => (
     }
     right={
       <Box className="h-full w-full py-3 px-6">
-        Profile Tab system here
+        <ProfileTabs profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
       </Box>
     }
   />
@@ -163,7 +168,7 @@ const ProfilePage: React.FC = () => {
         onEditClick={() => setIsAvatarDialogOpen(true)}
       />
 
-      <ContentSection profileUser={profileUser} />
+      <ContentSection profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
 
       {isOwnProfile && (
         <>
