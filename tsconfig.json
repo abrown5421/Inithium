@@ -38,6 +38,9 @@
     },
     {
       "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/file-manager"
     }
   ]
 }
