@@ -62,4 +62,13 @@ export const usersService: UsersService = {
 
     return base.createOne(normalizedPayload);
   },
+  updateOne: async (id, data) => {
+    const rawInput = data as Partial<User>;
+
+    if (rawInput.password) {
+      (rawInput as any).password = await bcrypt.hash(rawInput.password, 12);
+    }
+
+    return base.updateOne(id, rawInput);
+  },
 };
