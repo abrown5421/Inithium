@@ -18,6 +18,7 @@ import {
 } from '@inithium/api-collections';
 import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
+import { createFileManagerRouter } from '@inithium/file-manager';
 
 const host     = process.env['HOST']      ?? 'localhost';
 const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
@@ -25,7 +26,15 @@ const mongoUri = process.env['MONGO_URI'] ?? 'mongodb://localhost:27017/my-app';
 
 const allowedOrigins = process.env['CORS_ORIGINS']
   ? process.env['CORS_ORIGINS'].split(',').map((o) => o.trim())
-  : ['http://localhost:5173', 'http://localhost:4200'];
+  : ['http://localhost:5173', 'http://localhost:8080'];
+
+const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..', '..', '..');
+console.log('[file-manager] REPO_ROOT:', REPO_ROOT);
+
+const fileManagerRouter = createFileManagerRouter({
+  pagesLibDir:      path.join(REPO_ROOT, 'packages', 'pages', 'src', 'lib'),
+  pagesBarrelIndex: path.join(REPO_ROOT, 'packages', 'pages', 'src', 'index.ts'),
+});
 
 const app = express();
 
@@ -40,11 +49,12 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/api/users',  usersRouter);
-app.use('/api/pages',  pagesRouter);
-app.use('/api/assets', assetsRouter);
-app.use('/api/auth', authRouter);
-app.use('/api/settings', settingsRouter);
+app.use('/api/users',        usersRouter);
+app.use('/api/pages',        pagesRouter);
+app.use('/api/assets',       assetsRouter);
+app.use('/api/auth',         authRouter);
+app.use('/api/settings',     settingsRouter);
+app.use('/api/file-manager', fileManagerRouter);
 
 app.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
@@ -62,8 +72,7 @@ async function bootstrap() {
   });
 
   app.use('/api/asset-manager', assetManager.handshakeRouter);
-
-  app.use('/api/assets', assetManager.proxyRouter);
+  app.use('/api/assets',        assetManager.proxyRouter);
 
   app.listen(port, host, () => {
     console.log(`[ ready  ] http://${host}:${port}`);
