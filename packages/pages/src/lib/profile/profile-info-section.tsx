@@ -1,3 +1,4 @@
+import { selectSettingByKey } from '@inithium/store';
 import { Box, Text } from '@inithium/ui';
 import {
   Mail,
@@ -6,6 +7,7 @@ import {
   Cake,
   type LucideIcon,
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const formatDob = (dob?: string): string =>
   dob
@@ -63,16 +65,22 @@ interface ProfileInfoSectionProps {
 export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileUser }) => {
   if (!profileUser) return null;
 
-  const address = formatAddress(profileUser.address);
-  const dob = formatDob(profileUser.dob);
-  const hasContact = profileUser.email || profileUser.phone_number;
+  const showAddress = useSelector(selectSettingByKey('profile-info-address'))?.value ?? true;
+  const showPhone   = useSelector(selectSettingByKey('profile-info-phone'))?.value ?? true;
+  const showDob     = useSelector(selectSettingByKey('profile-info-dob'))?.value ?? true;
+  const showBio     = useSelector(selectSettingByKey('profile-info-bio'))?.value ?? true;
+
+  const address = showAddress ? formatAddress(profileUser.address) : '';
+  const dob     = showDob     ? formatDob(profileUser.dob)         : '';
+
+  const hasContact = profileUser.email || (showPhone && profileUser.phone_number);
   const hasPersonal = dob || address;
 
-  if (!hasContact && !hasPersonal && !profileUser.bio && !profileUser.role) return null;
+  if (!hasContact && !hasPersonal && !(showBio && profileUser.bio) && !profileUser.role) return null;
 
   return (
     <Box flex direction="col" className="mt-1">
-      {profileUser.bio && (
+      {showBio && profileUser.bio && (
         <Box className="py-3 border-b border-t border-slate-300">
           <Text variant="body" color="surface-contrast" overrideClassName="text-sm leading-relaxed">
             {profileUser.bio}
@@ -83,17 +91,16 @@ export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileU
       {hasContact && (
         <InfoGroup>
           {profileUser.email && <InfoRow icon={Mail} value={profileUser.email} />}
-          {profileUser.phone_number && <InfoRow icon={Phone} value={profileUser.phone_number} />}
+          {showPhone && profileUser.phone_number && <InfoRow icon={Phone} value={profileUser.phone_number} />}
         </InfoGroup>
       )}
 
       {hasPersonal && (
         <InfoGroup>
-          {dob && <InfoRow icon={Cake} value={dob} />}
+          {dob     && <InfoRow icon={Cake}   value={dob}     />}
           {address && <InfoRow icon={MapPin} value={address} />}
         </InfoGroup>
       )}
-      
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import { selectActiveUser, useUserQuery } from '@inithium/store';
+import { selectActiveUser, selectSettingByKey, useUserQuery } from '@inithium/store';
 import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '@inithium/ui';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -149,6 +149,12 @@ const ProfilePage: React.FC = () => {
   const activeUser = useSelector(selectActiveUser);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
+  const profileSettingAddress = useSelector(selectSettingByKey('profile-info-address'));
+  const profileSettingPhone = useSelector(selectSettingByKey('profile-info-phone'));
+  const profileSettingDob = useSelector(selectSettingByKey('profile-info-dob'));
+  const profileSettingGender = useSelector(selectSettingByKey('profile-info-gender'));
+  const profileSettingBio = useSelector(selectSettingByKey('profile-info-bio'));
+  const profileSettingDarkMode = useSelector(selectSettingByKey('profile-info-dark-mode'));
 
   useEffect(() => console.log(profileUser), [profileUser]);
   const isOwnProfile = !!activeUser && profileUser?._id === activeUser._id;

@@ -25,6 +25,14 @@ interface FormErrors {
   gender_custom?: string;
 }
 
+export interface ActiveFieldFlags {
+  showPhone?: boolean;
+  showDob?: boolean;
+  showGender?: boolean;
+  showAddress?: boolean;
+  showBio?: boolean;
+}
+
 interface UseProfileInfoFormOptions {
   profileUser: any;
   activeUser: any;
@@ -64,20 +72,33 @@ export const useProfileInfoForm = ({ profileUser, activeUser }: UseProfileInfoFo
     }
   };
 
-  const validate = (): boolean => {
+  const validate = (flags: ActiveFieldFlags = {}): boolean => {
+    const { showGender = true } = flags;
     const next: FormErrors = {};
-    if (!form.first_name.trim()) next.first_name = 'First name is required.';
-    if (!form.gender_type) next.gender_type = 'Please select a gender option.';
-    if (form.gender_type === 'Custom' && !form.gender_custom.trim()) {
-      next.gender_custom = 'Please enter your custom gender.';
+
+    if (!form.first_name.trim()) {
+      next.first_name = 'First name is required.';
     }
+
+    if (showGender) {
+      if (!form.gender_type) {
+        next.gender_type = 'Please select a gender option.';
+      }
+      if (form.gender_type === 'Custom' && !form.gender_custom.trim()) {
+        next.gender_custom = 'Please enter your custom gender.';
+      }
+    }
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
-  const handleSave = async (closeDialog: () => void) => {
+  const handleSave = async (closeDialog: () => void, flags: ActiveFieldFlags = {}) => {
     if (!profileUser?._id) return false;
-    if (!validate()) return false;
+
+    const { showPhone = true, showDob = true, showGender = true, showAddress = true, showBio = true } = flags;
+
+    if (!validate(flags)) return false;
 
     setSaveError(null);
 
@@ -85,22 +106,26 @@ export const useProfileInfoForm = ({ profileUser, activeUser }: UseProfileInfoFo
       const updatedUserResult = await updateUser({
         id: profileUser._id,
         data: {
-            first_name: form.first_name.trim(),
-            last_name: form.last_name.trim(),
-            bio: form.bio,           // ← add this
-            dob: form.dob,
-            phone_number: form.phone_number,
+          first_name: form.first_name.trim(),
+          last_name: form.last_name.trim(),
+          ...(showBio     && { bio: form.bio }),
+          ...(showDob     && { dob: form.dob }),
+          ...(showPhone   && { phone_number: form.phone_number }),
+          ...(showGender  && {
             gender: {
-            type: form.gender_type,
-            ...(form.gender_type === 'Custom' ? { custom: form.gender_custom.trim() } : {}),
+              type: form.gender_type,
+              ...(form.gender_type === 'Custom' ? { custom: form.gender_custom.trim() } : {}),
             },
+          }),
+          ...(showAddress && {
             address: {
-            street: form.address_street,
-            city: form.address_city,
-            state: form.address_state,
-            zip: form.address_zip,
-            country: form.address_country,
+              street: form.address_street,
+              city: form.address_city,
+              state: form.address_state,
+              zip: form.address_zip,
+              country: form.address_country,
             },
+          }),
         },
       }).unwrap();
 
@@ -122,14 +147,5 @@ export const useProfileInfoForm = ({ profileUser, activeUser }: UseProfileInfoFo
     setSaveError(null);
   };
 
-  return {
-    form,
-    errors,
-    saveError,
-    isSaving,
-    setField,
-    validate,
-    handleSave,
-    resetForm,
-  };
+  return { form, errors, saveError, isSaving, setField, validate, handleSave, resetForm };
 };

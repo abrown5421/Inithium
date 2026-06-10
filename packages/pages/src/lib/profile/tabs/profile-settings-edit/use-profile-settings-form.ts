@@ -20,6 +20,10 @@ interface UseProfileSettingsFormOptions {
   activeUser: any;
 }
 
+export interface SettingsFieldFlags {
+  showDarkMode?: boolean;
+}
+
 const buildFormState = (profileUser: any): FormState => ({
   email: profileUser?.email ?? '',
   new_password: '',
@@ -51,7 +55,6 @@ export const useProfileSettingsForm = ({ profileUser, activeUser }: UseProfileSe
   const [errors, setErrors] = useState<FormErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Password change flow state
   const [currentPassword, setCurrentPassword] = useState('');
   const [currentPasswordError, setCurrentPasswordError] = useState<string | null>(null);
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
@@ -108,9 +111,11 @@ export const useProfileSettingsForm = ({ profileUser, activeUser }: UseProfileSe
     return Object.keys(next).length === 0;
   };
 
-  const handleSave = async (closeDialog: () => void) => {
+  const handleSave = async (closeDialog: () => void, flags: SettingsFieldFlags = {}) => {
     if (!profileUser?._id) return false;
     if (!validate()) return false;
+
+    const { showDarkMode = true } = flags;
 
     setSaveError(null);
 
@@ -119,7 +124,7 @@ export const useProfileSettingsForm = ({ profileUser, activeUser }: UseProfileSe
         id: profileUser._id,
         data: {
           email: form.email.trim(),
-          dark_mode: form.dark_mode,
+          ...(showDarkMode && { dark_mode: form.dark_mode }),
           ...(isPasswordVerified && form.new_password ? { password: form.new_password } : {}),
         },
       }).unwrap();
