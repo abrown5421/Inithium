@@ -124,7 +124,7 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
   };
 
   return (
-    <Box color="surface-contrast" flex direction="col" justify="center" align="center" fullWidth fullHeight>
+    <Box flex direction="col" justify="center" align="center" fullWidth fullHeight>
       <Box
         color="surface"
         flex
