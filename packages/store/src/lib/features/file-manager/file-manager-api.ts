@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+// file-manager.api.ts
+import { baseApi } from '../../base/base-api';
 
 export type CreatePageDto = {
   slug: string;
@@ -15,28 +16,17 @@ export type DeletePageResponseDto = {
   slug: string;
 };
 
-export const fileManagerApi = createApi({
-  reducerPath: 'fileManagerApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/file-manager' }),
+export const fileManagerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createPage: builder.mutation<CreatePageResponseDto, CreatePageDto>({
-      query: (body) => ({
-        url: '/pages',
-        method: 'POST',
-        body,
-      }),
+    createPageFile: builder.mutation<CreatePageResponseDto, CreatePageDto>({
+      query: (body) => ({ url: '/file-manager/pages', method: 'POST', body }),
     }),
-
-    deletePage: builder.mutation<DeletePageResponseDto, string>({
-      query: (slug) => ({
-        url: `/pages/${slug}`,
-        method: 'DELETE',
-      }),
+    deletePageFile: builder.mutation<DeletePageResponseDto, string>({
+      query: (slug) => ({ url: `/file-manager/pages/${slug}`, method: 'DELETE' }),
     }),
   }),
+  overrideExisting: false,
 });
 
-export const {
-  useCreatePageMutation,
-  useDeletePageMutation,
-} = fileManagerApi;
+export const useCreatePageFileMutation = fileManagerApi.endpoints.createPageFile.useMutation;
+export const useDeletePageFileMutation = fileManagerApi.endpoints.deletePageFile.useMutation;

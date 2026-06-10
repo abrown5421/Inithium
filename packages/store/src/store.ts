@@ -4,11 +4,9 @@ import { baseApi } from './lib/base';
 import { activeUserSlice } from './lib/features/active-user/active-user-slice';
 import { alertSlice } from './lib/features/alert/alert-slice';
 import { settingsSlice } from './lib/features/settings/settings-slice';
-import { fileManagerApi } from './lib/features/file-manager/file-manager-api';
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
-  [fileManagerApi.reducerPath]: fileManagerApi.reducer,
   [activeUserSlice.name]: activeUserSlice.reducer,
   [alertSlice.name]: alertSlice.reducer,
   [settingsSlice.name]: settingsSlice.reducer,
@@ -20,7 +18,7 @@ export const createInithiumStore = (preloadedState?: Partial<RootState>) => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false,
-      }).concat(baseApi.middleware as any, fileManagerApi.middleware),
+      }).concat(baseApi.middleware as any),
     preloadedState,
     devTools: process.env['NODE_ENV'] !== 'production',
   });
