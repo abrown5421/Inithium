@@ -144,7 +144,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <Box color="surface-contrast" flex direction="col" justify="center" align="center" fullWidth fullHeight>
+    <Box flex direction="col" justify="center" align="center" fullWidth fullHeight>
       <Box
         color="surface" flex direction="col" align="center" padding="xl" borderRadius="lg"
         style={{ width: '100%', maxWidth: '480px', boxShadow: '0 4px 32px 0 rgba(15,80,102,0.10)', gap: '12px' }}
