@@ -11,7 +11,7 @@ function pathToComponentKey(path: string): string {
     .split('-')
     .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
     .join('');
-  return `${pascal}Page`;
+  return pascal.endsWith('Page') ? pascal : `${pascal}Page`;
 }
 
 const registry: Record<string, LazyExoticComponent<AnyPageComponent>> = {};

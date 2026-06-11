@@ -23,14 +23,15 @@ const deletePageSchema = z.object({
 export interface FileManagerRouterOptions {
   pagesLibDir: string;
   pagesBarrelIndex: string;
+  onAfterScaffold?: () => Promise<void>;
 }
 
 export function createFileManagerRouter(options: FileManagerRouterOptions): Router {
-  const { pagesLibDir, pagesBarrelIndex } = options;
+  const { pagesLibDir, pagesBarrelIndex, onAfterScaffold } = options;
   const router = Router();
+
   router.post('/pages', async (req: Request, res: Response, next: NextFunction) => {
     const parsed = createPageSchema.safeParse(req.body);
-
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
@@ -48,15 +49,18 @@ export function createFileManagerRouter(options: FileManagerRouterOptions): Rout
         message: `Page component "${parsed.data.componentName}" created successfully.`,
         slug: parsed.data.slug,
       });
+
+      onAfterScaffold?.().catch((err) =>
+        console.error('[file-manager] onAfterScaffold error:', err),
+      );
     } catch (err) {
-        console.error('[file-manager] error:', err);
-        next(err);
+      console.error('[file-manager] error:', err);
+      next(err);
     }
   });
 
   router.delete('/pages/:slug', async (req: Request, res: Response, next: NextFunction) => {
     const parsed = deletePageSchema.safeParse({ slug: req.params['slug'] });
-
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
@@ -73,6 +77,10 @@ export function createFileManagerRouter(options: FileManagerRouterOptions): Rout
         message: `Page component "${parsed.data.slug}" deleted successfully.`,
         slug: parsed.data.slug,
       });
+
+      onAfterScaffold?.().catch((err) =>
+        console.error('[file-manager] onAfterScaffold error:', err),
+      );
     } catch (err) {
       next(err);
     }

@@ -8,9 +8,10 @@ import 'animate.css';
 import './styles.css';
 import App from './app/app';
 
-bootstrapRegistry(
-  import.meta.glob('../../../packages/pages/src/lib/**/*.tsx', { eager: false }) as any,
-);
+bootstrapRegistry({
+  ...import.meta.glob('../../../packages/pages/src/lib/**/*.tsx', { eager: false }),
+  ...import.meta.glob('./pages/**/*.tsx', { eager: false }),
+} as any);
 
 const store = createInithiumStore();
 
@@ -22,7 +23,7 @@ root.render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-          <App />
+        <App />
       </BrowserRouter>
     </Provider>
   </StrictMode>,

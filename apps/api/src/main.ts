@@ -19,6 +19,8 @@ import {
 import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 import { createFileManagerRouter } from '@inithium/file-manager';
+import { triggerEngagementDeploy } from './deploy-hook.service';
+
 
 const host     = process.env['HOST']      ?? 'localhost';
 const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
@@ -34,6 +36,7 @@ console.log('[file-manager] REPO_ROOT:', REPO_ROOT);
 const fileManagerRouter = createFileManagerRouter({
   pagesLibDir:      path.join(REPO_ROOT, 'packages', 'pages', 'src', 'lib'),
   pagesBarrelIndex: path.join(REPO_ROOT, 'packages', 'pages', 'src', 'index.ts'),
+  onAfterScaffold:  triggerEngagementDeploy,
 });
 
 const app = express();
