@@ -51,3 +51,4 @@ vite.config.*.timestamp*
 
 .env
 *.zip
+*.md
