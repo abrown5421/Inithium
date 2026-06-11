@@ -13,4 +13,5 @@ export {
   registerPageComponent,
   getRegisteredKeys,
 } from './lib/registry/page-registry';
+export { registerDynamicPage } from './lib/registry/dynamic-page-importer'
 export type { AnyPageComponent, PageGlobMap } from './lib/registry/page-registry';

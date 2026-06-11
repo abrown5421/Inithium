@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { Page } from '@inithium/types';
 import { resolvePageComponent } from '../registry/page-registry';
-import { Box } from '@inithium/ui';
+import { Box, Loader } from '@inithium/ui';
 import { Text } from '@inithium/ui';
 
 const speedClassMap: Record<string, string> = {
@@ -110,9 +110,7 @@ const AnimatedPage = forwardRef<AnimatedPageHandle, AnimatedPageProps>(
         <Suspense
           fallback={
             <Box flex align="center" justify="center" fullWidth fullHeight>
-              <Text variant="body2" overrideClassName="inline-block text-sm leading-relaxed font-normal text-primary opacity-40">
-                Loading…
-              </Text>
+              <Loader variant="spinner" size="lg" color="primary" />
             </Box>
           }
         >

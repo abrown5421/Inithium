@@ -1,5 +1,5 @@
-import React, { useReducer, useTransition, useMemo } from 'react';
-import { Box, Button, Input, Select, Text, Checkbox } from '@inithium/ui';
+import React, { useReducer, useTransition, useMemo, useState } from 'react';
+import { Box, Button, Input, Select, Text, Checkbox, ThemeColorPicker } from '@inithium/ui';
 import { z } from 'zod';
 import {
   Page,
@@ -12,7 +12,7 @@ import {
 import {
   useCreatePageMutation as useCreatePageDbMutation,
   useUpdatePageMutation,
-  useCreatePageFileMutation, 
+  useCreatePageFileMutation,
 } from '@inithium/store';
 
 const AnimateEntrySchema = z.enum([
@@ -55,30 +55,30 @@ const ThemeColorSchema = z.enum([
 ]);
 
 const NavigationConfigSchema = z.object({
-  label:           z.string().min(1, 'Navigation label is required'),
-  location:        z.enum(['main', 'profile', 'footer', 'cms', 'none']),
-  order:           z.number().optional(),
-  authenticated:   z.boolean().optional(),
-  anonymous:       z.boolean().optional(),
-  isButton:        z.boolean().optional(),
-  resolveNavPath:  z.string().nullable().optional(),
+  label: z.string().min(1, 'Navigation label is required'),
+  location: z.enum(['main', 'profile', 'footer', 'cms', 'none']),
+  order: z.number().optional(),
+  authenticated: z.boolean().optional(),
+  anonymous: z.boolean().optional(),
+  isButton: z.boolean().optional(),
+  resolveNavPath: z.string().nullable().optional(),
 });
 
 export const CreatePageSchema = z.object({
-  key:            z.string().min(1, 'Page key is required'),
-  path:           z.string().min(1, 'Path is required').startsWith('/', 'Path must start with a "/"'),
-  componentKey:   z.string().min(1, 'Component key is required').regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
-  entry:          AnimateEntrySchema,
-  exit:           AnimateExitSchema,
-  entrySpeed:     AnimateSpeedSchema.optional(),
-  exitSpeed:      AnimateSpeedSchema.optional(),
-  bg:             ThemeColorSchema,
-  color:          ThemeColorSchema.optional(),
-  navigation:     NavigationConfigSchema.optional(),
-  centered:       z.boolean().optional(),
-  isErrorPage:    z.boolean().optional(),
+  key: z.string().min(1, 'Page key is required'),
+  path: z.string().min(1, 'Path is required').startsWith('/', 'Path must start with a "/"'),
+  componentKey: z.string().min(1, 'Component key is required').regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
+  entry: AnimateEntrySchema,
+  exit: AnimateExitSchema,
+  entrySpeed: AnimateSpeedSchema.optional(),
+  exitSpeed: AnimateSpeedSchema.optional(),
+  bg: ThemeColorSchema,
+  color: ThemeColorSchema.optional(),
+  navigation: NavigationConfigSchema.optional(),
+  centered: z.boolean().optional(),
+  isErrorPage: z.boolean().optional(),
   is_system_page: z.boolean().default(false),
-  isActive:       z.boolean().default(true),
+  isActive: z.boolean().default(true),
 });
 
 const FileSchema = z.object({
@@ -87,67 +87,44 @@ const FileSchema = z.object({
 });
 
 const ANIMATE_ENTRY_OPTIONS = [
-  { value: 'fadeIn',        label: 'Fade In' },
-  { value: 'fadeInDown',    label: 'Fade In Down' },
-  { value: 'fadeInUp',      label: 'Fade In Up' },
-  { value: 'fadeInLeft',    label: 'Fade In Left' },
-  { value: 'fadeInRight',   label: 'Fade In Right' },
-  { value: 'slideInLeft',   label: 'Slide In Left' },
-  { value: 'slideInRight',  label: 'Slide In Right' },
-  { value: 'zoomIn',        label: 'Zoom In' },
+  { value: 'fadeIn', label: 'Fade In' },
+  { value: 'fadeInDown', label: 'Fade In Down' },
+  { value: 'fadeInUp', label: 'Fade In Up' },
+  { value: 'fadeInLeft', label: 'Fade In Left' },
+  { value: 'fadeInRight', label: 'Fade In Right' },
+  { value: 'slideInLeft', label: 'Slide In Left' },
+  { value: 'slideInRight', label: 'Slide In Right' },
+  { value: 'zoomIn', label: 'Zoom In' },
 ];
 
 const ANIMATE_EXIT_OPTIONS = [
-  { value: 'fadeOut',       label: 'Fade Out' },
-  { value: 'fadeOutDown',   label: 'Fade Out Down' },
-  { value: 'fadeOutUp',     label: 'Fade Out Up' },
-  { value: 'fadeOutLeft',   label: 'Fade Out Left' },
-  { value: 'fadeOutRight',  label: 'Fade Out Right' },
-  { value: 'slideOutLeft',  label: 'Slide Out Left' },
+  { value: 'fadeOut', label: 'Fade Out' },
+  { value: 'fadeOutDown', label: 'Fade Out Down' },
+  { value: 'fadeOutUp', label: 'Fade Out Up' },
+  { value: 'fadeOutLeft', label: 'Fade Out Left' },
+  { value: 'fadeOutRight', label: 'Fade Out Right' },
+  { value: 'slideOutLeft', label: 'Slide Out Left' },
   { value: 'slideOutRight', label: 'Slide Out Right' },
-  { value: 'zoomOut',       label: 'Zoom Out' },
+  { value: 'zoomOut', label: 'Zoom Out' },
 ];
 
 const SPEED_OPTIONS = [
   { value: 'normal', label: 'Normal (None)' },
   { value: 'faster', label: 'Faster' },
-  { value: 'fast',   label: 'Fast' },
-  { value: 'slow',   label: 'Slow' },
+  { value: 'fast', label: 'Fast' },
+  { value: 'slow', label: 'Slow' },
   { value: 'slower', label: 'Slower' },
 ];
 
-const THEME_OPTIONS = [
-  { value: 'primary',            label: 'Primary' },
-  { value: 'primary-contrast',   label: 'Primary Contrast' },
-  { value: 'secondary',          label: 'Secondary' },
-  { value: 'secondary-contrast', label: 'Secondary Contrast' },
-  { value: 'accent',             label: 'Accent' },
-  { value: 'accent-contrast',    label: 'Accent Contrast' },
-  { value: 'success',            label: 'Success' },
-  { value: 'success-contrast',   label: 'Success Contrast' },
-  { value: 'warning',            label: 'Warning' },
-  { value: 'warning-contrast',   label: 'Warning Contrast' },
-  { value: 'danger',             label: 'Danger' },
-  { value: 'danger-contrast',    label: 'Danger Contrast' },
-  { value: 'surface',            label: 'Surface' },
-  { value: 'surface-contrast',   label: 'Surface Contrast' },
-  { value: 'surface2',           label: 'Surface 2' },
-  { value: 'surface2-contrast',  label: 'Surface 2 Contrast' },
-  { value: 'surface3',           label: 'Surface 3' },
-  { value: 'surface3-contrast',  label: 'Surface 3 Contrast' },
-  { value: 'surface4',           label: 'Surface 4' },
-  { value: 'surface4-contrast',  label: 'Surface 4 Contrast' },
-];
-
 const NAV_LOCATION_OPTIONS = [
-  { value: 'none',    label: 'None' },
-  { value: 'main',    label: 'Main' },
+  { value: 'none', label: 'None' },
+  { value: 'main', label: 'Main' },
   { value: 'profile', label: 'Profile' },
-  { value: 'footer',  label: 'Footer' },
-  { value: 'cms',     label: 'CMS' },
+  { value: 'footer', label: 'Footer' },
+  { value: 'cms', label: 'CMS' },
 ];
 
-const toSlug = (componentKey: string): string =>
+export const toSlug = (componentKey: string): string =>
   componentKey
     .replace(/(?<!^)([A-Z])/g, '-$1')
     .toLowerCase()
@@ -188,24 +165,24 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 };
 
 const createInitialState = (page?: Page): FormState => ({
-  key:          '',
-  path:         '/',
+  key: '',
+  path: '/',
   componentKey: '',
-  entry:        'fadeIn'   as AnimateEntry,
-  entrySpeed:   undefined,
-  exit:         'fadeOut'  as AnimateExit,
-  exitSpeed:    undefined,
-  bg:           'primary'  as ThemeColor,
-  color:        undefined,
-  isActive:     true,
-  centered:     false,
-  isErrorPage:  false,
+  entry: 'fadeIn' as AnimateEntry,
+  entrySpeed: undefined,
+  exit: 'fadeOut' as AnimateExit,
+  exitSpeed: undefined,
+  bg: 'primary' as ThemeColor,
+  color: undefined,
+  isActive: true,
+  centered: false,
+  isErrorPage: false,
   is_system_page: false,
   navigation: {
-    location:      'none' as NavLocation,
-    label:         '',
+    location: 'none' as NavLocation,
+    label: '',
     authenticated: false,
-    anonymous:     false,
+    anonymous: false,
   },
   ...page,
 });
@@ -214,9 +191,10 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
   const isEditMode = Boolean(page?._id);
   const [formState, dispatch] = useReducer(formReducer, page, createInitialState);
   const [isPending, startTransition] = useTransition();
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const [createPageDb]   = useCreatePageDbMutation();
-  const [updatePage]     = useUpdatePageMutation();
+  const [createPageDb] = useCreatePageDbMutation();
+  const [updatePage] = useUpdatePageMutation();
   const [createPageFile] = useCreatePageFileMutation();
 
   const updateField = (field: keyof Page) => (value: any) =>
@@ -253,21 +231,21 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
 
   const processedPayloads = useMemo(() => {
     const base: Record<string, any> = {
-      key:            formState.key            ?? '',
-      path:           formState.path           ?? '/',
-      componentKey:   formState.componentKey   ?? '',
-      entry:          formState.entry          ?? 'fadeIn',
-      exit:           formState.exit           ?? 'fadeOut',
-      bg:             formState.bg             ?? 'primary',
-      isActive:       formState.isActive       ?? true,
-      centered:       formState.centered       ?? false,
-      isErrorPage:    formState.isErrorPage    ?? false,
+      key: formState.key ?? '',
+      path: formState.path ?? '/',
+      componentKey: formState.componentKey ?? '',
+      entry: formState.entry ?? 'fadeIn',
+      exit: formState.exit ?? 'fadeOut',
+      bg: formState.bg ?? 'primary',
+      isActive: formState.isActive ?? true,
+      centered: formState.centered ?? false,
+      isErrorPage: formState.isErrorPage ?? false,
       is_system_page: formState.is_system_page ?? false,
     };
 
-    if (formState.color)      base.color      = formState.color;
+    if (formState.color) base.color = formState.color;
     if (formState.entrySpeed) base.entrySpeed = formState.entrySpeed;
-    if (formState.exitSpeed)  base.exitSpeed  = formState.exitSpeed;
+    if (formState.exitSpeed) base.exitSpeed = formState.exitSpeed;
 
     const nav = formState.navigation;
     if (nav && nav.location !== 'none' && nav.label !== '') {
@@ -275,7 +253,7 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
     }
 
     const filePayload = {
-      slug:          toSlug(base.componentKey),
+      slug: toSlug(base.componentKey),
       componentName: base.componentKey,
     };
 
@@ -284,7 +262,8 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
 
   const validationErrors = useMemo(() => {
     const errors: Record<string, string> = {};
-    
+    if (!isSubmitted) return errors;
+
     const dbResult = CreatePageSchema.safeParse(processedPayloads.dbPayload);
     if (!dbResult.success) {
       dbResult.error.issues.forEach((issue) => {
@@ -305,12 +284,34 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
     }
 
     return errors;
+  }, [processedPayloads, isEditMode, isSubmitted]);
+
+  const rawValidationErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+    const dbResult = CreatePageSchema.safeParse(processedPayloads.dbPayload);
+    if (!dbResult.success) {
+      dbResult.error.issues.forEach((issue) => {
+        errors[issue.path.join('.')] = issue.message;
+      });
+    }
+    if (!isEditMode) {
+      const fileResult = FileSchema.safeParse(processedPayloads.filePayload);
+      if (!fileResult.success) {
+        fileResult.error.issues.forEach((issue) => {
+          if (!errors[issue.path.join('.')]) {
+            errors[issue.path.join('.')] = issue.message;
+          }
+        });
+      }
+    }
+    return errors;
   }, [processedPayloads, isEditMode]);
 
-  const isFormValid = Object.keys(validationErrors).length === 0;
+  const isFormValid = Object.keys(rawValidationErrors).length === 0;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
+    setIsSubmitted(true);
     if (!isFormValid) return;
 
     const { dbPayload, filePayload } = processedPayloads;
@@ -346,7 +347,9 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
             required
           />
           {validationErrors['key'] && (
-            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">{validationErrors['key']}</Text>
+            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+              {validationErrors['key']}
+            </Text>
           )}
         </Box>
         <Box flex direction="col" className="gap-1 flex-1">
@@ -363,7 +366,9 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
             required
           />
           {validationErrors['path'] && (
-            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">{validationErrors['path']}</Text>
+            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+              {validationErrors['path']}
+            </Text>
           )}
         </Box>
       </Box>
@@ -382,10 +387,14 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
           required
         />
         {validationErrors['componentKey'] && (
-          <Text overrideClassName="text-xs text-danger font-medium mt-0.5">{validationErrors['componentKey']}</Text>
+          <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+            {validationErrors['componentKey']}
+          </Text>
         )}
         {validationErrors['componentName'] && (
-          <Text overrideClassName="text-xs text-danger font-medium mt-0.5">{validationErrors['componentName']}</Text>
+          <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+            {validationErrors['componentName']}
+          </Text>
         )}
       </Box>
 
@@ -449,26 +458,16 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
 
       <Box flex direction="row" className="gap-4">
         <Box className="flex-1">
-          <Select
+          <ThemeColorPicker
             label="Background Color"
-            options={THEME_OPTIONS}
-            color="primary"
-            variant="outline"
-            size="sm"
-            fullWidth
-            value={formState.bg ?? 'primary'}
+            value={formState.bg as ThemeColor}
             onChange={handleSelectChange('bg')}
           />
         </Box>
         <Box className="flex-1">
-          <Select
+          <ThemeColorPicker
             label="Text Color"
-            options={[{ value: '' as any, label: 'None' }, ...THEME_OPTIONS]}
-            color="primary"
-            variant="outline"
-            size="sm"
-            fullWidth
-            value={(formState.color ?? '') as any}
+            value={formState.color as ThemeColor}
             onChange={handleSelectChange('color')}
           />
         </Box>
@@ -488,7 +487,9 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
             onChange={handleNestedInputChange('navigation', 'label')}
           />
           {validationErrors['navigation.label'] && (
-            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">{validationErrors['navigation.label']}</Text>
+            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+              {validationErrors['navigation.label']}
+            </Text>
           )}
         </Box>
         <Box className="flex-1">
@@ -558,11 +559,11 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
         </Button>
         <Button
           variant="solid"
-          color={isFormValid ? 'primary' : 'secondary'}
+          color={isSubmitted && !isFormValid ? 'secondary' : 'primary'}
           size="sm"
           type="submit"
           onClick={handleSubmit}
-          disabled={!isFormValid || isPending}
+          disabled={isPending}
         >
           {isEditMode ? 'Save Modifications' : 'Create Page'}
         </Button>

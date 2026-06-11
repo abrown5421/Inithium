@@ -4,11 +4,13 @@ import {
   useReadAllPagesQuery,
   useDeletePageMutation,
   useDeletePagesBatchMutation,
+  useDeletePageFileMutation
 } from '@inithium/store';
 import { Page } from '@inithium/types';
 import { Input } from '@inithium/ui';
 import { PageItem } from './page-item';
 import { PageFormDialog } from './page-form-dialog';
+import { toSlug } from './page-form';
 
 const PAGE_SIZE = 8;
 
@@ -45,7 +47,7 @@ const CmsPagesPage: React.FC = () => {
   const { data, isLoading, error } = useReadAllPagesQuery();
   const [deletePage] = useDeletePageMutation();
   const [deletePagesBatch] = useDeletePagesBatchMutation();
-
+  const [deletePageFile] = useDeletePageFileMutation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -129,15 +131,29 @@ const CmsPagesPage: React.FC = () => {
     if (!deleteContext) return;
     try {
       const { targets } = deleteContext;
+
       if (targets.length === 1) {
+        const targetPage = pages.find((p) => p._id === targets[0]);
         await deletePage(targets[0]).unwrap();
+        if (targetPage?.componentKey) {
+          await deletePageFile(toSlug(targetPage.componentKey)).unwrap();
+        }
         if (selectedIds.has(targets[0])) {
           setSelectedIds(toggleSelection(targets[0]));
         }
       } else {
         await deletePagesBatch(targets).unwrap();
+        await Promise.all(
+          targets.map((id) => {
+            const targetPage = pages.find((p) => p._id === id);
+            return targetPage?.componentKey
+              ? deletePageFile(toSlug(targetPage.componentKey)).unwrap()
+              : Promise.resolve();
+          }),
+        );
         setSelectedIds(new Set());
       }
+
       closeDialog();
     } catch (err) {
       console.error('Page deletion error:', err);
