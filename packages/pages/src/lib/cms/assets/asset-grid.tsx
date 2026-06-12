@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
-import {
-  Image,
-  Type,
-  Music,
-  Video,
-  FileText,
-  Folder,
-} from 'lucide-react';
-import { Box, Button, Text, Checkbox } from '@inithium/ui';
+import { Image, Type, Music, Video, FileText, Folder } from 'lucide-react';
+import { Box, Button, Text } from '@inithium/ui';
 import type { Asset } from '@inithium/types';
+import { CmsItemRow } from '@inithium/ui';
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
   image:     <Image size={18} />,
@@ -125,83 +119,49 @@ const AssetRow: React.FC<AssetRowProps> = ({ asset, isSelected, onToggle, onDele
   const catIconColor = CATEGORY_ICON_COLOR[asset.category ?? 'misc'] ?? CATEGORY_ICON_COLOR['misc'];
 
   return (
-    <Box
-      flex
-      direction="row"
-      justify="between"
-      align="center"
-      color="surface2"
-      border
-      borderWidth="thin"
-      borderRadius="md"
-      padding="md"
-      fullWidth
-      className={[
-        'transition-colors hover:bg-surface3 gap-3 group',
-        isSelected ? 'ring-2 ring-primary border-primary' : '',
-      ].join(' ')}
-    >
-      <Box flex direction="row" align="center" className="gap-2.5 min-w-0 flex-1">
-        <Box flex align="center" justify="center" className="w-5 h-5 shrink-0">
-          <Checkbox
-            checked={isSelected}
-            onChange={() => onToggle(asset._id)}
-            color="primary"
-            size="md"
+    <CmsItemRow
+      isSelected={isSelected}
+      onToggle={() => onToggle(asset._id)}
+      thumbnailSlot={
+        isImage && !imgError ? (
+          <img
+            src={proxyUrl}
+            alt={displayName}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover"
           />
-        </Box>
-
-        <Box
-          flex
-          align="center"
-          justify="center"
-          borderRadius="md"
-          color="surface"
-          borderWidth="thin"
-          className="w-9 h-9 shrink-0 overflow-hidden mx-2"
-        >
-          {isImage && !imgError ? (
-            <img
-              src={proxyUrl}
-              alt={displayName}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className={catIconColor} aria-label={asset.category ?? 'file'}>
-              {catIcon}
-            </span>
-          )}
-        </Box>
-
-        <Box flex direction="col" className="min-w-0">
-          <Text
-            variant="body2"
-            overrideClassName="font-semibold text-sm text-primary truncate"
-          >
+        ) : (
+          <span className={catIconColor} aria-label={asset.category ?? 'file'}>
+            {catIcon}
+          </span>
+        )
+      }
+      infoSlot={
+        <>
+          <Text variant="body2" overrideClassName="font-semibold text-sm text-primary truncate">
             {displayName}
           </Text>
           <Text variant="caption" color="secondary" overrideClassName="text-xs truncate">
             {asset.mimetype ?? asset.category ?? '—'}
           </Text>
-        </Box>
-      </Box>
-
-      <Box flex direction="row" align="center" className="gap-2 shrink-0">
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${catColor}`}>
-          {asset.category ?? 'misc'}
-        </span>
-
-        <Text
-          variant="caption"
-          color="secondary"
-          overrideClassName="text-xs min-w-[52px] text-right"
-        >
-          {formatBytes(asset.size ?? 0)}
-        </Text>
-
-        <Box flex align="center" className="gap-0.5 transition-opacity">
-          
+        </>
+      }
+      badgesSlot={
+        <>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${catColor}`}>
+            {asset.category ?? 'misc'}
+          </span>
+          <Text
+            variant="caption"
+            color="secondary"
+            overrideClassName="text-xs min-w-[52px] text-right"
+          >
+            {formatBytes(asset.size ?? 0)}
+          </Text>
+        </>
+      }
+      actionsSlot={
+        <>
           <Button
             variant="ghost"
             color="secondary"
@@ -224,8 +184,8 @@ const AssetRow: React.FC<AssetRowProps> = ({ asset, isSelected, onToggle, onDele
               onDelete(asset);
             }}
           />
-        </Box>
-      </Box>
-    </Box>
+        </>
+      }
+    />
   );
 };

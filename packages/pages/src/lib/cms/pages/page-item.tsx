@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page } from '@inithium/types';
-import { Box, Button, Checkbox, Text } from '@inithium/ui';
+import { Box, Button, Text } from '@inithium/ui';
+import { CmsItemRow } from '@inithium/ui';
 
 const STATUS_STYLES = {
   active:   'bg-success text-success-contrast',
@@ -25,31 +26,12 @@ export const PageItem: React.FC<PageItemProps> = ({
   const statusStyle = page.isActive ? STATUS_STYLES.active : STATUS_STYLES.inactive;
 
   return (
-    <Box
-      flex
-      direction="row"
-      justify="between"
-      align="center"
-      color="surface2"
-      border
-      borderWidth="thin"
-      borderRadius="md"
-      padding="md"
-      fullWidth
-      className="transition-colors hover:bg-surface3 items-center"
-    >
-      <Box flex direction="row" align="center" className="gap-2 min-w-0 flex-1">
-        <Box flex align="center" justify="center" className="w-5 h-5 shrink-0">
-          <Checkbox
-            checked={isSelected}
-            onChange={() => onToggle(page._id)}
-            color="primary"
-            size="md"
-            disabled={page.is_system_page}
-          />
-        </Box>
-
-        <Box flex direction="col" className="min-w-0">
+    <CmsItemRow
+      isSelected={isSelected}
+      onToggle={() => onToggle(page._id)}
+      checkboxDisabled={page.is_system_page}
+      infoSlot={
+        <>
           <Box flex align="center" className="gap-1.5">
             <Text variant="body2" overrideClassName="font-semibold text-sm text-primary truncate">
               {page.key}
@@ -63,17 +45,17 @@ export const PageItem: React.FC<PageItemProps> = ({
           <Text variant="caption" color="secondary" overrideClassName="text-xs text-secondary truncate">
             {page.path}
           </Text>
-        </Box>
-      </Box>
-
-      <Box flex direction="row" align="center" className="gap-2 shrink-0">
+        </>
+      }
+      badgesSlot={
         <span
           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide ${statusStyle}`}
         >
           {page.isActive ? 'active' : 'inactive'}
         </span>
-
-        <Box flex align="center" className="gap-1">
+      }
+      actionsSlot={
+        <>
           <Button
             variant="ghost"
             color="secondary"
@@ -93,8 +75,8 @@ export const PageItem: React.FC<PageItemProps> = ({
             disabled={page.is_system_page}
             aria-label={`Delete ${page.key}`}
           />
-        </Box>
-      </Box>
-    </Box>
+        </>
+      }
+    />
   );
 };

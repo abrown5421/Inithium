@@ -1,47 +1,52 @@
 import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, Checkbox, Loader, Pagination, Text, Dialog } from '@inithium/ui';
-import { 
-  useReadAllUsersQuery, 
-  useCreateUserMutation, 
-  useUpdateUserMutation, 
-  useDeleteUserMutation, 
+import { Box, Button, Dialog, Pagination, Text } from '@inithium/ui';
+import {
+  useReadAllUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
   useDeleteUsersBatchMutation,
   selectActiveUser,
-  showAlert
+  showAlert,
 } from '@inithium/store';
 import { User } from '@inithium/types';
 import { UserItem } from './user-item';
-import { Input } from '@inithium/ui';
 import { UserForm } from './user-form';
+import { CmsDataPage } from '@inithium/ui';
+import { ConfirmDeleteDialog } from '@inithium/ui';
 
 const PAGE_SIZE = 8;
 
-const paginate = (size: number) => (page: number) => (items: readonly User[]): readonly User[] =>
-  items.slice((page - 1) * size, page * size);
+const filterUsers =
+  (query: string) =>
+  (users: readonly User[]): readonly User[] => {
+    const q = query.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(
+      (u) =>
+        u.first_name?.toLowerCase().includes(q) ||
+        u.last_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q),
+    );
+  };
 
-const toggleSelection = (id: string) => (selected: ReadonlySet<string>): ReadonlySet<string> => {
-  const next = new Set(selected);
-  next.has(id) ? next.delete(id) : next.add(id);
-  return next;
-};
+const toggleSelection =
+  (id: string) =>
+  (selected: ReadonlySet<string>): ReadonlySet<string> => {
+    const next = new Set(selected);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  };
 
-const toggleAll = (pageIds: readonly string[]) => (selected: ReadonlySet<string>): ReadonlySet<string> => {
-  const hasAll = pageIds.every(id => selected.has(id));
-  const next = new Set(selected);
-  pageIds.forEach(id => hasAll ? next.delete(id) : next.add(id));
-  return next;
-};
-
-const filterUsers = (query: string) => (users: readonly User[]): readonly User[] => {
-  const q = query.trim().toLowerCase();
-  if (!q) return users;
-  return users.filter(u =>
-    u.first_name?.toLowerCase().includes(q) ||
-    u.last_name?.toLowerCase().includes(q) ||
-    u.email?.toLowerCase().includes(q)
-  );
-};
+const toggleAll =
+  (pageIds: readonly string[]) =>
+  (selected: ReadonlySet<string>): ReadonlySet<string> => {
+    const hasAll = pageIds.every((id) => selected.has(id));
+    const next = new Set(selected);
+    pageIds.forEach((id) => (hasAll ? next.delete(id) : next.add(id)));
+    return next;
+  };
 
 const CmsUsersPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -49,14 +54,17 @@ const CmsUsersPage: React.FC = () => {
   const loggedInRole = loggedInUser?.role ?? 'user';
 
   const canCreateUsers = loggedInRole === 'super-admin' || loggedInRole === 'admin';
-  const canDeleteUsers = loggedInRole === 'super-admin' || loggedInRole === 'admin' || loggedInRole === 'editor';
+  const canDeleteUsers =
+    loggedInRole === 'super-admin' ||
+    loggedInRole === 'admin' ||
+    loggedInRole === 'editor';
 
   const { data, isLoading, error } = useReadAllUsersQuery();
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [deleteUsersBatch] = useDeleteUsersBatchMutation();
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,22 +72,24 @@ const CmsUsersPage: React.FC = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [activeUser, setActiveUser] = useState<User | undefined>(undefined);
   const [formSubmitting, setFormSubmitting] = useState(false);
-  const [deleteContext, setDeleteContext] = useState<{ targets: readonly string[]; label: string } | null>(null);
+  const [deleteContext, setDeleteContext] = useState<{
+    targets: readonly string[];
+    label: string;
+  } | null>(null);
 
   const users: readonly User[] = useMemo(() => data ?? [], [data]);
   const filteredUsers = useMemo(() => filterUsers(searchQuery)(users), [searchQuery, users]);
-  const totalItems = filteredUsers.length;
 
-  const pagedUsers = useMemo(() =>
-    paginate(PAGE_SIZE)(currentPage)(filteredUsers),
-    [currentPage, filteredUsers]
+  const pagedUsers = useMemo(
+    () => filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [currentPage, filteredUsers],
   );
 
-  const pageIds = useMemo(() => pagedUsers.map(u => u._id), [pagedUsers]);
+  const pageIds = useMemo(() => pagedUsers.map((u) => u._id), [pagedUsers]);
 
-  const isAllSelected = useMemo(() =>
-    pageIds.length > 0 && pageIds.every(id => selectedIds.has(id)),
-    [pageIds, selectedIds]
+  const isAllSelected = useMemo(
+    () => pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id)),
+    [pageIds, selectedIds],
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -89,7 +99,7 @@ const CmsUsersPage: React.FC = () => {
 
   const handleToggle = (id: string): void => setSelectedIds(toggleSelection(id));
   const handleToggleAll = (): void => setSelectedIds(toggleAll(pageIds));
-  
+
   const handleCreateTrigger = (): void => {
     if (!canCreateUsers) return;
     setApiError(null);
@@ -107,7 +117,7 @@ const CmsUsersPage: React.FC = () => {
     setIsFormOpen(false);
     setActiveUser(undefined);
     setApiError(null);
-  }; 
+  };
 
   const handleFormSubmit = async (payload: any): Promise<void> => {
     setFormSubmitting(true);
@@ -120,10 +130,11 @@ const CmsUsersPage: React.FC = () => {
       }
       setIsFormOpen(false);
       setActiveUser(undefined);
-
       dispatch(
         showAlert({
-          message: activeUser ? 'Account profiles saved successfully.' : 'New management operator created successfully.',
+          message: activeUser
+            ? 'Account profiles saved successfully.'
+            : 'New management operator created successfully.',
           severity: 'success',
           closeable: false,
           position: 'bottom-right',
@@ -133,10 +144,11 @@ const CmsUsersPage: React.FC = () => {
             entrySpeed: 'fast',
             exitSpeed: 'faster',
           },
-        })
+        }),
       );
     } catch (err: any) {
-      const msg = err?.data?.message ?? err?.error ?? 'An unexpected validation rejection occurred.';
+      const msg =
+        err?.data?.message ?? err?.error ?? 'An unexpected validation rejection occurred.';
       setApiError(typeof msg === 'string' ? msg : JSON.stringify(msg));
       console.error('Operation failure caught during storage update:', err);
     } finally {
@@ -182,117 +194,69 @@ const CmsUsersPage: React.FC = () => {
     }
   };
 
-  const dialogActions = useMemo(() => [
-    {
-      label: 'Cancel',
-      variant: 'ghost' as const,
-      color: 'secondary' as const,
-      onClick: (close: () => void) => {
-        close();
-        setDeleteContext(null);
-      },
-    },
-    {
-      label: 'Delete Permanently',
-      variant: 'solid' as const,
-      color: 'danger' as const,
-      leadingIcon: 'trash-2',
-      onClick: (close: () => void) => executeDeletion(close),
-    },
-  ], [deleteContext]);
-
   return (
-    <Box padding="md" className="h-full w-full">
-      {isLoading ? (
-        <Box flex justify="center" align="center" className="h-full w-full">
-          <Loader variant="spinner" size="lg" color="primary" />
-        </Box>
-      ) : error ? (
-        <Box flex justify="center" align="center" className="h-full w-full">
-          <Text color="danger">Error loading resources</Text>
-        </Box>
-      ) : (
-        <Box flex direction="col" className="h-full gap-2">
-          <Box flex justify="between" align="center" className="w-full gap-2">
-            <Box className="flex-1">
-              <Input
-                label="Search by name or email"
-                leadingIcon="search"
-                variant="outline"
-                color="primary"
-                size="sm"
-                fullWidth
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-            </Box>
-            {canCreateUsers && (
-              <Button variant="solid" color="primary" size="sm" onClick={handleCreateTrigger} leadingIcon="user-plus">
-                Add User
-              </Button>
-            )}
-          </Box>
-
-          <Box flex align="center" justify="between" className="bg-surface1 padding-sm rounded-md my-2">
-            <Box flex align="center" className="gap-2">
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleToggleAll}
-                color="primary"
-                size="sm"
-              />
-              <Text variant="body2" overrideClassName="font-medium text-sm">
-                Select All on Page
-              </Text>
-            </Box>
-            {selectedIds.size > 0 && canDeleteUsers && (
-              <Button
-                variant="ghost"
-                color="danger"
-                size="sm"
-                onClick={handleBulkDeleteTrigger}
-                leadingIcon="trash-2"
-              >
-                Delete Selected ({selectedIds.size})
-              </Button>
-            )}
-          </Box>
-
-          <Box flex direction="col" className="flex-1 gap-2">
-            {pagedUsers.length > 0 ? (
-              pagedUsers.map((user: User) => (
-                <UserItem
-                  key={user._id}
-                  user={user}
-                  isSelected={selectedIds.has(user._id)}
-                  onToggle={handleToggle}
-                  onEdit={handleEditTrigger}
-                  onDelete={handleDeleteTrigger}
-                  loggedInRole={loggedInRole}
-                />
-              ))
-            ) : (
-              <Box flex justify="center" align="center" className="py-8">
-                <Text color="secondary">No users match "{searchQuery}"</Text>
-              </Box>
-            )}
-          </Box>
-
-          <Box flex justify="center" align="center" padding="sm">
-            <Pagination
-              totalItems={totalItems}
-              itemsPerPage={PAGE_SIZE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+    <>
+      <CmsDataPage
+        isLoading={isLoading}
+        error={error}
+        errorMessage="Error loading resources"
+        searchQuery={searchQuery}
+        searchLabel="Search by name or email"
+        onSearchChange={handleSearchChange}
+        toolbarAction={
+          canCreateUsers ? (
+            <Button
+              variant="solid"
+              color="primary"
+              size="sm"
+              onClick={handleCreateTrigger}
+              leadingIcon="user-plus"
+            >
+              Add User
+            </Button>
+          ) : undefined
+        }
+        isAllSelected={isAllSelected}
+        onToggleAll={handleToggleAll}
+        selectedCount={selectedIds.size}
+        canBulkDelete={canDeleteUsers}
+        onBulkDelete={handleBulkDeleteTrigger}
+        pagination={
+          <Pagination
+            totalItems={filteredUsers.length}
+            itemsPerPage={PAGE_SIZE}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        }
+      >
+        {pagedUsers.length > 0 ? (
+          pagedUsers.map((user: User) => (
+            <UserItem
+              key={user._id}
+              user={user}
+              isSelected={selectedIds.has(user._id)}
+              onToggle={handleToggle}
+              onEdit={handleEditTrigger}
+              onDelete={handleDeleteTrigger}
+              loggedInRole={loggedInRole}
             />
+          ))
+        ) : (
+          <Box flex justify="center" align="center" className="py-8">
+            <Text color="secondary">No users match &ldquo;{searchQuery}&rdquo;</Text>
           </Box>
-        </Box>
-      )}
+        )}
+      </CmsDataPage>
 
       <Dialog
         open={isFormOpen}
         onClose={handleFormClose}
-        title={activeUser ? `Modify Account: ${activeUser.first_name}` : 'Register New Manager Account'}
+        title={
+          activeUser
+            ? `Modify Account: ${activeUser.first_name}`
+            : 'Register New Manager Account'
+        }
         size="xl"
         variant="default"
         backdrop={true}
@@ -310,22 +274,13 @@ const CmsUsersPage: React.FC = () => {
         />
       </Dialog>
 
-      <Dialog
+      <ConfirmDeleteDialog
         open={Boolean(deleteContext)}
+        label={deleteContext?.label ?? ''}
         onClose={() => setDeleteContext(null)}
-        title="Confirm Destructive Action"
-        size="xl"
-        variant="alert"
-        backdrop={true}
-        transition={true}
-        actions={dialogActions}
-        actionsAlign="right"
-      >
-        <Text variant="body2" overrideClassName="text-slate-600">
-          {deleteContext?.label}
-        </Text>
-      </Dialog>
-    </Box>
+        onConfirm={executeDeletion}
+      />
+    </>
   );
 };
 
