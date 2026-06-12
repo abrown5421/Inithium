@@ -1,5 +1,5 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text, Loader, Alert, useDarkMode } from '@inithium/ui';
+import { Box, Navbar, Text, Loader, Alert, useDarkMode, Footer } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
@@ -54,6 +54,22 @@ const App: React.FC = () => {
       .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
   }, [data, activeUser]);
 
+  const footerNavPages = useMemo<Page[]>(() => {
+    if (!data) return [];
+    return [...data]
+      .filter((page) => page.navigation?.location === 'main')
+      .filter((page) => activeUser ? !page.navigation?.anonymous : !page.navigation?.authenticated)
+      .filter((page) => !page.navigation?.isButton)
+      .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
+  }, [data, activeUser]);
+
+  const footerSecondaryPages = useMemo<Page[]>(() => {
+    if (!data) return [];
+    return [...data]
+      .filter((page) => page.navigation?.location === 'footer')
+      .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0));
+  }, [data]);
+
   const renderLink = (page: Page, className?: string) => {
     const params = activeUser?._id ? { id: activeUser._id } : undefined;
     return (
@@ -96,6 +112,11 @@ const App: React.FC = () => {
             onLogout={handleLogout}
           />
           <TransitionRouter />
+          <Footer
+            pages={footerNavPages}
+            footerPages={footerSecondaryPages}
+            renderLink={renderLink}
+          />
         </Box>
       )}
     </Box>

@@ -1,4 +1,5 @@
 export * from './navbar/index'
+export * from './footer/index'
 export * from './avatar/index'
 export * from './pagination/index'
 export * from './color-picker/index'
