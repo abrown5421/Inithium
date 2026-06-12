@@ -1,57 +1,41 @@
 import { baseApi } from '../../base/base-api';
 import { clearActiveUser } from '../active-user/active-user-slice';
-import type { AuthTokens, LoginRequestDto, User } from '@inithium/types';
+import type { LoginRequestDto, User } from '@inithium/types';
 
-export type SignupDto = Omit<User, '_id'>;
+export type SignupDto = Omit<User, '_id' | 'role'>;
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    signup: builder.mutation<AuthTokens, SignupDto>({
+    signup: builder.mutation<{ message: string }, SignupDto>({
       query: (body) => ({
-        url: '/auth/signup',
-        method: 'POST',
+        url:         '/auth/signup',
+        method:      'POST',
         body,
+        credentials: 'include',
       }),
       invalidatesTags: ['Auth'],
-      onQueryStarted: async (_args, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
-          localStorage.setItem('auth_token', data.accessToken);
-          localStorage.setItem('refresh_token', data.refreshToken);
-        } catch {}
-      },
     }),
 
-    login: builder.mutation<AuthTokens, LoginRequestDto>({
+    login: builder.mutation<{ message: string }, LoginRequestDto>({
       query: (body) => ({
-        url: '/auth/login',
-        method: 'POST',
+        url:         '/auth/login',
+        method:      'POST',
         body,
+        credentials: 'include',
       }),
       invalidatesTags: ['Auth'],
-      onQueryStarted: async (_args, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
-          localStorage.setItem('auth_token', data.accessToken);
-          localStorage.setItem('refresh_token', data.refreshToken);
-        } catch {}
-      },
     }),
 
-    refresh: builder.mutation<AuthTokens, { refreshToken: string }>({
-      query: (body) => ({
-        url: '/auth/refresh',
-        method: 'POST',
-        body,
+    refresh: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url:         '/auth/refresh',
+        method:      'POST',
+        credentials: 'include',
       }),
       onQueryStarted: async (_args, { dispatch, queryFulfilled }) => {
         try {
-          const { data } = await queryFulfilled;
-          localStorage.setItem('auth_token', data.accessToken);
-          localStorage.setItem('refresh_token', data.refreshToken);
+          await queryFulfilled;
         } catch {
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
           dispatch(clearActiveUser());
           window.location.href = '/auth/login';
         }
@@ -60,16 +44,15 @@ export const authApi = baseApi.injectEndpoints({
 
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
+        url:         '/auth/logout',
+        method:      'POST',
+        credentials: 'include',
       }),
       invalidatesTags: ['Auth'],
       onQueryStarted: async (_args, { dispatch, queryFulfilled }) => {
         try {
           await queryFulfilled;
         } finally {
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
           dispatch(clearActiveUser());
         }
       },

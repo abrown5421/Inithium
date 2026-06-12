@@ -26,8 +26,6 @@ export interface LoginRequestDto {
 }
 
 export interface SignupRequestDto
-  extends Omit<import('../user/user.types.js').User, '_id'> {}
+  extends Omit<import('../user/user.types.js').User, '_id' | 'role'> {}
 
-export interface RefreshRequestDto {
-  refreshToken: string;
-}
+export interface RefreshRequestDto {}

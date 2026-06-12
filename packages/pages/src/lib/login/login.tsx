@@ -4,7 +4,6 @@ import { Input, Button, Text, Box } from '@inithium/ui';
 import { NavigationLink } from '@inithium/router';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation, useLogoutMutation, useUserQuery, setActiveUser, showAlert } from '@inithium/store';
-import { decodeJwt } from '@inithium/utils';
 
 interface LoginFormValues {
   email: string;
@@ -94,7 +93,7 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
 
     const errs = validate(values);
     setErrors(errs);
-    
+
     if (Object.keys(errs).length > 0) {
       dispatch(
         showAlert({
@@ -114,9 +113,20 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
     }
 
     try {
-      const { accessToken } = await login({ email: values.email, password: values.password }).unwrap();
-      const { sub } = decodeJwt(accessToken);
-      setUserId(sub);
+      await login({ email: values.email, password: values.password }).unwrap();
+      const meRes = await fetch(
+        `${import.meta.env['VITE_API_ORIGIN'] ?? 'http://localhost:3000'}/api/auth/me`,
+        { credentials: 'include' }
+      );
+      if (meRes.ok) {
+        const user = await meRes.json();
+        if (restrictedRoles.length > 0 && restrictedRoles.includes(user.role)) {
+          logout();
+          setApiError('You do not have permission to access this area.');
+          return;
+        }
+        dispatch(setActiveUser(user));
+      }
     } catch (err: any) {
       const message = err?.data?.message ?? err?.error ?? 'Invalid email or password.';
       setApiError(typeof message === 'string' ? message : 'Login failed. Please try again.');

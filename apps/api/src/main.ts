@@ -7,6 +7,7 @@ process.env['ASSETS_ROOT'] = path.resolve(__dirname, 'assets');
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { connectDB, errorHandler } from '@inithium/api-core';
 import {
   usersRouter,
@@ -20,7 +21,6 @@ import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 import { createFileManagerRouter } from '@inithium/file-manager';
 import { triggerEngagementDeploy } from './deploy-hook.service';
-
 
 const host     = process.env['HOST']      ?? 'localhost';
 const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
@@ -50,6 +50,7 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use(cookieParser());
 app.use(express.json());
 
 app.use('/api/users',        usersRouter);

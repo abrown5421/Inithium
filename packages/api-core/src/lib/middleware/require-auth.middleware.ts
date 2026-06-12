@@ -15,10 +15,14 @@ export const requireAuth = (
   res: Response,
   next: NextFunction
 ): void => {
+  const cookieToken = req.cookies?.['access_token'] ?? null;
+
   const authHeader = req.headers['authorization'];
-  const token = authHeader?.startsWith('Bearer ')
+  const headerToken = authHeader?.startsWith('Bearer ')
     ? authHeader.slice(7)
     : null;
+
+  const token = cookieToken ?? headerToken;
 
   if (!token) {
     res.status(401).json({ message: 'No token provided' });
