@@ -35,7 +35,8 @@ export const authService = {
 
     const userPayload = {
       ...dto,
-      password: hashed,
+      password:     hashed,
+      role:         'user' as const,
       bio:          dto.bio          ?? '',
       phone_number: dto.phone_number ?? '',
       dob:          dto.dob          ?? '',
@@ -43,7 +44,7 @@ export const authService = {
         ? dto.address
         : { street: '', city: '', state: '', zip: '', country: '' },
       user_avatar: dto.user_avatar && Object.keys(dto.user_avatar).length > 0
-        ? dto.user_avatar 
+        ? dto.user_avatar
         : buildDefaultAvatar(dto.first_name, dto.last_name),
       user_banner: dto.user_banner && Object.keys(dto.user_banner).length > 0
         ? dto.user_banner
@@ -85,7 +86,7 @@ export const authService = {
     if (!user) {
       throw Object.assign(new Error('User not found'), { status: 401 });
     }
-    
+
     return signTokens({
       sub:   user._id.toString(),
       email: user.email,

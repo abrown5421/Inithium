@@ -18,14 +18,8 @@ const getApiBaseUrl = (): string => {
 };
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: getApiBaseUrl(),
-  prepareHeaders: (headers) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
-    }
-    return headers;
-  },
+  baseUrl:     getApiBaseUrl(),
+  credentials: 'include',
 });
 
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
@@ -36,39 +30,21 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   let result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
-    const refreshToken = localStorage.getItem('refresh_token');
+    const refreshResult = await rawBaseQuery(
+      {
+        url:         '/auth/refresh',
+        method:      'POST',
+        credentials: 'include',
+      },
+      api,
+      extraOptions,
+    );
 
-    if (refreshToken) {
-      const refreshResult = await rawBaseQuery(
-        {
-          url: '/auth/refresh',
-          method: 'POST',
-          body: { refreshToken },
-        },
-        api,
-        extraOptions,
-      );
-
-      if (refreshResult.data) {
-        const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as {
-          accessToken: string;
-          refreshToken: string;
-        };
-
-        localStorage.setItem('auth_token', accessToken);
-        localStorage.setItem('refresh_token', newRefreshToken);
-
-        result = await rawBaseQuery(args, api, extraOptions);
-      } else {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token');
-        api.dispatch(clearActiveUser());
-        window.location.href = getLoginPath();
-      }
+    if (refreshResult.data) {
+      result = await rawBaseQuery(args, api, extraOptions);
     } else {
-      localStorage.removeItem('auth_token');
       api.dispatch(clearActiveUser());
-      window.location.href = getLoginPath(); 
+      window.location.href = getLoginPath();
     }
   }
 
@@ -77,7 +53,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 
 export const baseApi = createApi({
   reducerPath: 'inithiumApi',
-  baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Page', 'Asset', 'Auth', 'Setting'],
-  endpoints: () => ({}),
+  baseQuery:   baseQueryWithReauth,
+  tagTypes:    ['User', 'Page', 'Asset', 'Auth', 'Setting'],
+  endpoints:   () => ({}),
 });

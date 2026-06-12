@@ -3,8 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input, Button, Text, Box } from '@inithium/ui';
 import { NavigationLink } from '@inithium/router';
 import { useDispatch } from 'react-redux';
-import { SignupDto, useSignupMutation, useUserQuery, setActiveUser, showAlert } from '@inithium/store';
-import { decodeJwt } from '@inithium/utils';
+import { useSignupMutation, setActiveUser, showAlert } from '@inithium/store';
 
 interface SignUpFormValues {
   firstName: string;
@@ -62,9 +61,6 @@ const SignUp: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  const { data: fetchedUser } = useUserQuery(userId!, { skip: !userId });
 
   useEffect(() => {
     if (apiError) {
@@ -85,12 +81,6 @@ const SignUp: React.FC = () => {
     }
   }, [apiError, dispatch]);
 
-  useEffect(() => {
-    if (fetchedUser) {
-      dispatch(setActiveUser(fetchedUser));
-    }
-  }, [fetchedUser, dispatch]);
-
   const handleChange = (field: keyof SignUpFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const updated = { ...values, [field]: e.target.value };
     setValues(updated);
@@ -105,7 +95,7 @@ const SignUp: React.FC = () => {
 
     const errs = validate(values);
     setErrors(errs);
-    
+
     if (Object.keys(errs).length > 0) {
       dispatch(
         showAlert({
@@ -124,19 +114,23 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    const signupPayload: SignupDto = {
-      first_name: values.firstName,
-      last_name: values.lastName,
-      email: values.email,
-      password: values.password,
-      role: 'user',
-      dark_mode: false,
-    };
-
     try {
-      const { accessToken } = await signup(signupPayload).unwrap();
-      const { sub } = decodeJwt(accessToken);
-      setUserId(sub);
+      await signup({
+        first_name:   values.firstName,
+        last_name:    values.lastName,
+        email:        values.email,
+        password:     values.password,
+        dark_mode:    false,
+      }).unwrap();
+
+      const meRes = await fetch(
+        `${import.meta.env['VITE_API_ORIGIN'] ?? 'http://localhost:3000'}/api/auth/me`,
+        { credentials: 'include' }
+      );
+      if (meRes.ok) {
+        const user = await meRes.json();
+        dispatch(setActiveUser(user));
+      }
     } catch (err: any) {
       const message = err?.data?.message ?? err?.error ?? 'Sign up failed. Please try again.';
       setApiError(typeof message === 'string' ? message : 'Sign up failed. Please try again.');

@@ -46,20 +46,17 @@ export const SignupSchema = z.object({
   password:     z.string().min(8),
   first_name:   z.string().min(1),
   last_name:    z.string().min(1),
-  role:         z.enum(['super-admin', 'admin', 'editor', 'writer', 'user']).default('user'),
   user_banner:  TrianglifyOptionsSchema.partial().default({}),
   user_avatar:  AvatarPropsSchema.partial().default({}),
   bio:          z.string().default(''),
-  gender: GenderSchema.default({ type: 'Prefer Not to Say' }),
+  gender:       GenderSchema.default({ type: 'Prefer Not to Say' }),
   phone_number: z.string().default(''),
   dob:          z.string().default(''),
   address:      AddressSchema.default({}),
   dark_mode:    z.boolean().default(false),
 });
 
-export const RefreshSchema = z.object({
-  refreshToken: z.string().min(1),
-});
+export const RefreshSchema = z.object({});
 
 export type LoginDto   = z.infer<typeof LoginSchema>;
 export type SignupDto  = z.infer<typeof SignupSchema>;
