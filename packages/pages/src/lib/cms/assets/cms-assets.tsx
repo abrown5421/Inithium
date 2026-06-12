@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { Box, Button, Loader, Text, Dialog, Input } from '@inithium/ui';
+import { Button } from '@inithium/ui';
 import {
   useGetAssetsQuery,
   useDeleteAssetMutation,
@@ -12,11 +12,25 @@ import type { Asset } from '@inithium/types';
 import { AssetBrowserSidebar } from './asset-browser-sidebar';
 import { AssetGrid } from './asset-grid';
 import { AssetUploadDialog } from './asset-upload-dialog';
+import { CmsDataPage } from '@inithium/ui';
+import { ConfirmDeleteDialog } from '@inithium/ui';
 
 export type AssetCategory = 'all' | 'images' | 'fonts' | 'audio' | 'videos' | 'documents' | 'misc';
 export type AssetOwnerContext = 'all' | 'app' | 'user';
 
 const PAGE_SIZE = 8;
+
+const singularCategory = (cat: AssetCategory): string => {
+  const map: Record<string, string> = {
+    images: 'image',
+    fonts: 'font',
+    audio: 'audio',
+    videos: 'video',
+    documents: 'document',
+    misc: 'other',
+  };
+  return map[cat] ?? cat;
+};
 
 const filterAssets = (
   assets: readonly Asset[],
@@ -27,7 +41,9 @@ const filterAssets = (
   let result = assets;
 
   if (category !== 'all') {
-    result = result.filter((a) => a.category === category || a.category === singularCategory(category));
+    result = result.filter(
+      (a) => a.category === category || a.category === singularCategory(category),
+    );
   }
 
   if (ownerContext !== 'all') {
@@ -45,18 +61,6 @@ const filterAssets = (
   }
 
   return result;
-};
-
-const singularCategory = (cat: AssetCategory): string => {
-  const map: Record<string, string> = {
-    images: 'image',
-    fonts: 'font',
-    audio: 'audio',
-    videos: 'video',
-    documents: 'document',
-    misc: 'other',
-  };
-  return map[cat] ?? cat;
 };
 
 const CmsAssetsPage: React.FC = () => {
@@ -194,150 +198,79 @@ const CmsAssetsPage: React.FC = () => {
     }
   };
 
-  const deleteDialogActions = useMemo(
-    () => [
-      {
-        label: 'Cancel',
-        variant: 'ghost' as const,
-        color: 'secondary' as const,
-        onClick: (close: () => void) => {
-          close();
-          setDeleteContext(null);
-        },
-      },
-      {
-        label: 'Delete Permanently',
-        variant: 'solid' as const,
-        color: 'danger' as const,
-        leadingIcon: 'trash-2',
-        onClick: (close: () => void) => executeDeletion(close),
-      },
-    ],
-    [deleteContext],
-  );
+  const pagination =
+    totalPages > 1 ? (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          color="secondary"
+          size="sm"
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          leadingIcon="chevron-left"
+        >
+          Prev
+        </Button>
+        <span className="text-sm px-2">
+          {currentPage} / {totalPages}
+        </span>
+        <Button
+          variant="ghost"
+          color="secondary"
+          size="sm"
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          trailingIcon="chevron-right"
+        >
+          Next
+        </Button>
+      </div>
+    ) : undefined;
 
   return (
-    <Box flex direction="row" className="h-full w-full overflow-hidden">
-      <AssetBrowserSidebar
-        selectedCategory={selectedCategory}
-        selectedOwnerContext={selectedOwnerContext}
-        assets={assets}
-        onCategoryChange={handleCategoryChange}
-        onOwnerContextChange={handleOwnerContextChange}
-      />
-
-      <Box flex direction="col" className="flex-1 min-w-0 h-full overflow-hidden">
-        {isLoading ? (
-          <Box flex justify="center" align="center" className="h-full w-full">
-            <Loader variant="spinner" size="lg" color="primary" />
-          </Box>
-        ) : error ? (
-          <Box flex justify="center" align="center" className="h-full w-full">
-            <Text color="danger">Error loading assets</Text>
-          </Box>
-        ) : (
-          <Box flex direction="col" className="h-full gap-2 p-4">
-            <Box flex justify="between" align="center" className="w-full gap-2 shrink-0">
-              <Box className="flex-1">
-                <Input
-                  label="Search assets"
-                  leadingIcon="search"
-                  variant="outline"
-                  color="primary"
-                  size="sm"
-                  fullWidth
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-              </Box>
-              <Button
-                variant="solid"
-                color="primary"
-                size="sm"
-                onClick={() => setIsUploadOpen(true)}
-                leadingIcon="upload"
-              >
-                Upload Assets
-              </Button>
-            </Box>
-
-            <Box
-              flex
-              align="center"
-              justify="between"
-              className="bg-surface1 px-3 py-2 rounded-md shrink-0"
-            >
-              <Box flex align="center" className="gap-2">
-                <input
-                  type="checkbox"
-                  checked={isAllSelected}
-                  onChange={handleToggleAll}
-                  className="w-4 h-4 accent-primary"
-                />
-                <Text variant="body2" overrideClassName="font-medium text-sm">
-                  Select All on Page
-                </Text>
-                {filteredAssets.length > 0 && (
-                  <Text variant="caption" color="secondary" overrideClassName="text-xs">
-                    ({filteredAssets.length} total)
-                  </Text>
-                )}
-              </Box>
-              {selectedIds.size > 0 && (
-                <Button
-                  variant="ghost"
-                  color="danger"
-                  size="sm"
-                  onClick={handleBulkDeleteTrigger}
-                  leadingIcon="trash-2"
-                >
-                  Delete Selected ({selectedIds.size})
-                </Button>
-              )}
-            </Box>
-
-            <Box className="flex-1 overflow-y-auto min-h-0">
-              <AssetGrid
-                assets={pagedAssets}
-                selectedIds={selectedIds}
-                onToggle={handleToggle}
-                onDelete={handleDeleteTrigger}
-                searchQuery={searchQuery}
-              />
-            </Box>
-
-            {totalPages > 1 && (
-              <Box flex justify="center" align="center" className="shrink-0 py-2">
-                <Box flex align="center" className="gap-2">
-                  <Button
-                    variant="ghost"
-                    color="secondary"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    leadingIcon="chevron-left"
-                  >
-                    Prev
-                  </Button>
-                  <Text variant="body2" overrideClassName="text-sm px-2">
-                    {currentPage} / {totalPages}
-                  </Text>
-                  <Button
-                    variant="ghost"
-                    color="secondary"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    trailingIcon="chevron-right"
-                  >
-                    Next
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </Box>
-        )}
-      </Box>
+    <>
+      <CmsDataPage
+        isLoading={isLoading}
+        error={error}
+        errorMessage="Error loading assets"
+        searchQuery={searchQuery}
+        searchLabel="Search assets"
+        onSearchChange={handleSearchChange}
+        toolbarAction={
+          <Button
+            variant="solid"
+            color="primary"
+            size="sm"
+            onClick={() => setIsUploadOpen(true)}
+            leadingIcon="upload"
+          >
+            Upload Assets
+          </Button>
+        }
+        isAllSelected={isAllSelected}
+        onToggleAll={handleToggleAll}
+        totalFilteredCount={filteredAssets.length}
+        selectedCount={selectedIds.size}
+        onBulkDelete={handleBulkDeleteTrigger}
+        pagination={pagination}
+        sidebarSlot={
+          <AssetBrowserSidebar
+            selectedCategory={selectedCategory}
+            selectedOwnerContext={selectedOwnerContext}
+            assets={assets}
+            onCategoryChange={handleCategoryChange}
+            onOwnerContextChange={handleOwnerContextChange}
+          />
+        }
+      >
+        <AssetGrid
+          assets={pagedAssets}
+          selectedIds={selectedIds}
+          onToggle={handleToggle}
+          onDelete={handleDeleteTrigger}
+          searchQuery={searchQuery}
+        />
+      </CmsDataPage>
 
       <AssetUploadDialog
         open={isUploadOpen}
@@ -348,22 +281,13 @@ const CmsAssetsPage: React.FC = () => {
         uploadAssetBinary={uploadAssetBinary}
       />
 
-      <Dialog
+      <ConfirmDeleteDialog
         open={Boolean(deleteContext)}
+        label={deleteContext?.label ?? ''}
         onClose={() => setDeleteContext(null)}
-        title="Confirm Destructive Action"
-        size="xl"
-        variant="alert"
-        backdrop={true}
-        transition={true}
-        actions={deleteDialogActions}
-        actionsAlign="right"
-      >
-        <Text variant="body2" overrideClassName="text-slate-600">
-          {deleteContext?.label}
-        </Text>
-      </Dialog>
-    </Box>
+        onConfirm={executeDeletion}
+      />
+    </>
   );
 };
 

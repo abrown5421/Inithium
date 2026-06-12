@@ -1,7 +1,8 @@
 import React from 'react';
 import { User } from '@inithium/types';
-import { Box, Button, Checkbox, Text } from '@inithium/ui';
- 
+import { Button, Text } from '@inithium/ui';
+import { CmsItemRow } from '@inithium/ui';
+
 const ROLE_COLOR: Record<string, string> = {
   'super-admin': 'bg-danger text-danger-contrast',
   'admin':       'bg-warning text-warning-contrast',
@@ -9,7 +10,7 @@ const ROLE_COLOR: Record<string, string> = {
   'writer':      'bg-success text-success-contrast',
   'user':        'bg-surface3 text-surface3-contrast',
 };
- 
+
 export interface UserItemProps {
   user: User;
   isSelected: boolean;
@@ -32,79 +33,47 @@ export const UserItem: React.FC<UserItemProps> = ({
   const roleColor = ROLE_COLOR[user.role] ?? ROLE_COLOR['user'];
 
   const canEdit = loggedInRole !== 'user';
-  const canDelete = loggedInRole === 'super-admin' || loggedInRole === 'admin' || loggedInRole === 'editor';
- 
+  const canDelete =
+    loggedInRole === 'super-admin' ||
+    loggedInRole === 'admin' ||
+    loggedInRole === 'editor';
+
   return (
-    <Box
-      flex
-      direction='row'
-      justify='between'
-      align='center'
-      color="surface2"
-      border
-      borderWidth="thin"
-      borderRadius="md"
-      padding="md"
-      fullWidth
-      className="transition-colors hover:bg-surface3 items-center"
-      style={{
-        gridTemplateColumns: 'auto auto 1fr 1fr 1fr auto',
-      }}
-    >
-      <Box flex direction='row' align='center' className='gap-2'>
-        <Box flex align="center" justify="center" className="w-5 h-5">
-          <Checkbox
-            checked={isSelected}
-            onChange={() => onToggle(user._id)}
-            color="primary"
-            size="md"
+    <CmsItemRow
+      isSelected={isSelected}
+      onToggle={() => onToggle(user._id)}
+      thumbnailSlot={
+        user.user_avatar?.src ? (
+          <img
+            src={user.user_avatar.src}
+            alt={user.user_avatar.alt ?? fullName}
+            className="w-full h-full rounded-full object-cover"
           />
-        </Box>
-   
-        <Box
-          flex
-          align="center"
-          justify="center"
-          borderRadius="full"
-          className="w-9 h-9 bg-primary text-primary-contrast shrink-0"
-        >
-          {user.user_avatar?.src ? (
-            <img
-              src={user.user_avatar.src}
-              alt={user.user_avatar.alt ?? fullName}
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            <Text variant="caption" overrideClassName="font-semibold text-xs text-primary-contrast">
-              {initials}
-            </Text>
-          )}
-        </Box>
-          
-        <Box flex direction="col" className="min-w-0">
+        ) : (
+          <Text variant="caption" overrideClassName="font-semibold text-xs text-primary-contrast">
+            {initials}
+          </Text>
+        )
+      }
+      infoSlot={
+        <>
           <Text variant="body2" overrideClassName="font-semibold text-sm text-primary truncate">
             {fullName}
           </Text>
           <Text variant="caption" color="secondary" overrideClassName="text-xs text-secondary truncate">
             {user.email}
           </Text>
-        </Box>
-      </Box>
-
-      <Box flex direction='row' align='center'>
-        <Box flex align="center">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide ${roleColor}`}>
-            {user.role}
-          </span>
-        </Box>
-   
-        <Box flex direction="col" className="hidden md:flex">
-          <Text variant="caption" overrideClassName="text-xs font-bold uppercase tracking-wider text-secondary">
-            Joined
-          </Text>
-        </Box>
-   
-        <Box flex align="center" justify="end" className="gap-2">
+        </>
+      }
+      badgesSlot={
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide ${roleColor}`}
+        >
+          {user.role}
+        </span>
+      }
+      actionsSlot={
+        <>
           {canEdit && (
             <Button
               variant="ghost"
@@ -127,8 +96,8 @@ export const UserItem: React.FC<UserItemProps> = ({
               aria-label={`Delete ${fullName}`}
             />
           )}
-        </Box>
-      </Box>
-    </Box>
+        </>
+      }
+    />
   );
 };

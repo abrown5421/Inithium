@@ -11,7 +11,7 @@ import {
   RootState,
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
-import type { AlertPosition, Page } from '@inithium/types';
+import type { Page } from '@inithium/types';
 import Login from '../../../../packages/pages/src/lib/login/login';
 
 const App: React.FC = () => {
