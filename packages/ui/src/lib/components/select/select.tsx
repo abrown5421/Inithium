@@ -44,26 +44,49 @@ const variantBaseStyles: Record<VariantKey, string> = {
 };
 
 const focusColorStyles: Record<ColorKey, string> = {
-  primary: 'focus:border-primary focus:ring-primary text-slate-900',
-  secondary: 'focus:border-secondary focus:ring-secondary text-slate-900',
-  accent: 'focus:border-accent focus:ring-accent text-slate-900',
-  success: 'focus:border-success focus:ring-success text-slate-900',
-  warning: 'focus:border-warning focus:ring-warning text-slate-900',
-  danger: 'focus:border-danger focus:ring-danger text-slate-900',
-  surface: 'focus:border-surface focus:ring-surface text-slate-900',
-  surface2: 'focus:border-surface2 focus:ring-surface2 text-slate-900',
-  surface3: 'focus:border-surface3 focus:ring-surface3 text-slate-900',
-  surface4: 'focus:border-surface4 focus:ring-surface4 text-slate-900',
-  'primary-contrast': 'focus:border-primary-contrast focus:ring-primary-contrast text-slate-900',
-  'secondary-contrast': 'focus:border-secondary-contrast focus:ring-secondary-contrast text-slate-900',
-  'accent-contrast': 'focus:border-accent-contrast focus:ring-accent-contrast text-slate-900',
-  'success-contrast': 'focus:border-success-contrast focus:ring-success-contrast text-slate-900',
-  'warning-contrast': 'focus:border-warning-contrast focus:ring-warning-contrast text-slate-900',
-  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast text-slate-900',
-  'surface-contrast': 'focus:border-surface-contrast focus:ring-surface-contrast text-slate-900',
-  'surface2-contrast': 'focus:border-surface2-contrast focus:ring-surface2-contrast text-slate-900',
-  'surface3-contrast': 'focus:border-surface3-contrast focus:ring-surface3-contrast text-slate-900',
-  'surface4-contrast': 'focus:border-surface4-contrast focus:ring-surface4-contrast text-slate-900',
+  primary: 'focus:border-primary focus:ring-primary',
+  secondary: 'focus:border-secondary focus:ring-secondary',
+  accent: 'focus:border-accent focus:ring-accent',
+  success: 'focus:border-success focus:ring-success',
+  warning: 'focus:border-warning focus:ring-warning',
+  danger: 'focus:border-danger focus:ring-danger',
+  surface: 'focus:border-surface focus:ring-surface',
+  surface2: 'focus:border-surface2 focus:ring-surface2',
+  surface3: 'focus:border-surface3 focus:ring-surface3',
+  surface4: 'focus:border-surface4 focus:ring-surface4',
+  'primary-contrast': 'focus:border-primary-contrast focus:ring-primary-contrast',
+  'secondary-contrast': 'focus:border-secondary-contrast focus:ring-secondary-contrast',
+  'accent-contrast': 'focus:border-accent-contrast focus:ring-accent-contrast',
+  'success-contrast': 'focus:border-success-contrast focus:ring-success-contrast',
+  'warning-contrast': 'focus:border-warning-contrast focus:ring-warning-contrast',
+  'danger-contrast': 'focus:border-danger-contrast focus:ring-danger-contrast',
+  'surface-contrast': 'focus:border-surface-contrast focus:ring-surface-contrast',
+  'surface2-contrast': 'focus:border-surface2-contrast focus:ring-surface2-contrast',
+  'surface3-contrast': 'focus:border-surface3-contrast focus:ring-surface3-contrast',
+  'surface4-contrast': 'focus:border-surface4-contrast focus:ring-surface4-contrast',
+};
+
+const textColorStyles: Record<ColorKey, string> = {
+  primary: 'text-surface-contrast',
+  secondary: 'text-surface-contrast',
+  accent: 'text-surface-contrast',
+  success: 'text-surface-contrast',
+  warning: 'text-surface-contrast',
+  danger: 'text-surface-contrast',
+  surface: 'text-surface-contrast',
+  surface2: 'text-surface2-contrast',
+  surface3: 'text-surface3-contrast',
+  surface4: 'text-surface4-contrast',
+  'primary-contrast': 'text-primary-contrast',
+  'secondary-contrast': 'text-secondary-contrast',
+  'accent-contrast': 'text-accent-contrast',
+  'success-contrast': 'text-success-contrast',
+  'warning-contrast': 'text-warning-contrast',
+  'danger-contrast': 'text-danger-contrast',
+  'surface-contrast': 'text-surface-contrast',
+  'surface2-contrast': 'text-surface2-contrast',
+  'surface3-contrast': 'text-surface3-contrast',
+  'surface4-contrast': 'text-surface4-contrast',
 };
 
 const labelColorStyles: Record<ColorKey, string> = {
@@ -164,6 +187,7 @@ export const Select: React.FC<SelectProps> = ({
         currentSize.select,
         variantBaseStyles[variant],
         focusColorStyles[color],
+        textColorStyles[color],   // ← add this
         rounded && variant !== 'standard' ? 'rounded-md' : 'rounded-none',
         leadingIcon ? currentSize.leadingIconSpacer : '',
         disabledStyles,
@@ -214,10 +238,9 @@ export const Select: React.FC<SelectProps> = ({
         {...props}
       >
         <option value="" disabled hidden>
-          {/* Empty fallback option blocks layout collisions on mount */}
         </option>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-white text-slate-900">
+          <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-surface2 text-surface2-contrast">
             {opt.label}
           </option>
         ))}
