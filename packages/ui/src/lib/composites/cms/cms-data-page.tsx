@@ -3,6 +3,7 @@ import { Box, Button, Checkbox, Input, Loader, Text } from '@inithium/ui';
 
 export interface CmsDataPageProps {
   isLoading: boolean;
+  noSelectAll?: boolean;
   error: unknown;
   errorMessage?: string;
   searchQuery: string;
@@ -25,6 +26,7 @@ export interface CmsDataPageProps {
 export const CmsDataPage: React.FC<CmsDataPageProps> = ({
   isLoading,
   error,
+  noSelectAll,
   errorMessage = 'Error loading resources',
   searchQuery,
   searchLabel,
@@ -81,22 +83,24 @@ export const CmsDataPage: React.FC<CmsDataPageProps> = ({
         justify="between"
         className="bg-surface1 px-3 py-2 rounded-md shrink-0"
       >
-        <Box flex align="center" className="gap-2">
-          <Checkbox
-            checked={isAllSelected}
-            onChange={onToggleAll}
-            color="primary"
-            size="sm"
-          />
-          <Text variant="body2" overrideClassName="font-medium text-sm">
-            Select All on Page
-          </Text>
-          {totalFilteredCount !== undefined && totalFilteredCount > 0 && (
-            <Text variant="caption" color="secondary" overrideClassName="text-xs">
-              ({totalFilteredCount} total)
+        {!noSelectAll && (
+          <Box flex align="center" className="gap-2">
+            <Checkbox
+              checked={isAllSelected}
+              onChange={onToggleAll}
+              color="primary"
+              size="sm"
+            />
+            <Text variant="body2" overrideClassName="font-medium text-sm">
+              Select All on Page
             </Text>
-          )}
-        </Box>
+            {totalFilteredCount !== undefined && totalFilteredCount > 0 && (
+              <Text variant="caption" color="secondary" overrideClassName="text-xs">
+                ({totalFilteredCount} total)
+              </Text>
+            )}
+          </Box>
+        )}
 
         <Box flex align="center" className="gap-4">
           {selectBarExtras}

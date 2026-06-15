@@ -9,6 +9,8 @@ import {
   hideAlert,
   clearAlert,
   RootState,
+  useReadAllSettingsQuery,
+  selectAllSettings,
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
 import type { Page } from '@inithium/types';
@@ -19,12 +21,20 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   const { data, isLoading, error } = useReadAllPagesQuery();
+  useReadAllSettingsQuery();
   const activeUser = useSelector(selectActiveUser);
+    const settings = useSelector(selectAllSettings);
   const alertData = useSelector((state: RootState) => state.alert.current);
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
 
   useEffect(() => console.log(activeUser), [activeUser]);
+
+  useEffect(() => {
+    if (settings.length > 0) {
+      console.log('Global Settings Root Log:', settings);
+    }
+  }, [settings]);
 
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];

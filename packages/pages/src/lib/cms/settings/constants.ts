@@ -1,0 +1,31 @@
+export const SETTING_LABELS: Record<string, string> = {
+  'logo-asset':             'Logo Asset',
+  'profile-info-address':   'Show Address Field',
+  'profile-info-phone':     'Show Phone Field',
+  'profile-info-dob':       'Show Date of Birth Field',
+  'profile-info-gender':    'Show Gender Field',
+  'profile-info-bio':       'Show Bio Field',
+  'profile-info-dark-mode': 'Enable Dark Mode Toggle',
+};
+
+export const SETTING_DESCRIPTIONS: Record<string, string> = {
+  'logo-asset':             'The image used as the application logo across all surfaces.',
+  'profile-info-address':   'Display the address field on user profile pages.',
+  'profile-info-phone':     'Display the phone number field on user profile pages.',
+  'profile-info-dob':       'Display the date of birth field on user profile pages.',
+  'profile-info-gender':    'Display the gender field on user profile pages.',
+  'profile-info-bio':       'Display the bio field on user profile pages.',
+  'profile-info-dark-mode': 'Allow users to toggle dark mode from their profile.',
+};
+
+export const SECTION_KEYS: Record<string, string[]> = {
+  Branding: ['logo-asset'],
+  'Profile Fields': [
+    'profile-info-address',
+    'profile-info-phone',
+    'profile-info-dob',
+    'profile-info-gender',
+    'profile-info-bio',
+    'profile-info-dark-mode',
+  ],
+};
