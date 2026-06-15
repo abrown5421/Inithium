@@ -16,11 +16,15 @@ import {
   assetsService,
   authRouter,
   settingsRouter,
+  AssetModel,
+  PageModel,
+  SettingModel,
+  UserModel,
 } from '@inithium/api-collections';
-import { AssetModel } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 import { createFileManagerRouter } from '@inithium/file-manager';
 import { triggerEngagementDeploy } from './deploy-hook.service';
+import { runHydration } from './run-hydration';
 
 const host     = process.env['HOST']      ?? 'localhost';
 const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
@@ -66,6 +70,8 @@ app.get('/', (_req, res) => {
 
 async function bootstrap() {
   await connectDB(mongoUri);
+
+  await runHydration({ AssetModel, PageModel, SettingModel, UserModel });
 
   const assetManager = await createAssetManager({
     assetsService: {

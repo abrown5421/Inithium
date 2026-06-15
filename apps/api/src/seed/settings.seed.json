@@ -1,0 +1,51 @@
+[
+  {
+    "key": "logo-asset",
+    "value": "http://localhost:3000/api/assets/by-key/755bcffd-a2af-4f46-95aa-54755f5d42d3.png",
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-address",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-phone",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-dob",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-gender",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-bio",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "profile-info-dark-mode",
+    "value": true,
+    "description": "",
+    "is_public": false,
+    "seedPolicy": "assert"
+  }
+]
