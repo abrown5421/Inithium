@@ -2,8 +2,8 @@ import React from 'react';
 import { Box, Checkbox } from '@inithium/ui';
 
 export interface CmsItemRowProps {
-  isSelected: boolean;
-  onToggle: () => void;
+  isSelected?: boolean;
+  onToggle?: () => void;
   checkboxDisabled?: boolean;
   thumbnailSlot?: React.ReactNode;
   infoSlot: React.ReactNode;
@@ -37,15 +37,17 @@ export const CmsItemRow: React.FC<CmsItemRowProps> = ({
     ].join(' ')}
   >
     <Box flex direction="row" align="center" className="gap-2.5 min-w-0 flex-1">
-      <Box flex align="center" justify="center" className="w-5 h-5 shrink-0">
-        <Checkbox
-          checked={isSelected}
-          onChange={onToggle}
-          color="primary"
-          size="md"
-          disabled={checkboxDisabled}
-        />
-      </Box>
+      {onToggle !== undefined && (
+        <Box flex align="center" justify="center" className="w-5 h-5 shrink-0">
+          <Checkbox
+            checked={isSelected ?? false}
+            onChange={onToggle}
+            color="primary"
+            size="md"
+            disabled={checkboxDisabled}
+          />
+        </Box>
+      )}
 
       {thumbnailSlot && (
         <Box
