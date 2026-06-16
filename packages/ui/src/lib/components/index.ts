@@ -11,3 +11,6 @@ export * from './dialog/index'
 export * from './slider/index'
 export * from './combobox/index'
 export * from './tabs/index'
+
+export { FontLoader } from './font-loader/font-loader';
+export type { SettingItem } from './font-loader/font-loader';

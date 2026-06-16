@@ -22,22 +22,6 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss()
     ],
-    css: {
-      postcss: {
-        plugins: [
-          {
-            postcssPlugin: 'replace-env-vars',
-            Once(root) {
-              root.walkDecls((decl) => {
-                if (decl.value.includes('__VITE_API_ORIGIN__')) {
-                  decl.value = decl.value.replace('__VITE_API_ORIGIN__', apiOrigin);
-                }
-              });
-            },
-          },
-        ],
-      },
-    },
     resolve: {
       tsconfigPaths: true,
       conditions: ['@inithium/source', 'import', 'module', 'browser', 'default']

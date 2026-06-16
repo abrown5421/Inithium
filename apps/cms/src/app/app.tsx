@@ -1,5 +1,5 @@
 import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text, Loader, Alert } from '@inithium/ui';
+import { Box, Navbar, Text, Loader, Alert, FontLoader } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
@@ -18,6 +18,7 @@ import Login from '../../../../packages/pages/src/lib/login/login';
 
 const App: React.FC = () => {
   useAuthBootstrap();
+  useReadAllSettingsQuery();
   const dispatch = useDispatch();
 
   const { data, isLoading, error } = useReadAllPagesQuery();
@@ -66,6 +67,7 @@ const App: React.FC = () => {
 
   return (
     <Box color="surface-contrast" className="h-screen w-screen relative">
+      <FontLoader />
       {alertData && (
         <Alert
           alertData={alertData}

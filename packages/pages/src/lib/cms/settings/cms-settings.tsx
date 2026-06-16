@@ -10,7 +10,7 @@ import {
 import { SECTION_KEYS, SETTING_DESCRIPTIONS, SETTING_LABELS } from './constants';
 import type { SettingItem } from './utils';
 import SectionLabel from './section-label';
-import AssetPickerField from './asset-picker-fields';
+import SettingPickerField from './asset-picker-field';
 
 const CmsSettingsPage: React.FC = () => {
   useReadAllSettingsQuery();
@@ -167,9 +167,10 @@ const CmsSettingsPage: React.FC = () => {
                             onChange={(val) => handleBooleanChange(setting.key, val)}
                           />
                         ) : (
-                          <AssetPickerField
+                          <SettingPickerField
+                            settingKey={setting.key}
                             value={strVal}
-                            onChange={(val) => handleStringChange(setting.key, val)}
+                            onChange={(val: string) => handleStringChange(setting.key, val)}
                           />
                         )}
                         <Button
