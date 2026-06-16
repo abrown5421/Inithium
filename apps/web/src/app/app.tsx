@@ -14,9 +14,11 @@ import {
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
 import type { Page } from '@inithium/types';
+import { FontLoader } from '@inithium/ui';
 
 const App: React.FC = () => {
   useAuthBootstrap();
+  useReadAllSettingsQuery();
   const dispatch = useDispatch();
 
   const { data, isLoading, error } = useReadAllPagesQuery();
@@ -86,6 +88,7 @@ const App: React.FC = () => {
 
   return (
     <Box color="surface4-contrast" className="h-screen w-screen relative">
+      <FontLoader />
       {alertData && (
         <Alert
           alertData={alertData}

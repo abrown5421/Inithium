@@ -1,26 +1,28 @@
 import { Box, Button, Text } from '@inithium/ui';
 import React, { useState } from 'react';
-import AssetPickerDialog from './asset-picker-dialog';
+import FontPickerDialog from './font-picker-dialog';
 
-interface AssetPickerFieldProps {
+interface FontPickerFieldProps {
   value: string;
   onChange: (val: string) => void;
 }
 
-const AssetPickerField: React.FC<AssetPickerFieldProps> = ({ value, onChange }) => {
+const FontPickerField: React.FC<FontPickerFieldProps> = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <Box flex align="center" className="gap-3">
         {value ? (
-          <Box flex align="center" className="gap-2 px-2 py-1 rounded-md border border-surface4 bg-surface2">
-            <img
-              src={value}
-              alt="Current logo"
-              className="h-8 w-8 rounded object-contain border border-surface4 shrink-0 bg-surface"
-            />
-            <Text variant="caption" overrideClassName="text-xs text-surface-contrast truncate max-w-40">
+          <Box
+            flex
+            align="center"
+            className="gap-2 px-2 py-1 rounded-md border border-surface4 bg-surface2"
+          >
+            <Text
+              variant="caption"
+              overrideClassName="text-xs text-surface-contrast truncate max-w-40"
+            >
               {value.split('/').pop()}
             </Text>
             <button
@@ -41,21 +43,21 @@ const AssetPickerField: React.FC<AssetPickerFieldProps> = ({ value, onChange }) 
           </Box>
         ) : (
           <Text variant="caption" color="secondary" overrideClassName="text-xs italic">
-            No image selected
+            No font selected
           </Text>
         )}
         <Button
           size="sm"
           color="secondary"
           variant="outline"
-          leadingIcon="image"
+          leadingIcon="type"
           onClick={() => setOpen(true)}
         >
-          {value ? 'Change' : 'Select Image'}
+          {value ? 'Change' : 'Select Font'}
         </Button>
       </Box>
 
-      <AssetPickerDialog
+      <FontPickerDialog
         open={open}
         onClose={() => setOpen(false)}
         onSelect={onChange}
@@ -65,4 +67,4 @@ const AssetPickerField: React.FC<AssetPickerFieldProps> = ({ value, onChange }) 
   );
 };
 
-export default AssetPickerField;
+export default FontPickerField;
