@@ -56,6 +56,21 @@ const ACCEPTED_TYPES = [
 let idSeq = 0;
 const nextId = () => `upload-${++idSeq}`;
 
+const EXT_MIME_MAP: Record<string, string> = {
+  '.ttf':   'font/ttf',
+  '.otf':   'font/otf',
+  '.woff':  'font/woff',
+  '.woff2': 'font/woff2',
+  '.sfnt':  'font/sfnt',
+};
+
+const resolveMimeType = (file: File): string => {
+  const reported = file.type;
+  if (reported && reported !== 'application/octet-stream') return reported;
+  const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+  return EXT_MIME_MAP[ext] ?? 'application/octet-stream';
+};
+
 const uploadWithProgress = (
   url: string,
   file: File,
@@ -178,9 +193,11 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
 
       updateEntry(entry.id, { status: 'intent', progress: 0 });
       try {
+        const mimeType = resolveMimeType(entry.file);
+
         const intentDto: CreateAssetIntentDto = {
           filename: entry.file.name,
-          mimeType: entry.file.type || 'application/octet-stream',
+          mimeType,
           size: entry.file.size,
           ownerType,
           ownerId: ownerType === 'user' ? ownerId.trim() : null,
@@ -193,12 +210,13 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
         const base =
           (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_ORIGIN) ||
           'http://localhost:3000';
+          
         const fullUploadUrl = `${base}/api/asset-manager${intent.uploadUrl}`;
 
         await uploadWithProgress(
           fullUploadUrl,
           entry.file,
-          entry.file.type || 'application/octet-stream',
+          mimeType,
           (pct) => updateEntry(entry.id, { progress: pct }),
         );
 
