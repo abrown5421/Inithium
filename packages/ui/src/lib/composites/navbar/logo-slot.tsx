@@ -17,7 +17,7 @@ const LogoSlot: React.FC = () => {
             alt="Logo" 
             className="max-h-full w-auto object-contain mx-2"
           />
-          <Text variant="h5" color="surface2-contrast">Inithium</Text>
+          <Text variant="h5" color="surface2-contrast" overrideClassName='primary-font'>Inithium</Text>
         </Box>
       )}
     </Box>

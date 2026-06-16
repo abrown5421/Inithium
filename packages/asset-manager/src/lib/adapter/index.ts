@@ -83,8 +83,9 @@ export const resolveStoragePath = (
   mimeType:   string,
   ownerType:  'app' | 'user',
   ownerId:    string | null,
+  originalName?: string,
 ): string => {
-  const category = resolveCategory(mimeType);
+  const category = resolveCategory(mimeType, originalName ?? storageKey); // ← pass it
   return buildAbsolutePath(category, storageKey, ownerType, ownerId);
 };
 
