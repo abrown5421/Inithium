@@ -12,7 +12,10 @@
         "#667eea",
         "#764ba2"
       ],
-      "y_colors": "match"
+      "y_colors": [
+        "#667eea",
+        "#764ba2"
+      ]
     },
     "user_avatar": {
       "src": "",
