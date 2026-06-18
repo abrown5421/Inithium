@@ -146,12 +146,12 @@ const ContentSection: React.FC<ContentSectionProps> = ({ profileUser, isOwnProfi
 
 const UserNotFoundErrorState: React.FC = () => (
   <Box color="surface-contrast" flex direction="col" align="center" padding="xl" className="rounded-xl">
-    <Text variant="h1" color="danger">
-      Yikes!
+    <Text variant="h5" color="danger" decoration={{ bold: true }}>
+      User Not Found
     </Text>
-    <Box margin="lg">
-      <Text variant="body2" color="danger">
-        We're sorry, we couldn't find that user. Please try again with a different user id. 
+    <Box margin="md">
+      <Text variant="body2" color="surface-contrast" overrideClassName="opacity-70 text-center max-w-sm">
+        We were unable to locate the specified account. Please verify the User ID and try again.
       </Text>
     </Box>
   </Box>
