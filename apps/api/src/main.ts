@@ -26,6 +26,9 @@ import { createFileManagerRouter } from '@inithium/file-manager';
 import { triggerEngagementDeploy } from './deploy-hook.service';
 import { runHydration } from './run-hydration';
 
+// Import the concrete instance of your database tracker model
+import { SeedManifestModel } from './seed/manifest.model'; 
+
 const host     = process.env['HOST']      ?? 'localhost';
 const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
 const mongoUri = process.env['MONGO_URI'] ?? 'mongodb://localhost:27017/my-app';
@@ -71,7 +74,13 @@ app.get('/', (_req, res) => {
 async function bootstrap() {
   await connectDB(mongoUri);
 
-  await runHydration({ AssetModel, PageModel, SettingModel, UserModel });
+  await runHydration({ 
+    AssetModel, 
+    PageModel, 
+    SettingModel, 
+    UserModel,
+    ManifestModel: SeedManifestModel
+  });
 
   const assetManager = await createAssetManager({
     assetsService: {

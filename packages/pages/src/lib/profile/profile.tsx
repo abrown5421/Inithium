@@ -1,6 +1,6 @@
-import { selectActiveUser, selectSettingByKey, useUserQuery } from '@inithium/store';
+import { selectActiveUser, useUserQuery } from '@inithium/store';
 import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '@inithium/ui';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { BannerEditDialog } from './banner/banner-edit-dialog';
@@ -66,39 +66,40 @@ interface AvatarSectionProps {
   onEditClick: () => void;
 }
 
-const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, isOwnProfile, onEditClick }) => {
-  const leftContent = (
-    <Box className="relative block group">
-      <Avatar
-        src={avatar.src}
-        alt={avatar.alt}
-        fallback={avatar.fallback}
-        size="xl"
-        shape={avatar.shape}
-        background={avatar.background}
-        fontColor={avatar.fontColor}
-        className="border-8 border-surface"
-      >
-        {avatar.src && <AvatarImage src={avatar.src} alt={avatar.alt} />}
-        <AvatarFallback>{avatar.fallback}</AvatarFallback>
-      </Avatar>
-      {isOwnProfile && (
-        <Box className="absolute bottom-0 right-0 -translate-x-1/4 -translate-y-1/4">
-          <Button
-            variant="solid"
-            color="surface3"
-            size="sm"
-            icon="Camera"
-            onClick={onEditClick}
-            aria-label="Edit Avatar"
-          />
-        </Box>
-      )}
-    </Box>
-  );
-
-  return <ProfileRow left={leftContent} className="-mt-[96px] relative z-10" />;
-};
+const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, isOwnProfile, onEditClick }) => (
+  <ProfileRow 
+    className="-mt-[96px] relative z-10" 
+    left={
+      <Box className="relative block group">
+        <Avatar
+          src={avatar.src}
+          alt={avatar.alt}
+          fallback={avatar.fallback}
+          size="xl"
+          shape={avatar.shape}
+          background={avatar.background}
+          fontColor={avatar.fontColor}
+          className="border-8 border-surface"
+        >
+          {avatar.src && <AvatarImage src={avatar.src} alt={avatar.alt} />}
+          <AvatarFallback>{avatar.fallback}</AvatarFallback>
+        </Avatar>
+        {isOwnProfile && (
+          <Box className="absolute bottom-0 right-0 -translate-x-1/4 -translate-y-1/4">
+            <Button
+              variant="solid"
+              color="surface3"
+              size="sm"
+              icon="Camera"
+              onClick={onEditClick}
+              aria-label="Edit Avatar"
+            />
+          </Box>
+        )}
+      </Box>
+    } 
+  />
+);
 
 interface ProfileIdentityHeaderProps {
   profileUser: any;
@@ -143,57 +144,110 @@ const ContentSection: React.FC<ContentSectionProps> = ({ profileUser, isOwnProfi
   />
 );
 
+const UserNotFoundErrorState: React.FC = () => (
+  <Box color="surface-contrast" flex direction="col" align="center" padding="xl" className="rounded-xl">
+    <Text variant="h1" color="danger">
+      Yikes!
+    </Text>
+    <Box margin="lg">
+      <Text variant="body2" color="danger">
+        We're sorry, we couldn't find that user. Please try again with a different user id. 
+      </Text>
+    </Box>
+  </Box>
+);
+
+interface ActiveProfileViewProps {
+  profileUser: any;
+  activeUser: User | null;
+  avatar: any;
+  isOwnProfile: boolean;
+  isAvatarDialogOpen: boolean;
+  isBannerDialogOpen: boolean;
+  setIsAvatarDialogOpen: (open: boolean) => void;
+  setIsBannerDialogOpen: (open: boolean) => void;
+}
+
+const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
+  profileUser,
+  activeUser,
+  avatar,
+  isOwnProfile,
+  isAvatarDialogOpen,
+  isBannerDialogOpen,
+  setIsAvatarDialogOpen,
+  setIsBannerDialogOpen,
+}) => (
+  <Box overrideClassName="w-full h-full flex flex-col">
+    <BannerSection
+      profileUser={profileUser}
+      isOwnProfile={isOwnProfile}
+      onEditClick={() => setIsBannerDialogOpen(true)}
+    />
+    
+    <AvatarSection
+      avatar={avatar}
+      isOwnProfile={isOwnProfile}
+      onEditClick={() => setIsAvatarDialogOpen(true)}
+    />
+
+    <ContentSection profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
+
+    {isOwnProfile && (
+      <>
+        <AvatarEditDialog
+          isOpen={isAvatarDialogOpen}
+          onClose={() => setIsAvatarDialogOpen(false)}
+          profileUser={profileUser}
+          activeUser={activeUser}
+          avatar={avatar}
+        />
+        <BannerEditDialog
+          isOpen={isBannerDialogOpen}
+          onClose={() => setIsBannerDialogOpen(false)}
+          profileUser={profileUser}
+          activeUser={activeUser}
+        />
+      </>
+    )}
+  </Box>
+);
+
 const ProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: profileUser } = useUserQuery(id ?? '', { skip: !id });
+  const { data: profileUser, isLoading, isError } = useUserQuery(id ?? '', { skip: !id });
   const activeUser = useSelector(selectActiveUser);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
-  const profileSettingAddress = useSelector(selectSettingByKey('profile-info-address'));
-  const profileSettingPhone = useSelector(selectSettingByKey('profile-info-phone'));
-  const profileSettingDob = useSelector(selectSettingByKey('profile-info-dob'));
-  const profileSettingGender = useSelector(selectSettingByKey('profile-info-gender'));
-  const profileSettingBio = useSelector(selectSettingByKey('profile-info-bio'));
-  const profileSettingDarkMode = useSelector(selectSettingByKey('profile-info-dark-mode'));
 
-  useEffect(() => console.log(profileUser), [profileUser]);
+  if (isLoading) {
+    return null; 
+  }
+
+  const isProfileInvalid = isError || !profileUser;
+
+  if (isProfileInvalid) {
+    return (
+      <div className="w-full h-screen min-h-screen flex flex-col justify-center items-center">
+        <UserNotFoundErrorState />
+      </div>
+    );
+  }
+
   const isOwnProfile = !!activeUser && profileUser?._id === activeUser._id;
   const avatar = extractAvatarProps(profileUser);
 
   return (
-    <Box overrideClassName="w-full h-full flex flex-col">
-      <BannerSection
-        profileUser={profileUser}
-        isOwnProfile={isOwnProfile}
-        onEditClick={() => setIsBannerDialogOpen(true)}
-      />
-      
-      <AvatarSection
-        avatar={avatar}
-        isOwnProfile={isOwnProfile}
-        onEditClick={() => setIsAvatarDialogOpen(true)}
-      />
-
-      <ContentSection profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
-
-      {isOwnProfile && (
-        <>
-          <AvatarEditDialog
-            isOpen={isAvatarDialogOpen}
-            onClose={() => setIsAvatarDialogOpen(false)}
-            profileUser={profileUser}
-            activeUser={activeUser}
-            avatar={avatar}
-          />
-          <BannerEditDialog
-            isOpen={isBannerDialogOpen}
-            onClose={() => setIsBannerDialogOpen(false)}
-            profileUser={profileUser}
-            activeUser={activeUser}
-          />
-        </>
-      )}
-    </Box>
+    <ActiveProfileView 
+      profileUser={profileUser}
+      activeUser={activeUser}
+      avatar={avatar}
+      isOwnProfile={isOwnProfile}
+      isAvatarDialogOpen={isAvatarDialogOpen}
+      isBannerDialogOpen={isBannerDialogOpen}
+      setIsAvatarDialogOpen={setIsAvatarDialogOpen}
+      setIsBannerDialogOpen={setIsBannerDialogOpen}
+    />
   );
 };
 

@@ -97,8 +97,8 @@ const AnimatedPage = forwardRef<AnimatedPageHandle, AnimatedPageProps>(
         <Box ref={containerRef} {...layoutProps}>
           <Box flex direction="col" align="center" padding="xl">
             <Text variant="h3">404</Text>
-            <Text variant="body2" overrideClassName="inline-block text-sm leading-relaxed font-normal text-primary mt-2 opacity-60">
-              No component registered for key "{page.componentKey}"
+            <Text variant="body2" overrideClassName="w-1/3 text-center inline-block text-sm leading-relaxed font-normal text-primary mt-2 opacity-60">
+              No component registered for key "{page.componentKey}". If you just created this page via the CMS try restarting the app. 
             </Text>
           </Box>
         </Box>

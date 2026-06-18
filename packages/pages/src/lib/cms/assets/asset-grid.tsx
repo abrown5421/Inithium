@@ -164,17 +164,6 @@ const AssetRow: React.FC<AssetRowProps> = ({ asset, isSelected, onToggle, onDele
         <>
           <Button
             variant="ghost"
-            color="secondary"
-            size="sm"
-            rounded
-            icon="pencil"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              window.open(proxyUrl, '_blank', 'noopener');
-            }}
-          />
-          <Button
-            variant="ghost"
             color="danger"
             size="sm"
             rounded
