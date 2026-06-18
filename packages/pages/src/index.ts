@@ -1,4 +1,3 @@
-export * from './lib/documentation/index';
 export * from './lib/home/index';
 export * from './lib/login/index';
 export * from './lib/sign-up/index';
