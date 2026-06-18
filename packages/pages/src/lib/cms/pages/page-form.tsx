@@ -57,7 +57,7 @@ const ThemeColorSchema = z.enum([
 const NavigationConfigSchema = z.object({
   label: z.string().min(1, 'Navigation label is required'),
   location: z.enum(['main', 'profile', 'footer', 'cms', 'none']),
-  order: z.number().optional(),
+  order: z.number().int('Order must be an integer').optional(),
   authenticated: z.boolean().optional(),
   anonymous: z.boolean().optional(),
   isButton: z.boolean().optional(),
@@ -181,6 +181,7 @@ const createInitialState = (page?: Page): FormState => ({
   navigation: {
     location: 'none' as NavLocation,
     label: '',
+    order: undefined,
     authenticated: false,
     anonymous: false,
   },
@@ -208,6 +209,11 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
 
   const handleNestedInputChange = (parent: 'navigation', field: keyof NavigationConfig) => (e: React.ChangeEvent<HTMLInputElement>) =>
     updateNestedField(parent)(field)(e.target.value);
+
+  const handleNestedNumericInputChange = (parent: 'navigation', field: keyof NavigationConfig) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(e.target.value, 10);
+    updateNestedField(parent)(field)(isNaN(parsed) ? undefined : parsed);
+  };
 
   const handleSelectChange = (field: keyof Page) => (val: any) => {
     const extracted = val?.target ? val.target.value : val;
@@ -249,7 +255,9 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
 
     const nav = formState.navigation;
     if (nav && nav.location !== 'none' && nav.label !== '') {
-      base.navigation = nav;
+      base.navigation = Object.fromEntries(
+        Object.entries(nav).filter(([_, v]) => v !== undefined)
+      );
     }
 
     const filePayload = {
@@ -503,6 +511,23 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
             value={formState.navigation?.location ?? 'none'}
             onChange={handleNestedSelectChange('navigation', 'location')}
           />
+        </Box>
+        <Box className="flex-1">
+          <Input
+            label="Nav Order"
+            type="number"
+            variant="outline"
+            color="primary"
+            size="sm"
+            fullWidth
+            value={formState.navigation?.order ?? ''}
+            onChange={handleNestedNumericInputChange('navigation', 'order')}
+          />
+          {validationErrors['navigation.order'] && (
+            <Text overrideClassName="text-xs text-danger font-medium mt-0.5">
+              {validationErrors['navigation.order']}
+            </Text>
+          )}
         </Box>
       </Box>
 
