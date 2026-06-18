@@ -86,6 +86,45 @@ const App: React.FC = () => {
     navigateToKey('login');
   };
 
+  const renderBackendError = () => (
+    <Box flex align="center" justify="center" fullWidth fullHeight className="h-full w-full">
+      <Box color="surface" flex direction="col" align="center" padding="xl" className="rounded-xl">
+        <Text variant="h1" color="danger">
+          500
+        </Text>
+        <Box margin="lg">
+          <Text variant="body2" color="danger">
+            An error occurred. Please ensure the backend API is running.
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  const renderLoading = () => (
+    <Box flex justify="center" align="center" className="h-full w-full">
+      <Loader variant="spinner" size="lg" color="primary" />
+    </Box>
+  );
+
+  const renderMainContent = () => (
+    <Box>
+      <Navbar
+        pages={mainNavPages}
+        profilePages={profileNavPages}
+        activeUser={activeUser}
+        renderLink={renderLink}
+        onLogout={handleLogout}
+      />
+      <TransitionRouter />
+      <Footer
+        pages={footerNavPages}
+        footerPages={footerSecondaryPages}
+        renderLink={renderLink}
+      />
+    </Box>
+  );
+
   return (
     <Box color="surface4-contrast" className="h-screen w-screen relative">
       <FontLoader />
@@ -97,31 +136,7 @@ const App: React.FC = () => {
         />
       )}
 
-      {isLoading ? (
-        <Box flex justify="center" align="center" className="h-full w-full">
-          <Loader variant="spinner" size="lg" color="primary" />
-        </Box>
-      ) : error ? (
-        <Box flex justify="center" align="center" className="h-full w-full">
-          <Text color="danger">Error</Text>
-        </Box>
-      ) : (
-        <Box>
-          <Navbar
-            pages={mainNavPages}
-            profilePages={profileNavPages}
-            activeUser={activeUser}
-            renderLink={renderLink}
-            onLogout={handleLogout}
-          />
-          <TransitionRouter />
-          <Footer
-            pages={footerNavPages}
-            footerPages={footerSecondaryPages}
-            renderLink={renderLink}
-          />
-        </Box>
-      )}
+      {isLoading ? renderLoading() : error ? renderBackendError() : renderMainContent()}
     </Box>
   );
 };

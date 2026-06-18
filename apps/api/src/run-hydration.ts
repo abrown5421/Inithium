@@ -16,7 +16,10 @@ interface CollectionConfig {
   naturalKey: string;
 }
 
-async function hydrateCollection(config: CollectionConfig): Promise<void> {
+async function hydrateCollection(
+  config: CollectionConfig, 
+  ManifestModel: Model<any>
+): Promise<void> {
   const { name, model, seedFile, naturalKey } = config;
 
   if (!fs.existsSync(seedFile)) {
@@ -32,16 +35,25 @@ async function hydrateCollection(config: CollectionConfig): Promise<void> {
 
   for (const seed of seeds) {
     const { seedPolicy, ...doc } = seed;
-    const filter = { [naturalKey]: doc[naturalKey] };
+    const keyValue = doc[naturalKey] as string;
+    const filter = { [naturalKey]: keyValue };
+    const manifestKey = `${name}:${keyValue}`;
 
     if (seedPolicy === 'assert') {
       await model.findOneAndUpdate(filter, { $set: doc }, { upsert: true, returnDocument: 'after' });
       asserted++;
     } else {
-      const exists = await model.findOne(filter).lean();
-      if (!exists) {
-        await model.create(doc);
-        inserted++;
+      const hasRun = await ManifestModel.findOne({ key: manifestKey }).lean();
+
+      if (!hasRun) {
+        const exists = await model.findOne(filter).lean();
+        if (!exists) {
+          await model.create(doc);
+          inserted++;
+        } else {
+          skipped++;
+        }
+        await ManifestModel.create({ key: manifestKey, executedAt: new Date() });
       } else {
         skipped++;
       }
@@ -58,6 +70,7 @@ export async function runHydration(models: {
   SettingModel:  Model<any>;
   UserModel:     Model<any>;
   AssetModel:    Model<any>;
+  ManifestModel: Model<any>; 
 }): Promise<void> {
   console.log('[hydration] Starting seed hydration...');
 
@@ -91,7 +104,7 @@ export async function runHydration(models: {
   ];
 
   for (const config of collections) {
-    await hydrateCollection(config);
+    await hydrateCollection(config, models.ManifestModel);
   }
 
   console.log('[hydration] Seed hydration complete.');
