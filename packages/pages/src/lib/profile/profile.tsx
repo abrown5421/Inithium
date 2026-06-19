@@ -1,6 +1,6 @@
-import { selectActiveUser, useUserQuery } from '@inithium/store';
+import { selectActiveUser, selectAllSettings, useReadFriendsByUserQuery, useUserQuery } from '@inithium/store';
 import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '@inithium/ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { BannerEditDialog } from './banner/banner-edit-dialog';
@@ -9,7 +9,7 @@ import { extractAvatarProps } from './avatar/avatar-utils';
 import { AvatarEditDialog } from './avatar/avatar-edit-dialog';
 import { ProfileTabs } from './tabs/profile-tabs';
 import './tabs/register-profile-tabs'; 
-import { User } from '@inithium/types';
+import { Friend, User } from '@inithium/types';
 
 const formatDate = (dateString?: string): string =>
   dateString ? new Date(dateString).toLocaleDateString() : '';
@@ -125,15 +125,27 @@ interface ContentSectionProps {
   profileUser: any;
   isOwnProfile: boolean;
   activeUser: User | null;
+  friends?: Friend[] | null;
+  isFriendModuleActive: boolean;
 }
 
-const ContentSection: React.FC<ContentSectionProps> = ({ profileUser, isOwnProfile, activeUser }) => (
+const ContentSection: React.FC<ContentSectionProps> = ({ 
+  profileUser, 
+  isOwnProfile, 
+  activeUser, 
+  friends, 
+  isFriendModuleActive 
+}) => (
   <ProfileRow
     className="mt-6"
     left={
       <Box flex direction="col" className="w-full">
         <ProfileIdentityHeader profileUser={profileUser} />
-        <ProfileInfoSection profileUser={profileUser} />
+        <ProfileInfoSection 
+          profileUser={profileUser} 
+          friends={friends} 
+          isFriendModuleActive={isFriendModuleActive} 
+        />
       </Box>
     }
     right={
@@ -166,6 +178,8 @@ interface ActiveProfileViewProps {
   isBannerDialogOpen: boolean;
   setIsAvatarDialogOpen: (open: boolean) => void;
   setIsBannerDialogOpen: (open: boolean) => void;
+  friends?: Friend[] | null;
+  isFriendModuleActive: boolean;
 }
 
 const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
@@ -177,6 +191,8 @@ const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
   isBannerDialogOpen,
   setIsAvatarDialogOpen,
   setIsBannerDialogOpen,
+  friends,
+  isFriendModuleActive
 }) => (
   <Box overrideClassName="w-full h-full flex flex-col">
     <BannerSection
@@ -191,7 +207,13 @@ const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
       onEditClick={() => setIsAvatarDialogOpen(true)}
     />
 
-    <ContentSection profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
+    <ContentSection 
+      profileUser={profileUser} 
+      isOwnProfile={isOwnProfile} 
+      activeUser={activeUser} 
+      friends={friends} 
+      isFriendModuleActive={isFriendModuleActive} 
+    />
 
     {isOwnProfile && (
       <>
@@ -215,10 +237,18 @@ const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
 
 const ProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const settings = useSelector(selectAllSettings);
+
+  const isModuleEnabled = (targetKey: string) => (data: Array<{ key: string; value: any }>) =>
+    Boolean(data.find(({ key }) => key === targetKey)?.value);
+
+  const isFriendModuleActive = isModuleEnabled('friend-module')(settings);
+
   const { data: profileUser, isLoading, isError } = useUserQuery(id ?? '', { skip: !id });
   const activeUser = useSelector(selectActiveUser);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
+  const { data: friends } = useReadFriendsByUserQuery(id);
 
   if (isLoading) {
     return null; 
@@ -239,6 +269,8 @@ const ProfilePage: React.FC = () => {
 
   return (
     <ActiveProfileView 
+      friends={isFriendModuleActive ? friends : null}
+      isFriendModuleActive={isFriendModuleActive}
       profileUser={profileUser}
       activeUser={activeUser}
       avatar={avatar}

@@ -18,6 +18,10 @@ const endpoints = createCrudEndpoints<Friend, CreateFriendDto, UpdateFriendDto>(
 export const friendsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     ...endpoints(builder),
+    readFriendsByUser: builder.query<readonly Friend[], string>({
+      query: (userId) => `/friends/of/${userId}`,
+      providesTags: (_result, _error, userId) => [{ type: 'Friend', id: userId }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -30,6 +34,8 @@ const {
   useUpdateOneFriendMutation,
   useDeleteOneFriendMutation,
   useDeleteManyFriendMutation,
+  useReadFriendsByUserQuery,
+  useLazyReadFriendsByUserQuery,
 } = friendsApi as any;
 
 export {
@@ -40,4 +46,6 @@ export {
   useUpdateOneFriendMutation,
   useDeleteOneFriendMutation,
   useDeleteManyFriendMutation,
+  useReadFriendsByUserQuery,
+  useLazyReadFriendsByUserQuery,
 };

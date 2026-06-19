@@ -2,6 +2,8 @@ import React from 'react';
 import { Tabs } from '@inithium/ui';
 import { getProfileTabs } from './profile-tab-registry';
 import { User } from '@inithium/types';
+import { useSelector } from 'react-redux';
+import { selectAllSettings } from '@inithium/store';
 
 interface ProfileTabsProps {
   profileUser: any;
@@ -10,9 +12,16 @@ interface ProfileTabsProps {
 }
 
 export const ProfileTabs: React.FC<ProfileTabsProps> = ({ profileUser, isOwnProfile, activeUser }) => {
-  const tabs = getProfileTabs().filter(
-    tab => !tab.ownProfileOnly || isOwnProfile
-  );
+  const settings = useSelector(selectAllSettings);
+
+  const isSettingEnabled = (key: string): boolean =>
+    Boolean(settings.find(s => s.key === key)?.value);
+
+  const tabs = getProfileTabs().filter(tab => {
+    if (tab.ownProfileOnly && !isOwnProfile) return false;
+    if (tab.requiredSetting && !isSettingEnabled(tab.requiredSetting)) return false;
+    return true;
+  });
 
   if (tabs.length === 0) return null;
 

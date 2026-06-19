@@ -8,6 +8,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { Friend } from '@inithium/types';
+import { ProfileFriendsSection } from './profile-friends-section';
 
 const formatDob = (dob?: string): string =>
   dob
@@ -39,7 +41,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon: Icon, value }) => (
   <Box flex direction="row" className="items-start gap-2.5 py-1.5">
     <Icon
       size={14}
-      className="mt-0.5 shrink-0 text-secondary"
+      className="mt-0.5 shrink-0 text-primary"
       strokeWidth={2}
     />
     <Text variant="body" color="surface-contrast" overrideClassName="text-sm leading-snug break-all">
@@ -60,9 +62,15 @@ const InfoGroup: React.FC<SectionProps> = ({ children }) => (
 
 interface ProfileInfoSectionProps {
   profileUser: any;
+  friends?: Friend[] | null;
+  isFriendModuleActive: boolean;
 }
 
-export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileUser }) => {
+export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ 
+  profileUser, 
+  friends, 
+  isFriendModuleActive 
+}) => {
   if (!profileUser) return null;
 
   const showAddress = useSelector(selectSettingByKey('profile-info-address'))?.value ?? true;
@@ -76,8 +84,6 @@ export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileU
   const hasContact = profileUser.email || (showPhone && profileUser.phone_number);
   const hasPersonal = dob || address;
 
-  if (!hasContact && !hasPersonal && !(showBio && profileUser.bio) && !profileUser.role) return null;
-
   return (
     <Box flex direction="col" className="mt-1">
       {showBio && profileUser.bio && (
@@ -87,6 +93,12 @@ export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileU
           </Text>
         </Box>
       )}
+
+      <ProfileFriendsSection 
+        friends={friends ?? []} 
+        viewingUserId={profileUser._id} 
+        enabled={isFriendModuleActive} 
+      />
 
       {hasContact && (
         <InfoGroup>
@@ -101,6 +113,7 @@ export const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profileU
           {address && <InfoRow icon={MapPin} value={address} />}
         </InfoGroup>
       )}
+
     </Box>
   );
 };

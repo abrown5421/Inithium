@@ -2,7 +2,9 @@ import type { Friend } from '@inithium/types';
 import { createCrudService, CrudService } from '@inithium/api-core';
 import { FriendModel } from './friends.model.js';
 
-export interface FriendsService extends CrudService<Friend> {}
+export interface FriendsService extends CrudService<Friend> {
+  readonly readAllByUser: (userId: string) => Promise<readonly Friend[]>;
+}
 
 const base = createCrudService<Friend>(FriendModel);
 
@@ -28,4 +30,12 @@ export const friendsService: FriendsService = {
 
     return base.updateOne(id, payload);
   },
+
+  readAllByUser: async (userId) =>
+    FriendModel
+      .find({ $or: [{ requester: userId }, { recipient: userId }] } as any)
+      .populate('requester')
+      .populate('recipient')
+      .lean<Friend[]>()
+      .exec(),
 };
