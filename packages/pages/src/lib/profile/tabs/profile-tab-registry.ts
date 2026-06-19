@@ -7,6 +7,7 @@ export interface ProfileTabDefinition {
   leadingIcon?: string;
   component: React.ComponentType<ProfileTabPanelProps>;
   ownProfileOnly?: boolean;
+  requiredSetting?: string;
 }
 
 export interface ProfileTabPanelProps {
