@@ -8,6 +8,7 @@ process.env['ASSETS_ROOT'] = path.resolve(__dirname, 'assets');
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { z } from 'zod';
 import { connectDB, errorHandler } from '@inithium/api-core';
 import {
   usersRouter,
@@ -22,15 +23,20 @@ import {
   UserModel,
 } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
-import { createFileManagerRouter } from '@inithium/file-manager';
+import {
+  createFileManagerRouter,
+  writeFile,
+  deleteFile,
+  ensureDir,
+  appendToFile,
+  removeLineFromFile,
+} from '@inithium/file-manager';
 import { triggerEngagementDeploy } from './deploy-hook.service';
 import { runHydration } from './run-hydration';
+import { SeedManifestModel } from './seed/manifest.model';
 
-// Import the concrete instance of your database tracker model
-import { SeedManifestModel } from './seed/manifest.model'; 
-
-const host     = process.env['HOST']      ?? 'localhost';
-const port     = process.env['PORT']      ? Number(process.env['PORT']) : 3000;
+const host = process.env['HOST'] ?? 'localhost';
+const port = process.env['PORT'] ? Number(process.env['PORT']) : 3000;
 const mongoUri = process.env['MONGO_URI'] ?? 'mongodb://localhost:27017/my-app';
 
 const allowedOrigins = process.env['CORS_ORIGINS']
@@ -38,33 +44,103 @@ const allowedOrigins = process.env['CORS_ORIGINS']
   : ['http://localhost:5173', 'http://localhost:8080'];
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..', '..', '..');
-console.log('[file-manager] REPO_ROOT:', REPO_ROOT);
+const PAGES_LIB_DIR = path.join(REPO_ROOT, 'packages', 'pages', 'src', 'lib');
+const PAGES_BARREL_INDEX = path.join(REPO_ROOT, 'packages', 'pages', 'src', 'index.ts');
 
-const fileManagerRouter = createFileManagerRouter({
-  pagesLibDir:      path.join(REPO_ROOT, 'packages', 'pages', 'src', 'lib'),
-  pagesBarrelIndex: path.join(REPO_ROOT, 'packages', 'pages', 'src', 'index.ts'),
-  onAfterScaffold:  triggerEngagementDeploy,
+const pageComponentTemplate = (componentName: string): string =>
+  `import React from 'react';
+
+const ${componentName}: React.FC = () => {
+  return <div>${componentName}</div>;
+};
+
+export default ${componentName};
+`;
+
+const pageBarrelTemplate = (slug: string): string => `export * from './${slug}';\n`;
+
+const pageExportLine = (slug: string): string => `\nexport * from './lib/${slug}/index';\n`;
+
+const createPageSchema = z.object({
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z][a-z0-9-]*$/, 'slug must be lowercase letters, numbers, and hyphens'),
+  componentName: z
+    .string()
+    .min(1)
+    .regex(/^[A-Z][A-Za-z0-9]+$/, 'componentName must be PascalCase'),
 });
+
+const deletePageSchema = z.object({
+  id: z
+    .string()
+    .min(1)
+    .regex(/^[a-z][a-z0-9-]*$/, 'slug must be lowercase letters, numbers, and hyphens'),
+});
+
+type CreatePageDto = z.infer<typeof createPageSchema>;
+type DeletePageDto = z.infer<typeof deletePageSchema>;
+
+const fileManagerRouter = createFileManagerRouter([
+  {
+    resource: 'pages',
+    createSchema: createPageSchema,
+    deleteSchema: deletePageSchema,
+
+    onCreate: async ({ slug, componentName }: CreatePageDto) => {
+      const componentDir = path.join(PAGES_LIB_DIR, slug);
+      await ensureDir({ dirPath: componentDir });
+      await writeFile({
+        filePath: path.join(componentDir, `${slug}.tsx`),
+        content: pageComponentTemplate(componentName),
+      });
+      await writeFile({
+        filePath: path.join(componentDir, 'index.ts'),
+        content: pageBarrelTemplate(slug),
+      });
+      await appendToFile({
+        filePath: PAGES_BARREL_INDEX,
+        content: pageExportLine(slug),
+      });
+      return { message: `Page component "${componentName}" created successfully.`, slug };
+    },
+
+    onDelete: async ({ id: slug }: DeletePageDto) => {
+      const componentDir = path.join(PAGES_LIB_DIR, slug);
+      await deleteFile({ filePath: componentDir });
+      await removeLineFromFile({
+        filePath: PAGES_BARREL_INDEX,
+        matcher: (line) => line.trim() === pageExportLine(slug).trim(),
+      });
+      return { message: `Page component "${slug}" deleted successfully.`, slug };
+    },
+
+    onAfterMutation: triggerEngagementDeploy,
+  },
+]);
 
 const app = express();
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin "${origin}" is not allowed`));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin "${origin}" is not allowed`));
+    },
+    credentials: true,
+  }),
+);
 
 app.use(cookieParser());
 app.use(express.json());
 
-app.use('/api/users',        usersRouter);
-app.use('/api/pages',        pagesRouter);
-app.use('/api/assets',       assetsRouter);
-app.use('/api/auth',         authRouter);
-app.use('/api/settings',     settingsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/pages', pagesRouter);
+app.use('/api/assets', assetsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/settings', settingsRouter);
 app.use('/api/file-manager', fileManagerRouter);
 
 app.get('/', (_req, res) => {
@@ -74,24 +150,24 @@ app.get('/', (_req, res) => {
 async function bootstrap() {
   await connectDB(mongoUri);
 
-  await runHydration({ 
-    AssetModel, 
-    PageModel, 
-    SettingModel, 
+  await runHydration({
+    AssetModel,
+    PageModel,
+    SettingModel,
     UserModel,
-    ManifestModel: SeedManifestModel
+    ManifestModel: SeedManifestModel,
   });
 
   const assetManager = await createAssetManager({
     assetsService: {
-      createOne: (data)   => assetsService.createOne(data),
-      readOne:   (id)     => assetsService.readOne(id),
-      findOne:   (filter) => AssetModel.findOne(filter).lean().exec(),
+      createOne: (data) => assetsService.createOne(data),
+      readOne: (id) => assetsService.readOne(id),
+      findOne: (filter) => AssetModel.findOne(filter).lean().exec(),
     },
   });
 
   app.use('/api/asset-manager', assetManager.handshakeRouter);
-  app.use('/api/assets',        assetManager.proxyRouter);
+  app.use('/api/assets', assetManager.proxyRouter);
 
   app.listen(port, host, () => {
     console.log(`[ ready  ] http://${host}:${port}`);

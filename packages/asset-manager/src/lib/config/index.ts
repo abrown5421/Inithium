@@ -24,12 +24,12 @@ const MIME_TO_CATEGORY: Record<string, FileCategory> = {
   'font/ttf': 'fonts',
   'font/sfnt': 'fonts',
   'font/otf': 'fonts',
-  'font/woff':'fonts',
+  'font/woff': 'fonts',
   'font/woff2': 'fonts',
-  'application/font-woff':'fonts',
-  'application/font-woff2':     'fonts',
-  'application/x-font-ttf':     'fonts',
-  'application/x-font-opentype':'fonts',
+  'application/font-woff': 'fonts',
+  'application/font-woff2': 'fonts',
+  'application/x-font-ttf': 'fonts',
+  'application/x-font-opentype': 'fonts',
 
   'audio/mpeg': 'audio',
   'audio/ogg': 'audio',
@@ -43,26 +43,26 @@ const MIME_TO_CATEGORY: Record<string, FileCategory> = {
   'video/ogg': 'videos',
 
   'application/pdf': 'documents',
-  'text/plain':'documents',
+  'text/plain': 'documents',
   'application/msword': 'documents',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'documents',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'documents',
   'application/vnd.ms-excel': 'documents',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'documents',
 };
 
 const FILE_CATEGORY_TO_SCHEMA: Record<FileCategory, string> = {
-  images:    'image',
-  fonts:     'font',
-  audio:     'audio',
-  videos:    'other',
+  images: 'image',
+  fonts: 'font',
+  audio: 'audio',
+  videos: 'other',
   documents: 'document',
-  misc:'other',
+  misc: 'other',
 };
 
 const EXT_TO_CATEGORY: Record<string, FileCategory> = {
-  '.ttf':   'fonts',
-  '.otf':   'fonts',
-  '.woff':  'fonts',
+  '.ttf': 'fonts',
+  '.otf': 'fonts',
+  '.woff': 'fonts',
   '.woff2': 'fonts',
 };
 
@@ -79,37 +79,35 @@ export const toSchemaCategory = (category: FileCategory): string =>
   FILE_CATEGORY_TO_SCHEMA[category];
 
 export const categoryDir = (
-  category:  FileCategory,
+  category: FileCategory,
   ownerType: 'app' | 'user',
-  ownerId:   string | null,
+  ownerId: string | null,
 ): string => {
-  const ownerSegment = ownerType === 'user' && ownerId
-    ? path.join('user', ownerId)
-    : 'app';
+  const ownerSegment =
+    ownerType === 'user' && ownerId ? path.join('user', ownerId) : 'app';
   return path.join(ASSETS_ROOT, category, ownerSegment);
 };
 
 export const trashDir = (
-  category:  FileCategory,
+  category: FileCategory,
   ownerType: 'app' | 'user',
-  ownerId:   string | null,
+  ownerId: string | null,
 ): string => {
-  const ownerSegment = ownerType === 'user' && ownerId
-    ? path.join('user', ownerId)
-    : 'app';
+  const ownerSegment =
+    ownerType === 'user' && ownerId ? path.join('user', ownerId) : 'app';
   return path.join(TRASH_ROOT, category, ownerSegment);
 };
 
 export const buildAbsolutePath = (
-  category:  FileCategory,
+  category: FileCategory,
   storageKey: string,
   ownerType: 'app' | 'user',
-  ownerId:   string | null,
+  ownerId: string | null,
 ): string => path.join(categoryDir(category, ownerType, ownerId), storageKey);
 
 export const buildTrashPath = (
-  category:  FileCategory,
+  category: FileCategory,
   storageKey: string,
   ownerType: 'app' | 'user',
-  ownerId:   string | null,
+  ownerId: string | null,
 ): string => path.join(trashDir(category, ownerType, ownerId), storageKey);

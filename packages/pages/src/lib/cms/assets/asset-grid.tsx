@@ -5,45 +5,45 @@ import type { Asset } from '@inithium/types';
 import { CmsItemRow } from '@inithium/ui';
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
-  image:     <Image size={18} />,
-  images:    <Image size={18} />,
-  font:      <Type size={18} />,
-  fonts:     <Type size={18} />,
-  audio:     <Music size={18} />,
-  video:     <Video size={18} />,
-  videos:    <Video size={18} />,
-  document:  <FileText size={18} />,
+  image: <Image size={18} />,
+  images: <Image size={18} />,
+  font: <Type size={18} />,
+  fonts: <Type size={18} />,
+  audio: <Music size={18} />,
+  video: <Video size={18} />,
+  videos: <Video size={18} />,
+  document: <FileText size={18} />,
   documents: <FileText size={18} />,
-  other:     <Folder size={18} />,
-  misc:      <Folder size={18} />,
+  other: <Folder size={18} />,
+  misc: <Folder size={18} />,
 };
 
 const CATEGORY_COLOR: Record<string, string> = {
-  image:     'bg-accent/10 text-accent',
-  images:    'bg-accent/10 text-accent',
-  font:      'bg-warning/10 text-warning',
-  fonts:     'bg-warning/10 text-warning',
-  audio:     'bg-success/10 text-success',
-  video:     'bg-primary/10 text-primary',
-  videos:    'bg-primary/10 text-primary',
-  document:  'bg-surface3 text-secondary',
+  image: 'bg-accent/10 text-accent',
+  images: 'bg-accent/10 text-accent',
+  font: 'bg-warning/10 text-warning',
+  fonts: 'bg-warning/10 text-warning',
+  audio: 'bg-success/10 text-success',
+  video: 'bg-primary/10 text-primary',
+  videos: 'bg-primary/10 text-primary',
+  document: 'bg-surface3 text-secondary',
   documents: 'bg-surface3 text-secondary',
-  other:     'bg-surface3 text-secondary',
-  misc:      'bg-surface3 text-secondary',
+  other: 'bg-surface3 text-secondary',
+  misc: 'bg-surface3 text-secondary',
 };
 
 const CATEGORY_ICON_COLOR: Record<string, string> = {
-  image:     'text-accent',
-  images:    'text-accent',
-  font:      'text-warning',
-  fonts:     'text-warning',
-  audio:     'text-success',
-  video:     'text-primary',
-  videos:    'text-primary',
-  document:  'text-secondary',
+  image: 'text-accent',
+  images: 'text-accent',
+  font: 'text-warning',
+  fonts: 'text-warning',
+  audio: 'text-success',
+  video: 'text-primary',
+  videos: 'text-primary',
+  document: 'text-secondary',
   documents: 'text-secondary',
-  other:     'text-secondary',
-  misc:      'text-secondary',
+  other: 'text-secondary',
+  misc: 'text-secondary',
 };
 
 const formatBytes = (bytes: number): string => {
@@ -59,7 +59,7 @@ const getProxyUrl = (asset: Asset): string => {
   const base =
     (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_ORIGIN) ||
     'http://localhost:3000';
-  return `${base}/api/asset-manager/by-id/${asset._id}`;
+  return `${base}/api/assets/by-id/${asset._id}`;
 };
 
 export interface AssetGridProps {
@@ -116,7 +116,8 @@ const AssetRow: React.FC<AssetRowProps> = ({ asset, isSelected, onToggle, onDele
   const displayName = asset.original_name ?? asset.filename ?? asset.storage_key ?? 'Unnamed';
   const catColor = CATEGORY_COLOR[asset.category ?? 'misc'] ?? CATEGORY_COLOR['misc'];
   const catIcon = CATEGORY_ICON[asset.category ?? 'misc'] ?? CATEGORY_ICON['misc'];
-  const catIconColor = CATEGORY_ICON_COLOR[asset.category ?? 'misc'] ?? CATEGORY_ICON_COLOR['misc'];
+  const catIconColor =
+    CATEGORY_ICON_COLOR[asset.category ?? 'misc'] ?? CATEGORY_ICON_COLOR['misc'];
 
   return (
     <CmsItemRow

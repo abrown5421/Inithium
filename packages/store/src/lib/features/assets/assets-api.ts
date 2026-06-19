@@ -57,7 +57,10 @@ export const assetsApi = baseApi.injectEndpoints({
       }),
     }),
 
-    uploadAssetBinary: builder.mutation<AssetUploadResponseDto, { uploadUrl: string; file: File | Blob }>({
+    uploadAssetBinary: builder.mutation<
+      AssetUploadResponseDto,
+      { uploadUrl: string; file: File | Blob }
+    >({
       query: ({ uploadUrl, file }) => ({
         url: `/asset-manager${uploadUrl}`,
         method: 'PUT',
@@ -91,6 +94,11 @@ export const assetsApi = baseApi.injectEndpoints({
         { type: 'Asset', id: 'LIST' },
       ],
     }),
+
+    invalidateAssets: builder.mutation<void, void>({
+      queryFn: () => ({ data: undefined }),
+      invalidatesTags: [{ type: 'Asset', id: 'LIST' }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -102,4 +110,5 @@ export const {
   useUploadAssetBinaryMutation,
   useUpdateAssetMutation,
   useDeleteAssetMutation,
+  useInvalidateAssetsMutation
 } = assetsApi;

@@ -71,9 +71,11 @@ const CmsAssetsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
-
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [deleteContext, setDeleteContext] = useState<{ targets: readonly string[]; label: string } | null>(null);
+  const [deleteContext, setDeleteContext] = useState<{
+    targets: readonly string[];
+    label: string;
+  } | null>(null);
 
   const { data, isLoading, error } = useGetAssetsQuery();
   const [deleteAsset] = useDeleteAssetMutation();
@@ -113,7 +115,8 @@ const CmsAssetsPage: React.FC = () => {
   }, [pagedAssets]);
 
   const isAllSelected = useMemo(
-    () => pagedAssets.length > 0 && pagedAssets.every((a) => selectedIds.has(a._id)),
+    () =>
+      pagedAssets.length > 0 && pagedAssets.every((a) => selectedIds.has(a._id)),
     [pagedAssets, selectedIds],
   );
 
@@ -134,28 +137,10 @@ const CmsAssetsPage: React.FC = () => {
     setSelectedIds(new Set());
   };
 
-  const handleUploadComplete = (count: number): void => {
-    setIsUploadOpen(false);
-    dispatch(
-      showAlert({
-        message: `${count} asset${count !== 1 ? 's' : ''} uploaded successfully.`,
-        severity: 'success',
-        closeable: false,
-        position: 'bottom-right',
-        animation_object: {
-          entry: 'fadeInRight',
-          exit: 'fadeOutRight',
-          entrySpeed: 'fast',
-          exitSpeed: 'faster',
-        },
-      }),
-    );
-  };
-
   const handleDeleteTrigger = (asset: Asset): void => {
     setDeleteContext({
       targets: [asset._id],
-      label: `Are you sure you want to permanently remove "${asset.original_name ?? asset.filename}"? This action cannot be undone.`,
+      label: `Are you sure you want to permanently delete "${asset.original_name ?? asset.storage_key}"? This action cannot be undone.`,
     });
   };
 
@@ -163,7 +148,7 @@ const CmsAssetsPage: React.FC = () => {
     const total = selectedIds.size;
     setDeleteContext({
       targets: Array.from(selectedIds),
-      label: `Are you sure you want to permanently remove ${total} selected asset${total !== 1 ? 's' : ''}? The files and all associated records will be deleted.`,
+      label: `Are you sure you want to permanently delete ${total} selected asset${total !== 1 ? 's' : ''}? This action cannot be undone.`,
     });
   };
 
@@ -171,15 +156,11 @@ const CmsAssetsPage: React.FC = () => {
     if (!deleteContext) return;
     try {
       await Promise.all(deleteContext.targets.map((id) => deleteAsset(id).unwrap()));
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        deleteContext.targets.forEach((id) => next.delete(id));
-        return next;
-      });
+      setSelectedIds(new Set());
       closeDialog();
       dispatch(
         showAlert({
-          message: `${deleteContext.targets.length} asset${deleteContext.targets.length !== 1 ? 's' : ''} permanently removed.`,
+          message: `${deleteContext.targets.length} asset${deleteContext.targets.length !== 1 ? 's' : ''} deleted.`,
           severity: 'success',
           closeable: false,
           position: 'bottom-right',
@@ -193,39 +174,40 @@ const CmsAssetsPage: React.FC = () => {
       );
     } catch (err) {
       console.error('Asset deletion error:', err);
+      dispatch(showAlert({ 
+        message: 'Failed to delete one or more assets.', 
+        severity: 'success',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+      }));
     } finally {
       setDeleteContext(null);
     }
   };
 
-  const pagination =
-    totalPages > 1 ? (
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          color="secondary"
-          size="sm"
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          disabled={currentPage === 1}
-          leadingIcon="chevron-left"
-        >
-          Prev
-        </Button>
-        <span className="text-sm px-2">
-          {currentPage} / {totalPages}
-        </span>
-        <Button
-          variant="ghost"
-          color="secondary"
-          size="sm"
-          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          disabled={currentPage === totalPages}
-          trailingIcon="chevron-right"
-        >
-          Next
-        </Button>
-      </div>
-    ) : undefined;
+  const handleUploadComplete = (count: number): void => {
+    setIsUploadOpen(false);
+    dispatch(
+      showAlert({
+        message: `${count} asset${count !== 1 ? 's' : ''} uploaded successfully.`,
+        severity: 'success',
+          closeable: false,
+          position: 'bottom-right',
+          animation_object: {
+            entry: 'fadeInRight',
+            exit: 'fadeOutRight',
+            entrySpeed: 'fast',
+            exitSpeed: 'faster',
+          },
+      }),
+    );
+  };
 
   return (
     <>
@@ -234,7 +216,7 @@ const CmsAssetsPage: React.FC = () => {
         error={error}
         errorMessage="Error loading assets"
         searchQuery={searchQuery}
-        searchLabel="Search assets"
+        searchLabel="Search by name or key"
         onSearchChange={handleSearchChange}
         toolbarAction={
           <Button
@@ -249,10 +231,8 @@ const CmsAssetsPage: React.FC = () => {
         }
         isAllSelected={isAllSelected}
         onToggleAll={handleToggleAll}
-        totalFilteredCount={filteredAssets.length}
         selectedCount={selectedIds.size}
         onBulkDelete={handleBulkDeleteTrigger}
-        pagination={pagination}
         sidebarSlot={
           <AssetBrowserSidebar
             selectedCategory={selectedCategory}
@@ -261,6 +241,27 @@ const CmsAssetsPage: React.FC = () => {
             onCategoryChange={handleCategoryChange}
             onOwnerContextChange={handleOwnerContextChange}
           />
+        }
+        pagination={
+          totalPages > 1 ? (
+            <div className="flex justify-center gap-2 py-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setCurrentPage(p)}
+                  className={[
+                    'px-3 py-1 rounded text-sm',
+                    p === currentPage
+                      ? 'bg-primary text-primary-contrast font-semibold'
+                      : 'bg-surface2 text-secondary hover:bg-surface3',
+                  ].join(' ')}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          ) : undefined
         }
       >
         <AssetGrid
@@ -274,7 +275,7 @@ const CmsAssetsPage: React.FC = () => {
 
       <AssetUploadDialog
         open={isUploadOpen}
-        defaultOwnerContext={selectedOwnerContext === 'all' ? 'app' : selectedOwnerContext}
+        defaultOwnerContext="app"
         onClose={() => setIsUploadOpen(false)}
         onComplete={handleUploadComplete}
         createAssetIntent={createAssetIntent}

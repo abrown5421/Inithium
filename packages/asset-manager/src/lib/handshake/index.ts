@@ -6,14 +6,14 @@ import { writeFileStream } from '../adapter/index.js';
 import type { UploadToken } from '../types/index.js';
 
 type FinalizeAsset = (params: {
-  uploadId:     string;
-  storageKey:   string;
-  mimeType:     string;
+  uploadId: string;
+  storageKey: string;
+  mimeType: string;
   originalName: string;
-  size:         number;
-  sizeBytes:    number;
-  ownerType:    'app' | 'user';
-  ownerId:      string | null;
+  size: number;
+  sizeBytes: number;
+  ownerType: 'app' | 'user';
+  ownerId: string | null;
 }) => Promise<{ asset_id: string }>;
 
 export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
@@ -23,7 +23,7 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
     const { filename, mimeType, size, ownerType, ownerId } = req.body;
 
     if (!filename || !mimeType || !size || !ownerType) {
-      res.status(400).json({ error: '...', code: 'MISSING_FIELDS' });
+      res.status(400).json({ error: 'Missing required fields', code: 'MISSING_FIELDS' });
       return;
     }
 
@@ -37,57 +37,52 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
       return;
     }
 
+    const uploadId = crypto.randomUUID();
+    const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : '';
+    const storageKey = `${crypto.randomUUID()}${ext}`;
+    const expiresAt = Date.now() + TOKEN_TTL_MS;
 
-      const uploadId   = crypto.randomUUID();
-      const ext        = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : '';
-      const storageKey = `${crypto.randomUUID()}${ext}`;
-      const expiresAt  = Date.now() + TOKEN_TTL_MS;
+    const token: UploadToken = {
+      uploadId,
+      storageKey,
+      mimeType,
+      originalName: filename,
+      size,
+      expiresAt,
+      ownerType,
+      ownerId: ownerType === 'user' ? ownerId : null,
+    };
 
-      const token: UploadToken = {
-        uploadId,
-        storageKey,
-        mimeType,
-        originalName: filename,
-        size,
-        expiresAt,
-        ownerType,
-        ownerId: ownerType === 'user' ? ownerId : null,
-      };
+    registerToken(token);
 
-      registerToken(token);
+    res.status(201).json({
+      uploadId,
+      storageKey,
+      uploadUrl: `${PRESIGNED_PATH_PREFIX}/${uploadId}`,
+      expiresAt: new Date(expiresAt).toISOString(),
+    });
+  });
 
-      res.status(201).json({
-        uploadId,
-        storageKey,
-        uploadUrl: `${PRESIGNED_PATH_PREFIX}/${uploadId}`,
-        expiresAt: new Date(expiresAt).toISOString(),
-      });
-    },
-  );
-  
-  router.get(
-    '/intent/:uploadId',
-    (req: Request, res: Response) => {
-      const token = peekToken(req.params.uploadId);
-      if (!token) {
-        res.status(404).json({ error: 'Token not found or expired', code: 'TOKEN_NOT_FOUND' });
-        return;
-      }
-      res.json({
-        uploadId:     token.uploadId,
-        storageKey:   token.storageKey,
-        mimeType:     token.mimeType,
-        originalName: token.originalName,
-        size:         token.size,
-        expiresAt:    new Date(token.expiresAt).toISOString(),
-      });
-    },
-  );
+  router.get('/intent/:uploadId', (req: Request, res: Response) => {
+    const token = peekToken(req.params['uploadId']);
+    if (!token) {
+      res.status(404).json({ error: 'Token not found or expired', code: 'TOKEN_NOT_FOUND' });
+      return;
+    }
+    res.json({
+      uploadId: token.uploadId,
+      storageKey: token.storageKey,
+      mimeType: token.mimeType,
+      originalName: token.originalName,
+      size: token.size,
+      expiresAt: new Date(token.expiresAt).toISOString(),
+    });
+  });
 
   router.put(
     `${PRESIGNED_PATH_PREFIX}/:uploadId`,
     async (req: Request, res: Response, next: NextFunction) => {
-      const token = consumeToken(req.params.uploadId);
+      const token = consumeToken(req.params['uploadId']);
 
       if (!token) {
         res.status(410).json({ error: 'Upload token expired or not found', code: 'TOKEN_EXPIRED' });
@@ -95,8 +90,8 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
       }
 
       const writeResult = await writeFileStream(
-        req, 
-        token.storageKey, 
+        req,
+        token.storageKey,
         token.mimeType,
         token.ownerType,
         token.ownerId,
@@ -122,10 +117,10 @@ export const createHandshakeRouter = (finalizeAsset: FinalizeAsset): Router => {
 
         res.status(201).json({
           asset_id,
-          storageKey:   token.storageKey,
-          category:     writeResult.data.category,
+          storageKey: token.storageKey,
+          category: writeResult.data.category,
           originalName: token.originalName,
-          sizeBytes:    writeResult.data.sizeBytes,
+          sizeBytes: writeResult.data.sizeBytes,
         });
       } catch (err) {
         next(err);
