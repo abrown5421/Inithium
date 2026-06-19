@@ -21,6 +21,7 @@ import {
   PageModel,
   SettingModel,
   UserModel,
+  friendsRouter,
 } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 import {
@@ -142,6 +143,7 @@ app.use('/api/assets', assetsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/file-manager', fileManagerRouter);
+app.use('/api/friends', friendsRouter);
 
 app.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
