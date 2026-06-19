@@ -8,16 +8,16 @@ import {
   resolveStoragePath,
 } from './adapter/index.js';
 import { createHandshakeRouter } from './handshake/index.js';
-import { createProxyRouter }    from './proxy/index.js';
+import { createProxyRouter } from './proxy/index.js';
 import { startTokenGarbageCollector } from './handshake/token-store.js';
 import { resolveCategory, toSchemaCategory } from './config/index.js';
 import type { ProxyTarget } from './types/index.js';
 import type { Asset } from '@inithium/types';
 
 export interface AssetManagerService {
-  createOne(data: Record<string, unknown>):              Promise<Asset>;
-  readOne(id: string):                                   Promise<Asset | null>;
-  findOne(filter: Record<string, unknown>):              Promise<Asset | null>;
+  createOne(data: Record<string, unknown>): Promise<Asset>;
+  readOne(id: string): Promise<Asset | null>;
+  findOne(filter: Record<string, unknown>): Promise<Asset | null>;
 }
 
 export interface AssetManagerDeps {
@@ -26,11 +26,11 @@ export interface AssetManagerDeps {
 
 export interface AssetManagerInstance {
   handshakeRouter: Router;
-  proxyRouter:     Router;
-  softDelete:      typeof softDeleteFile;
+  proxyRouter: Router;
+  softDelete: typeof softDeleteFile;
   permanentDelete: typeof permanentDeleteFile;
-  restore:         typeof restoreFile;
-  fileExists:      typeof fileExists;
+  restore: typeof restoreFile;
+  fileExists: typeof fileExists;
 }
 
 export const createAssetManager = async (
@@ -40,27 +40,27 @@ export const createAssetManager = async (
   startTokenGarbageCollector();
 
   const finalizeAsset = async (params: {
-    uploadId:     string;
-    storageKey:   string;
-    mimeType:     string;
+    uploadId: string;
+    storageKey: string;
+    mimeType: string;
     originalName: string;
-    size:         number;
-    sizeBytes:    number;
-    ownerType:    'app' | 'user';  // ADD
-    ownerId:      string | null;   // ADD
+    size: number;
+    sizeBytes: number;
+    ownerType: 'app' | 'user';
+    ownerId: string | null;
   }): Promise<{ asset_id: string }> => {
     const category = resolveCategory(params.mimeType);
 
     const created = await deps.assetsService.createOne({
-      filename:        params.storageKey,
-      original_name:   params.originalName,
-      mimetype:        params.mimeType,
-      size:            params.sizeBytes,
-      storage_key:     params.storageKey,
-      category:        toSchemaCategory(category),
+      filename: params.storageKey,
+      original_name: params.originalName,
+      mimetype: params.mimeType,
+      size: params.sizeBytes,
+      storage_key: params.storageKey,
+      category: toSchemaCategory(category),
       is_system_asset: false,
-      owner_type:      params.ownerType,  // now valid
-      owner_id:        params.ownerId,    // now valid
+      owner_type: params.ownerType,
+      owner_id: params.ownerId,
     });
 
     return { asset_id: String(created._id) };
@@ -77,7 +77,7 @@ export const createAssetManager = async (
         record.owner_id,
         record.storage_key,
       ),
-      mimeType:   record.mimetype,
+      mimeType: record.mimetype,
       storageKey: record.storage_key,
     };
   };
@@ -93,20 +93,20 @@ export const createAssetManager = async (
         record.owner_id,
         record.storage_key,
       ),
-      mimeType:   record.mimetype,
+      mimeType: record.mimetype,
       storageKey: record.storage_key,
     };
   };
 
   return {
     handshakeRouter: createHandshakeRouter(finalizeAsset),
-    proxyRouter:     createProxyRouter({
-      byId:         resolveTargetById,
+    proxyRouter: createProxyRouter({
+      byId: resolveTargetById,
       byStorageKey: resolveTargetByKey,
     }),
-    softDelete:      softDeleteFile,
+    softDelete: softDeleteFile,
     permanentDelete: permanentDeleteFile,
-    restore:         restoreFile,
+    restore: restoreFile,
     fileExists,
   };
 };

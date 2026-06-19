@@ -67,7 +67,10 @@ const NavigationConfigSchema = z.object({
 export const CreatePageSchema = z.object({
   key: z.string().min(1, 'Page key is required'),
   path: z.string().min(1, 'Path is required').startsWith('/', 'Path must start with a "/"'),
-  componentKey: z.string().min(1, 'Component key is required').regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
+  componentKey: z
+    .string()
+    .min(1, 'Component key is required')
+    .regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
   entry: AnimateEntrySchema,
   exit: AnimateExitSchema,
   entrySpeed: AnimateSpeedSchema.optional(),
@@ -83,7 +86,10 @@ export const CreatePageSchema = z.object({
 
 const FileSchema = z.object({
   slug: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/, 'Slug format generated mismatch'),
-  componentName: z.string().min(1).regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
+  componentName: z
+    .string()
+    .min(1)
+    .regex(/^[A-Z][A-Za-z0-9]+$/, 'Component key must be PascalCase'),
 });
 
 const ANIMATE_ENTRY_OPTIONS = [
@@ -201,39 +207,47 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
   const updateField = (field: keyof Page) => (value: any) =>
     dispatch({ type: 'SET_FIELD', field, value });
 
-  const updateNestedField = (parent: 'navigation') => (field: keyof NavigationConfig) => (value: any) =>
-    dispatch({ type: 'SET_NESTED_FIELD', parent, field, value });
+  const updateNestedField =
+    (parent: 'navigation') => (field: keyof NavigationConfig) => (value: any) =>
+      dispatch({ type: 'SET_NESTED_FIELD', parent, field, value });
 
-  const handleInputChange = (field: keyof Page) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    updateField(field)(e.target.value);
+  const handleInputChange =
+    (field: keyof Page) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      updateField(field)(e.target.value);
 
-  const handleNestedInputChange = (parent: 'navigation', field: keyof NavigationConfig) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    updateNestedField(parent)(field)(e.target.value);
+  const handleNestedInputChange =
+    (parent: 'navigation', field: keyof NavigationConfig) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      updateNestedField(parent)(field)(e.target.value);
 
-  const handleNestedNumericInputChange = (parent: 'navigation', field: keyof NavigationConfig) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseInt(e.target.value, 10);
-    updateNestedField(parent)(field)(isNaN(parsed) ? undefined : parsed);
-  };
+  const handleNestedNumericInputChange =
+    (parent: 'navigation', field: keyof NavigationConfig) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const parsed = parseInt(e.target.value, 10);
+      updateNestedField(parent)(field)(isNaN(parsed) ? undefined : parsed);
+    };
 
   const handleSelectChange = (field: keyof Page) => (val: any) => {
     const extracted = val?.target ? val.target.value : val;
     updateField(field)(extracted === 'normal' || extracted === '' ? undefined : extracted);
   };
 
-  const handleNestedSelectChange = (parent: 'navigation', field: keyof NavigationConfig) => (val: any) => {
-    const extracted = val?.target ? val.target.value : val;
-    updateNestedField(parent)(field)(extracted);
-  };
+  const handleNestedSelectChange =
+    (parent: 'navigation', field: keyof NavigationConfig) => (val: any) => {
+      const extracted = val?.target ? val.target.value : val;
+      updateNestedField(parent)(field)(extracted);
+    };
 
   const handleCheckboxChange = (field: keyof Page) => (val: any) => {
     const isChecked = val?.target ? val.target.checked : Boolean(val);
     updateField(field)(isChecked);
   };
 
-  const handleNestedCheckboxChange = (parent: 'navigation', field: keyof NavigationConfig) => (val: any) => {
-    const isChecked = val?.target ? val.target.checked : Boolean(val);
-    updateNestedField(parent)(field)(isChecked);
-  };
+  const handleNestedCheckboxChange =
+    (parent: 'navigation', field: keyof NavigationConfig) => (val: any) => {
+      const isChecked = val?.target ? val.target.checked : Boolean(val);
+      updateNestedField(parent)(field)(isChecked);
+    };
 
   const processedPayloads = useMemo(() => {
     const base: Record<string, any> = {
@@ -256,7 +270,7 @@ export const PageForm: React.FC<PageFormProps> = ({ page, onCancel }) => {
     const nav = formState.navigation;
     if (nav && nav.location !== 'none' && nav.label !== '') {
       base.navigation = Object.fromEntries(
-        Object.entries(nav).filter(([_, v]) => v !== undefined)
+        Object.entries(nav).filter(([_, v]) => v !== undefined),
       );
     }
 

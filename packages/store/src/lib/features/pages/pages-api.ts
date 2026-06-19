@@ -4,7 +4,10 @@ import { Page } from '@inithium/types';
 
 export type { Page };
 
-const crudEndpoints = createCrudEndpoints<Page, Omit<Page, '_id'>, Partial<Omit<Page, '_id'>>>('pages', 'Page');
+const crudEndpoints = createCrudEndpoints<Page, Omit<Page, '_id'>, Partial<Omit<Page, '_id'>>>(
+  'pages',
+  'Page',
+);
 
 export const pagesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -19,11 +22,11 @@ export const pagesApi = baseApi.injectEndpoints({
 
 const {
   useCreatePageMutation,
-  useReadOnePageQuery:        usePageQuery,
-  useReadManyPageQuery:       usePagesBatchQuery,
-  useUpdateOnePageMutation:   useUpdatePageMutation,
-  useDeleteOnePageMutation:   useDeletePageMutation,
-  useDeleteManyPageMutation:  useDeletePagesBatchMutation,
+  useReadOnePageQuery: usePageQuery,
+  useReadManyPageQuery: usePagesBatchQuery,
+  useUpdateOnePageMutation: useUpdatePageMutation,
+  useDeleteOnePageMutation: useDeletePageMutation,
+  useDeleteManyPageMutation: useDeletePagesBatchMutation,
   useReadAllPagesQuery,
 } = pagesApi as any;
 

@@ -11,18 +11,18 @@ interface SidebarCategory {
 }
 
 const CATEGORIES: SidebarCategory[] = [
-  { key: 'all',       label: 'All Assets',  icon: 'layers',       schemaValues: [] },
-  { key: 'images',    label: 'Images',      icon: 'image',        schemaValues: ['image', 'images'] },
-  { key: 'fonts',     label: 'Fonts',       icon: 'type',         schemaValues: ['font', 'fonts'] },
-  { key: 'audio',     label: 'Audio',       icon: 'music',        schemaValues: ['audio'] },
-  { key: 'videos',    label: 'Videos',      icon: 'video',        schemaValues: ['video', 'videos'] },
-  { key: 'documents', label: 'Documents',   icon: 'file-text',    schemaValues: ['document', 'documents'] },
-  { key: 'misc',      label: 'Other',       icon: 'file',         schemaValues: ['misc', 'other'] },
+  { key: 'all', label: 'All Assets', icon: 'layers', schemaValues: [] },
+  { key: 'images', label: 'Images', icon: 'image', schemaValues: ['image', 'images'] },
+  { key: 'fonts', label: 'Fonts', icon: 'type', schemaValues: ['font', 'fonts'] },
+  { key: 'audio', label: 'Audio', icon: 'music', schemaValues: ['audio'] },
+  { key: 'videos', label: 'Videos', icon: 'video', schemaValues: ['video', 'videos'] },
+  { key: 'documents', label: 'Documents', icon: 'file-text', schemaValues: ['document', 'documents'] },
+  { key: 'misc', label: 'Other', icon: 'file', schemaValues: ['misc', 'other'] },
 ];
 
 const OWNER_CONTEXTS: { key: AssetOwnerContext; label: string; icon: string }[] = [
-  { key: 'all',  label: 'All Sources', icon: 'globe' },
-  { key: 'app',  label: 'App Assets',  icon: 'layout-dashboard' },
+  { key: 'all', label: 'All Sources', icon: 'globe' },
+  { key: 'app', label: 'App Assets', icon: 'layout-dashboard' },
   { key: 'user', label: 'User Assets', icon: 'users' },
 ];
 
@@ -45,18 +45,19 @@ export const AssetBrowserSidebar: React.FC<AssetBrowserSidebarProps> = ({
     const counts: Record<string, number> = { all: assets.length };
     for (const cat of CATEGORIES) {
       if (cat.key === 'all') continue;
-      counts[cat.key] = assets.filter((a) =>
-        cat.schemaValues.includes(a.category ?? ''),
-      ).length;
+      counts[cat.key] = assets.filter((a) => cat.schemaValues.includes(a.category ?? '')).length;
     }
     return counts;
   }, [assets]);
 
-  const ownerCounts = useMemo(() => ({
-    all:  assets.length,
-    app:  assets.filter((a) => a.owner_type === 'app').length,
-    user: assets.filter((a) => a.owner_type === 'user').length,
-  }), [assets]);
+  const ownerCounts = useMemo(
+    () => ({
+      all: assets.length,
+      app: assets.filter((a) => a.owner_type === 'app').length,
+      user: assets.filter((a) => a.owner_type === 'user').length,
+    }),
+    [assets],
+  );
 
   return (
     <Box
@@ -116,12 +117,7 @@ interface SidebarNavItemProps {
   onClick: () => void;
 }
 
-const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
-  label,
-  count,
-  isActive,
-  onClick,
-}) => (
+const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ label, count, isActive, onClick }) => (
   <button
     type="button"
     onClick={onClick}

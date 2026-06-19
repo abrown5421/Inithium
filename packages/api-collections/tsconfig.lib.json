@@ -11,6 +11,9 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
+      "path": "../asset-manager/tsconfig.lib.json"
+    },
+    {
       "path": "../api-core/tsconfig.lib.json"
     },
     {

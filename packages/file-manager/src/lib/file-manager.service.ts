@@ -1,95 +1,71 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-export interface CreatePageComponentOptions {
-  componentName: string;
-  slug: string;
-  pagesLibDir: string;
-  pagesBarrelIndex: string;
+export interface WriteFileOptions {
+  filePath: string;
+  content: string;
+  overwrite?: boolean;
 }
 
-export interface DeletePageComponentOptions {
-  slug: string;
-  pagesLibDir: string;
-  pagesBarrelIndex: string;
+export interface DeleteFileOptions {
+  filePath: string;
+  force?: boolean;
 }
 
-function componentTemplate(componentName: string): string {
-  return `import React from 'react';
-
-const ${componentName}: React.FC = () => {
-  return <div>${componentName}</div>;
-};
-
-export default ${componentName};
-`;
+export interface EnsureDirOptions {
+  dirPath: string;
 }
 
-function barrelTemplate(slug: string): string {
-  return `export * from './${slug}';\n`;
+export interface AppendToFileOptions {
+  filePath: string;
+  content: string;
 }
 
-function barrelExportLine(slug: string): string {
-  return `\nexport * from './lib/${slug}/index';\n`;
+export interface RemoveLineFromFileOptions {
+  filePath: string;
+  matcher: (line: string) => boolean;
 }
 
-async function readFileText(filePath: string): Promise<string> {
+export async function ensureDir(opts: EnsureDirOptions): Promise<void> {
+  await fs.mkdir(opts.dirPath, { recursive: true });
+}
+
+export async function writeFile(opts: WriteFileOptions): Promise<void> {
+  if (!opts.overwrite) {
+    const exists = await fs
+      .access(opts.filePath)
+      .then(() => true)
+      .catch(() => false);
+    if (exists) throw new Error(`File already exists: ${opts.filePath}`);
+  }
+  await fs.mkdir(path.dirname(opts.filePath), { recursive: true });
+  await fs.writeFile(opts.filePath, opts.content, 'utf-8');
+}
+
+export async function readFile(filePath: string): Promise<string> {
   return fs.readFile(filePath, 'utf-8');
 }
 
-async function writeFileText(filePath: string, content: string): Promise<void> {
-  await fs.writeFile(filePath, content, 'utf-8');
+export async function deleteFile(opts: DeleteFileOptions): Promise<void> {
+  await fs.rm(opts.filePath, { recursive: true, force: opts.force ?? true });
 }
 
-export async function createPageComponent(options: CreatePageComponentOptions): Promise<void> {
-  const { componentName, slug, pagesLibDir, pagesBarrelIndex } = options;
-
-  const componentDir = path.join(pagesLibDir, slug);
-  const componentFile = path.join(componentDir, `${slug}.tsx`);
-  const indexFile = path.join(componentDir, 'index.ts');
-
-  const dirExists = await fs
-    .access(componentDir)
-    .then(() => true)
-    .catch(() => false);
-
-  if (dirExists) {
-    throw new Error(`Component directory already exists: ${componentDir}`);
-  }
-
-  await fs.mkdir(componentDir, { recursive: true });
-
-  await writeFileText(componentFile, componentTemplate(componentName));
-
-  await writeFileText(indexFile, barrelTemplate(slug));
-
-  const currentBarrel = await readFileText(pagesBarrelIndex);
-  const newExportLine = barrelExportLine(slug);
-
-  if (!currentBarrel.includes(newExportLine.trim())) {
-    await writeFileText(pagesBarrelIndex, currentBarrel + newExportLine);
+export async function appendToFile(opts: AppendToFileOptions): Promise<void> {
+  const existing = await readFile(opts.filePath);
+  if (!existing.includes(opts.content.trim())) {
+    await fs.writeFile(opts.filePath, existing + opts.content, 'utf-8');
   }
 }
 
-export async function deletePageComponent(options: DeletePageComponentOptions): Promise<void> {
-  const { slug, pagesLibDir, pagesBarrelIndex } = options;
+export async function removeLineFromFile(opts: RemoveLineFromFileOptions): Promise<void> {
+  const existing = await readFile(opts.filePath);
+  const updated = existing
+    .split('\n')
+    .filter((line) => !opts.matcher(line))
+    .join('\n');
+  await fs.writeFile(opts.filePath, updated.trimEnd() + '\n', 'utf-8');
+}
 
-  const componentDir = path.join(pagesLibDir, slug);
-
-  const dirExists = await fs
-    .access(componentDir)
-    .then(() => true)
-    .catch(() => false);
-
-  if (!dirExists) {
-    throw new Error(`Component directory does not exist: ${componentDir}`);
-  }
-
-  await fs.rm(componentDir, { recursive: true, force: true });
-
-  const currentBarrel = await readFileText(pagesBarrelIndex);
-  const exportLine = barrelExportLine(slug);
-  const updatedBarrel = currentBarrel.split('\n').filter((line) => line.trim() !== exportLine.trim()).join('\n');
-
-  await writeFileText(pagesBarrelIndex, updatedBarrel.trimEnd() + '\n');
+export async function fileExists(filePath: string): Promise<boolean> {
+  return fs.access(filePath).then(() => true).catch(() => false);
 }

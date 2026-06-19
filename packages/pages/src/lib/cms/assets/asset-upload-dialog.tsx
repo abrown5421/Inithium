@@ -57,11 +57,11 @@ let idSeq = 0;
 const nextId = () => `upload-${++idSeq}`;
 
 const EXT_MIME_MAP: Record<string, string> = {
-  '.ttf':   'font/ttf',
-  '.otf':   'font/otf',
-  '.woff':  'font/woff',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+  '.woff': 'font/woff',
   '.woff2': 'font/woff2',
-  '.sfnt':  'font/sfnt',
+  '.sfnt': 'font/sfnt',
 };
 
 const resolveMimeType = (file: File): string => {
@@ -122,29 +122,30 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
   const comboboxOptions = React.useMemo((): ComboboxOption<string>[] => {
     const q = userQuery.toLowerCase();
     return typedUsers
-      .filter((u: StoreUser) =>
-        q === '' ||
-        u.first_name.toLowerCase().includes(q) ||
-        u.last_name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q),
+      .filter(
+        (u: StoreUser) =>
+          q === '' ||
+          u.first_name.toLowerCase().includes(q) ||
+          u.last_name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q),
       )
-      .map((u: StoreUser): ComboboxOption<string> => ({
-        value: u._id.$oid,
-        label: `${u.first_name} ${u.last_name} (${u.email})`,
-      }));
+      .map(
+        (u: StoreUser): ComboboxOption<string> => ({
+          value: u._id.$oid,
+          label: `${u.first_name} ${u.last_name} (${u.email})`,
+        }),
+      );
   }, [typedUsers, userQuery]);
 
-  const emailByOid = React.useMemo((): Record<string, string> =>
-    Object.fromEntries(
-      typedUsers.map((u: StoreUser) => [u._id.$oid, u.email]),
-    ),
-  [typedUsers]);
+  const emailByOid = React.useMemo(
+    (): Record<string, string> =>
+      Object.fromEntries(typedUsers.map((u: StoreUser) => [u._id.$oid, u.email])),
+    [typedUsers],
+  );
 
   const ownerIdRequired = ownerType === 'user';
   const canUpload =
-    files.length > 0 &&
-    !isUploading &&
-    (!ownerIdRequired || ownerId.trim() !== '');
+    files.length > 0 && !isUploading && (!ownerIdRequired || ownerId.trim() !== '');
 
   const addFiles = useCallback((incoming: FileList | File[]) => {
     const arr = Array.from(incoming);
@@ -173,8 +174,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
     e.target.value = '';
   };
 
-  const removeFile = (id: string) =>
-    setFiles((prev) => prev.filter((f) => f.id !== id));
+  const removeFile = (id: string) => setFiles((prev) => prev.filter((f) => f.id !== id));
 
   const updateEntry = (id: string, patch: Partial<FileEntry>) =>
     setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)));
@@ -210,14 +210,11 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
         const base =
           (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_ORIGIN) ||
           'http://localhost:3000';
-          
+
         const fullUploadUrl = `${base}/api/asset-manager${intent.uploadUrl}`;
 
-        await uploadWithProgress(
-          fullUploadUrl,
-          entry.file,
-          mimeType,
-          (pct) => updateEntry(entry.id, { progress: pct }),
+        await uploadWithProgress(fullUploadUrl, entry.file, mimeType, (pct) =>
+          updateEntry(entry.id, { progress: pct }),
         );
 
         updateEntry(entry.id, { status: 'done', progress: 100 });
@@ -273,7 +270,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
           </Text>
 
           <Box flex align="center" className="gap-2">
-            {((['app', 'user'] as const)).map((t) => (
+            {(['app', 'user'] as const).map((t) => (
               <label key={t} className="flex items-center gap-2 cursor-pointer text-sm">
                 <input
                   type="radio"
@@ -308,7 +305,6 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
                 leadingIcon="user"
                 disabled={isUploading || usersLoading}
               />
-
               {ownerId && emailByOid[ownerId] && (
                 <Text variant="caption" overrideClassName="text-xs text-secondary pl-1">
                   {emailByOid[ownerId]}
@@ -317,8 +313,12 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
             </Box>
           )}
         </Box>
+
         <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => !isUploading && fileInputRef.current?.click()}
@@ -330,7 +330,6 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
               : 'border-surface3 hover:border-primary/50',
           ].join(' ')}
         >
-          
           <Text variant="body2" overrideClassName="text-sm font-medium">
             Drop files here or click to browse
           </Text>
@@ -346,6 +345,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
             className="hidden"
           />
         </div>
+
         {files.length > 0 && (
           <Box flex direction="col" className="gap-2 max-h-56 overflow-y-auto">
             {files.map((entry) => (
@@ -358,6 +358,7 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
             ))}
           </Box>
         )}
+
         <Box flex justify="end" className="gap-2 mt-2">
           <Button
             variant="ghost"
@@ -395,11 +396,11 @@ interface FileRowProps {
 }
 
 const STATUS_ICON: Record<UploadStatus, string> = {
-  pending:   '⏳',
-  intent:    '🔗',
+  pending: '⏳',
+  intent: '🔗',
   uploading: '📤',
-  done:      '✅',
-  error:     '❌',
+  done: '✅',
+  error: '❌',
 };
 
 const FileRow: React.FC<FileRowProps> = ({ entry, onRemove, isUploading }) => {
@@ -429,7 +430,7 @@ const FileRow: React.FC<FileRowProps> = ({ entry, onRemove, isUploading }) => {
         )}
       </Box>
 
-      {((entry.status === 'uploading' || entry.status === 'done')) && (
+      {(entry.status === 'uploading' || entry.status === 'done') && (
         <div className="w-full bg-surface3 rounded-full h-1.5 overflow-hidden">
           <div
             className={[

@@ -16,35 +16,35 @@ export interface UploadToken {
   size: number;
   expiresAt: number;
   ownerType: 'app' | 'user';
-  ownerId: string | null; 
+  ownerId: string | null;
 }
 
 export interface FileMetadata {
-  storageKey:   StorageKey;
-  category:     FileCategory;
-  mimeType:     string;
+  storageKey: StorageKey;
+  category: FileCategory;
+  mimeType: string;
   originalName: string;
-  sizeBytes:    number;
+  sizeBytes: number;
   absolutePath: string;
-  ownerType:    'app' | 'user';
-  ownerId:      string | null; 
+  ownerType: 'app' | 'user';
+  ownerId: string | null;
 }
 
 export interface AdapterResult<T> {
-  ok:   true;
+  ok: true;
   data: T;
 }
 
 export interface AdapterError {
-  ok:    false;
+  ok: false;
   error: string;
-  code:  string;
+  code: string;
 }
 
 export type AdapterOutcome<T> = AdapterResult<T> | AdapterError;
 
 export interface ProxyTarget {
   absolutePath: string;
-  mimeType:     string;
-  storageKey:   StorageKey;
+  mimeType: string;
+  storageKey: StorageKey;
 }

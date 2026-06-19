@@ -4,7 +4,7 @@ import { Box, Button, Text } from '@inithium/ui';
 import { CmsItemRow } from '@inithium/ui';
 
 const STATUS_STYLES = {
-  active:   'bg-success text-success-contrast',
+  active: 'bg-success text-success-contrast',
   inactive: 'bg-surface3 text-secondary',
 };
 
@@ -42,7 +42,11 @@ export const PageItem: React.FC<PageItemProps> = ({
               </span>
             )}
           </Box>
-          <Text variant="caption" color="secondary" overrideClassName="text-xs text-secondary truncate">
+          <Text
+            variant="caption"
+            color="secondary"
+            overrideClassName="text-xs text-secondary truncate"
+          >
             {page.path}
           </Text>
         </>
