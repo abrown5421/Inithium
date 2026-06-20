@@ -10,6 +10,12 @@
   "exclude": [],
   "references": [
     {
+      "path": "../../packages/types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/pubsub/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/file-manager/tsconfig.lib.json"
     },
     {

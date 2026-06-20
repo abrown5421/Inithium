@@ -1,5 +1,6 @@
 import type { Friend } from '@inithium/types';
 import { createCrudService, CrudService } from '@inithium/api-core';
+import type { PubSub } from '@inithium/pubsub';
 import { FriendModel } from './friends.model.js';
 
 export interface FriendsService extends CrudService<Friend> {
@@ -7,6 +8,20 @@ export interface FriendsService extends CrudService<Friend> {
 }
 
 const base = createCrudService<Friend>(FriendModel);
+
+let pubsub: PubSub | null = null;
+
+export const setFriendsPubSub = (instance: PubSub): void => {
+  pubsub = instance;
+};
+
+const readPopulatedOne = async (id: string): Promise<Friend | null> =>
+  FriendModel
+    .findById(id)
+    .populate('requester')
+    .populate('recipient')
+    .lean<Friend>()
+    .exec();
 
 export const friendsService: FriendsService = {
   ...base,
@@ -17,7 +32,14 @@ export const friendsService: FriendsService = {
       date_sent: new Date().toISOString(),
       status: 'pending' as const,
     };
-    return base.createOne(payload);
+    const created = await base.createOne(payload);
+
+    const populated = await readPopulatedOne(String(created._id));
+    if (populated) {
+      await pubsub?.publish(`user:${populated.recipient._id}`, 'friend-request', populated);
+    }
+
+    return created;
   },
 
   updateOne: async (id, data) => {
@@ -28,7 +50,16 @@ export const friendsService: FriendsService = {
       payload.date_accepted = new Date().toISOString();
     }
 
-    return base.updateOne(id, payload);
+    const updated = await base.updateOne(id, payload);
+
+    if (updated && raw.status === 'accepted') {
+      const populated = await readPopulatedOne(id);
+      if (populated) {
+        await pubsub?.publish(`user:${populated.requester._id}`, 'friend-request-accepted', populated);
+      }
+    }
+
+    return updated;
   },
 
   readAllByUser: async (userId) =>

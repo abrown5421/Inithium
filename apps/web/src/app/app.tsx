@@ -15,6 +15,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import type { Page } from '@inithium/types';
 import { FontLoader } from '@inithium/ui';
+import { useFriendNotifications } from '@inithium/store';
 
 const App: React.FC = () => {
   useAuthBootstrap();
@@ -29,6 +30,7 @@ const App: React.FC = () => {
   const alertData = useSelector((state: RootState) => state.alert.current);
   
   useDarkMode(activeUser?.dark_mode);
+  useFriendNotifications();
   
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
