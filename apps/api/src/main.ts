@@ -32,8 +32,11 @@ import {
   appendToFile,
   removeLineFromFile,
 } from '@inithium/file-manager';
+import { createDefaultAdapter, createPubSub, createSocketServer } from '@inithium/pubsub';
+import type { AccessTokenPayload } from '@inithium/types';
 import { triggerEngagementDeploy } from './deploy-hook.service';
 import { runHydration } from './run-hydration';
+import { setFriendsPubSub } from '@inithium/api-collections';
 import { SeedManifestModel } from './seed/manifest.model';
 
 const host = process.env['HOST'] ?? 'localhost';
@@ -149,6 +152,8 @@ app.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
 });
 
+app.use(errorHandler);
+
 async function bootstrap() {
   await connectDB(mongoUri);
 
@@ -171,12 +176,31 @@ async function bootstrap() {
   app.use('/api/asset-manager', assetManager.handshakeRouter);
   app.use('/api/assets', assetManager.proxyRouter);
 
-  app.listen(port, host, () => {
+  const pubsub = createPubSub(createDefaultAdapter());
+  setFriendsPubSub(pubsub);
+
+  if (process.env['NODE_ENV'] !== 'production') {
+    app.post('/api/debug/publish', async (req, res) => {
+      const { channel, event, payload } = req.body;
+      await pubsub.publish(channel, event, payload);
+      res.status(200).json({ message: 'published' });
+    });
+  }
+
+  const httpServer = app.listen(port, host, () => {
     console.log(`[ ready  ] http://${host}:${port}`);
     console.log(`[ assets ] ${process.env['ASSETS_ROOT']}`);
   });
 
-  app.use(errorHandler);
+  const canJoinChannel = async (user: AccessTokenPayload, channel: string): Promise<boolean> =>
+    channel.startsWith(`user:${user.sub}`);
+
+  createSocketServer({
+    httpServer,
+    pubsub,
+    canJoinChannel,
+    corsOrigins: allowedOrigins,
+  });
 }
 
 bootstrap();

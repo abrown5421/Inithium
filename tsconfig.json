@@ -41,6 +41,9 @@
     },
     {
       "path": "./packages/file-manager"
+    },
+    {
+      "path": "./packages/pubsub"
     }
   ]
 }
