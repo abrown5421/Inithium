@@ -1,7 +1,7 @@
 import React from 'react';
-import { Avatar, AvatarFallback, AvatarImage, Box, Button, Text } from '@inithium/ui';
+import { Avatar, AvatarFallback, AvatarImage, Box, Text } from '@inithium/ui';
 import { User } from '@inithium/types';
-import { NavigationLink } from '@inithium/router';
+import { useNavigation } from '@inithium/router';
 
 const getFallback = (user: User) =>
   `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase();
@@ -15,6 +15,7 @@ interface FriendUserRowProps {
 
 export const FriendUserRow: React.FC<FriendUserRowProps> = ({ user, meta, actions, linkable = false }) => {
   const fallback = getFallback(user);
+  const { navigate } = useNavigation();
 
   const avatarNode = (
     <Avatar
@@ -33,19 +34,17 @@ export const FriendUserRow: React.FC<FriendUserRowProps> = ({ user, meta, action
   );
 
   return (
-    <Box
-      flex
-      direction="row"
-      align="center"
-      className="gap-3 px-3 py-2.5 rounded-lg hover:bg-surface2 transition-colors duration-150 group"
+    <div
+      className={[
+        'relative flex items-center gap-3 px-3 py-2.5 rounded-lg',
+        'hover:bg-surface2 transition-colors duration-150 group',
+        linkable ? 'cursor-pointer' : '',
+      ].join(' ')}
+      onClick={linkable ? () => navigate(`/profile/${user._id}`) : undefined}
     >
-      {linkable ? (
-        <NavigationLink to={`profile/${user._id}`} className="shrink-0">
-          {avatarNode}
-        </NavigationLink>
-      ) : (
-        <div className="shrink-0">{avatarNode}</div>
-      )}
+      <div className="shrink-0">
+        {avatarNode}
+      </div>
 
       <Box flex direction="col" className="flex-1 min-w-0">
         <Text variant="body2" color="surface-contrast" decoration={{ bold: true }} overrideClassName="text-sm truncate">
@@ -62,10 +61,16 @@ export const FriendUserRow: React.FC<FriendUserRowProps> = ({ user, meta, action
       </Box>
 
       {actions && (
-        <Box flex direction="row" align="center" className="gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <Box
+          flex
+          direction="row"
+          align="center"
+          className="gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
           {actions}
         </Box>
       )}
-    </Box>
+    </div>
   );
-};
+};  

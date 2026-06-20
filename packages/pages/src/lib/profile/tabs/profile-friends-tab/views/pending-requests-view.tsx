@@ -69,6 +69,7 @@ export const PendingRequestsView: React.FC<PendingRequestsViewProps> = ({ active
 
         return (
           <FriendUserRow
+            linkable
             key={friend._id}
             user={other}
             meta={formatRequestMeta(friend, activeUser._id)}

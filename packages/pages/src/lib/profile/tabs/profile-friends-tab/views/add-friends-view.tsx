@@ -51,6 +51,7 @@ export const AddFriendsView: React.FC<AddFriendsViewProps> = ({ activeUser, exis
     >
       {paginated.map((user) => (
         <FriendUserRow
+          linkable
           key={user._id}
           user={user}
           actions={

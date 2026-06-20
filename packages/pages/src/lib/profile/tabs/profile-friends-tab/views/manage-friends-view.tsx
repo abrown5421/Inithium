@@ -52,6 +52,7 @@ export const ManageFriendsView: React.FC<ManageFriendsViewProps> = ({ activeUser
         const other = resolveOther(friend, activeUser._id);
         return (
           <FriendUserRow
+            linkable
             key={friend._id}
             user={other}
             meta={formatSince(friend.date_accepted)}

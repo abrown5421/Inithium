@@ -55,7 +55,8 @@ export const ViewFriendsView: React.FC<ViewFriendsViewProps> = ({
     >
       {paginated.map((friend) => {
         const other = resolveOther(friend, profileUserId);
-        return <FriendUserRow key={friend._id} user={other} linkable />;
+        return <FriendUserRow
+         key={friend._id} user={other} linkable />;
       })}
     </FriendsListShell>
   );

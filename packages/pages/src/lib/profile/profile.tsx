@@ -109,7 +109,7 @@ const ProfileIdentityHeader: React.FC<ProfileIdentityHeaderProps> = ({ profileUs
   const joined = formatDate(profileUser?.createdAt);
   return (
     <Box flex direction="row" justify="between" align='center' className="py-3 flex-wrap">
-      <Text variant="h5" color="primary">
+      <Text variant="h5" color="primary" overrideClassName='primary-font'>
         {profileUser?.first_name ?? ''} {profileUser?.last_name ?? ''}
       </Text>
       {joined && (
@@ -145,6 +145,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
           profileUser={profileUser} 
           friends={friends} 
           isFriendModuleActive={isFriendModuleActive} 
+          isOwnProfile={isOwnProfile}
         />
       </Box>
     }
