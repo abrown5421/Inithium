@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Friend } from '@inithium/types';
+import type { Friend, AvatarProps } from '@inithium/types';
 import { selectActiveUser } from '../features/active-user/active-user-slice';
 import { showAlert } from '../features/alert/alert-slice';
 import { friendsApi } from '../features/friends/friends-api.js';
 import { connectSocket, disconnectSocket } from '../socket/socket-client.js';
 
-const buildAlert = (message: string, severity: 'primary' | 'success') => ({
+const buildAlert = (message: string, severity: 'primary' | 'success', avatar?: AvatarProps) => ({
   message,
   severity,
+  avatar,
   closeable: true,
   position: 'bottom-right' as const,
   animation_object: {
@@ -17,6 +18,14 @@ const buildAlert = (message: string, severity: 'primary' | 'success') => ({
     entrySpeed: 'fast' as const,
     exitSpeed: 'faster' as const,
   },
+});
+
+const transformUserToAvatar = (user: { first_name: string; last_name: string; profile_picture?: string }): AvatarProps => ({
+  src: user.profile_picture,
+  alt: `${user.first_name} ${user.last_name}`,
+  fallback: `${user.first_name[0]}${user.last_name[0]}`.toUpperCase(),
+  size: 'sm',
+  shape: 'circle',
 });
 
 export const useFriendNotifications = (): void => {
@@ -37,19 +46,33 @@ export const useFriendNotifications = (): void => {
     if (socket.connected) joinChannel();
 
     const handleFriendRequest = (friend: Friend) => {
+      const { requester } = friend;
+      const fullName = `${requester.first_name} ${requester.last_name}`;
+      
       dispatch(friendsApi.util.invalidateTags([{ type: 'Friend', id: activeUser._id }]));
       dispatch(
         showAlert(
-          buildAlert(`${friend.requester.first_name} ${friend.requester.last_name} sent you a friend request`, 'primary'),
+          buildAlert(
+            `${fullName} sent you a friend request`, 
+            'primary',
+            transformUserToAvatar(requester)
+          ),
         ),
       );
     };
 
     const handleFriendRequestAccepted = (friend: Friend) => {
+      const { recipient } = friend;
+      const fullName = `${recipient.first_name} ${recipient.last_name}`;
+
       dispatch(friendsApi.util.invalidateTags([{ type: 'Friend', id: activeUser._id }]));
       dispatch(
         showAlert(
-          buildAlert(`${friend.recipient.first_name} ${friend.recipient.last_name} accepted your friend request`, 'success'),
+          buildAlert(
+            `${fullName} accepted your friend request`, 
+            'success',
+            transformUserToAvatar(recipient)
+          ),
         ),
       );
     };
