@@ -3,12 +3,24 @@ import { AnimationController, AlertPosition } from '@inithium/types';
 import { ManagedAlertProps } from './alert.types';
 import { Box } from '../box/box';
 import { Button } from '../button/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../../composites';
 
 const positionStyles: Record<AlertPosition, string> = {
   'top-left': 'top-4 left-4',
   'top-right': 'top-4 right-4',
   'bottom-left': 'bottom-4 left-4',
   'bottom-right': 'bottom-4 right-4',
+};
+
+const renderAvatar = (avatarProps?: ManagedAlertProps['alertData']['avatar']) => {
+  if (!avatarProps) return null;
+  
+  return (
+    <Avatar {...avatarProps} className={`mr-3 flex-shrink-0 ${avatarProps.className ?? ''}`}>
+      <AvatarImage src={avatarProps.src} alt={avatarProps.alt} />
+      <AvatarFallback>{avatarProps.fallback ?? avatarProps.alt?.substring(0, 2)}</AvatarFallback>
+    </Avatar>
+  );
 };
 
 export const Alert: React.FC<ManagedAlertProps> = ({ alertData, onDismiss, onExited }) => {
@@ -23,7 +35,6 @@ export const Alert: React.FC<ManagedAlertProps> = ({ alertData, onDismiss, onExi
     controller,
   }), [alertData.animation_object, controller]);
 
-  // Handle Redux state driven exit transition triggering
   useEffect(() => {
     if (!alertData.open) {
       const fallback = setTimeout(onExited, 400);
@@ -35,14 +46,10 @@ export const Alert: React.FC<ManagedAlertProps> = ({ alertData, onDismiss, onExi
     }
   }, [alertData.open, controller, onExited]);
 
-  // Unified auto-close timer rule: all alerts close after 3s
   useEffect(() => {
     if (!alertData.open) return;
 
-    const timer = setTimeout(() => {
-      onDismiss();
-    }, 3000);
-
+    const timer = setTimeout(onDismiss, 3000);
     return () => clearTimeout(timer);
   }, [alertData.open, onDismiss]);
 
@@ -63,7 +70,11 @@ export const Alert: React.FC<ManagedAlertProps> = ({ alertData, onDismiss, onExi
         border
         fullWidth
       >
-        <span>{alertData.message}</span>
+        <div className="flex items-center min-w-0 flex-1">
+          {renderAvatar(alertData.avatar)}
+          <span className="truncate">{alertData.message}</span>
+        </div>
+        
         {alertData.closeable && (
           <Button
             color={alertData.severity}
