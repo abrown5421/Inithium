@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Friend, AvatarProps } from '@inithium/types';
+import type { Friend, AvatarProps, ThemeColor } from '@inithium/types';
 import { selectActiveUser } from '../features/active-user/active-user-slice';
 import { showAlert } from '../features/alert/alert-slice';
 import { friendsApi } from '../features/friends/friends-api.js';
 import { connectSocket, disconnectSocket } from '../socket/socket-client.js';
 
-const buildAlert = (message: string, severity: 'primary' | 'success', avatar?: AvatarProps) => ({
+const buildAlert = (message: string, severity: ThemeColor, avatar?: AvatarProps) => ({
   message,
   severity,
   avatar,
@@ -20,13 +20,28 @@ const buildAlert = (message: string, severity: 'primary' | 'success', avatar?: A
   },
 });
 
-const transformUserToAvatar = (user: { first_name: string; last_name: string; profile_picture?: string }): AvatarProps => ({
-  src: user.profile_picture,
-  alt: `${user.first_name} ${user.last_name}`,
-  fallback: `${user.first_name[0]}${user.last_name[0]}`.toUpperCase(),
-  size: 'sm',
-  shape: 'circle',
-});
+const transformUserToAvatar = (user: { 
+  first_name: string; 
+  last_name: string; 
+  profile_picture?: string;
+  user_avatar?: {
+    background?: string;
+    fontColor?: string;
+    src?: string;
+  };
+}): AvatarProps => {
+  const avatarConfig = user.user_avatar || {};
+  
+  return {
+    src: user.profile_picture || avatarConfig.src,
+    alt: `${user.first_name} ${user.last_name}`,
+    fallback: `${user.first_name[0]}${user.last_name[0]}`.toUpperCase(),
+    size: 'sm',
+    shape: 'circle',
+    background: avatarConfig.background,
+    fontColor: avatarConfig.fontColor,
+  };
+};
 
 export const useFriendNotifications = (): void => {
   const dispatch = useDispatch();
@@ -54,7 +69,7 @@ export const useFriendNotifications = (): void => {
         showAlert(
           buildAlert(
             `${fullName} sent you a friend request`, 
-            'primary',
+            'surface3',
             transformUserToAvatar(requester)
           ),
         ),

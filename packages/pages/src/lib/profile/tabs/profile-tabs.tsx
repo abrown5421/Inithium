@@ -1,9 +1,9 @@
 import React from 'react';
 import { Tabs } from '@inithium/ui';
 import { getProfileTabs } from './profile-tab-registry';
-import { User } from '@inithium/types';
+import { User, Friend } from '@inithium/types';
 import { useSelector } from 'react-redux';
-import { selectAllSettings } from '@inithium/store';
+import { selectAllSettings, useReadFriendsByUserQuery } from '@inithium/store';
 
 interface ProfileTabsProps {
   profileUser: any;
@@ -11,17 +11,34 @@ interface ProfileTabsProps {
   activeUser: User | null;
 }
 
+const isSettingEnabled = (settings: readonly any[]) => (key: string): boolean =>
+  Boolean(settings.find(s => s.key === key)?.value);
+
+const calculatePendingCount = (activeUserId: string) => (friends: readonly Friend[]): number =>
+  friends.filter(f => f.status === 'pending' && f.recipient._id === activeUserId).length;
+
+const injectTabBadges = (friends: readonly Friend[], activeUserId: string) => (tabs: readonly any[]) =>
+  tabs.map(tab => tab.id === 'profile-friends-tab' 
+    ? { ...tab, badge: calculatePendingCount(activeUserId)(friends) }
+    : tab
+  );
+
 export const ProfileTabs: React.FC<ProfileTabsProps> = ({ profileUser, isOwnProfile, activeUser }) => {
   const settings = useSelector(selectAllSettings);
-
-  const isSettingEnabled = (key: string): boolean =>
-    Boolean(settings.find(s => s.key === key)?.value);
-
-  const tabs = getProfileTabs().filter(tab => {
-    if (tab.ownProfileOnly && !isOwnProfile) return false;
-    if (tab.requiredSetting && !isSettingEnabled(tab.requiredSetting)) return false;
-    return true;
+  const { data: activeFriends = [] } = useReadFriendsByUserQuery(activeUser?._id ?? '', {
+    skip: !activeUser,
   });
+
+  const checkSetting = isSettingEnabled(settings);
+  const processBadges = injectTabBadges(activeFriends as Friend[], activeUser?._id ?? '');
+
+  const tabs = processBadges(
+    getProfileTabs().filter(tab => {
+      if (tab.ownProfileOnly && !isOwnProfile) return false;
+      if (tab.requiredSetting && !checkSetting(tab.requiredSetting)) return false;
+      return true;
+    })
+  );
 
   if (tabs.length === 0) return null;
 
@@ -30,7 +47,14 @@ export const ProfileTabs: React.FC<ProfileTabsProps> = ({ profileUser, isOwnProf
       <Tabs.List>
         {tabs.map(tab => (
           <Tabs.Tab key={tab.id} leadingIcon={tab.leadingIcon}>
-            {tab.label}
+            <span className="flex items-center gap-2">
+              <span>{tab.label}</span>
+              {tab.badge !== undefined && tab.badge > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-semibold bg-primary text-primary-contrast">
+                  {tab.badge}
+                </span>
+              )}
+            </span>
           </Tabs.Tab>
         ))}
       </Tabs.List>
