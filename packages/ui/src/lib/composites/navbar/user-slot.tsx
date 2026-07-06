@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '../../components';
 import { Avatar, AvatarImage, AvatarFallback } from '../avatar';
 import { UserSlotProps } from './navbar.types';
-import { useUserStatus, useReadFriendsByUserQuery } from '@inithium/store';
+import { usePresence, useReadFriendsByUserQuery } from '@inithium/store';
 import type { Friend } from '@inithium/types';
 
 const usePendingFriendRequestCount = (userId?: string): number => {
@@ -29,7 +29,7 @@ const NotificationBadge: React.FC<{ count: number }> = ({ count }) => {
 };
 
 const UserSlot: React.FC<UserSlotProps> = ({ activeUser, onAvatarClick }) => {
-  const status = useUserStatus();
+  const status = usePresence(activeUser?._id);
   const pendingCount = usePendingFriendRequestCount(activeUser?._id);
 
   const renderAvatar = (avatar: NonNullable<NonNullable<typeof activeUser>['user_avatar']>) => (

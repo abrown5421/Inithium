@@ -1,4 +1,4 @@
-import { selectActiveUser, selectAllSettings, useReadFriendsByUserQuery, useUserQuery } from '@inithium/store';
+import { selectActiveUser, selectAllSettings, usePresence, useReadFriendsByUserQuery, useUserQuery } from '@inithium/store';
 import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '@inithium/ui';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -62,11 +62,12 @@ const BannerSection: React.FC<BannerSectionProps> = ({ profileUser, isOwnProfile
 
 interface AvatarSectionProps {
   avatar: any;
+  status: any;
   isOwnProfile: boolean;
   onEditClick: () => void;
 }
 
-const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, isOwnProfile, onEditClick }) => (
+const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, status, isOwnProfile, onEditClick }) => (
   <ProfileRow 
     className="-mt-[96px] relative z-10" 
     left={
@@ -76,6 +77,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, isOwnProfile, onE
           alt={avatar.alt}
           fallback={avatar.fallback}
           size="xl"
+          status={status}
           shape={avatar.shape}
           background={avatar.background}
           fontColor={avatar.fontColor}
@@ -174,6 +176,7 @@ interface ActiveProfileViewProps {
   profileUser: any;
   activeUser: User | null;
   avatar: any;
+  status: any;
   isOwnProfile: boolean;
   isAvatarDialogOpen: boolean;
   isBannerDialogOpen: boolean;
@@ -187,6 +190,7 @@ const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
   profileUser,
   activeUser,
   avatar,
+  status,
   isOwnProfile,
   isAvatarDialogOpen,
   isBannerDialogOpen,
@@ -203,6 +207,7 @@ const ActiveProfileView: React.FC<ActiveProfileViewProps> = ({
     />
     
     <AvatarSection
+      status={status} 
       avatar={avatar}
       isOwnProfile={isOwnProfile}
       onEditClick={() => setIsAvatarDialogOpen(true)}
@@ -250,6 +255,7 @@ const ProfilePage: React.FC = () => {
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
   const { data: friends } = useReadFriendsByUserQuery(id);
+  const status = usePresence(profileUser?._id);
 
   if (isLoading) {
     return null; 
@@ -275,6 +281,7 @@ const ProfilePage: React.FC = () => {
       profileUser={profileUser}
       activeUser={activeUser}
       avatar={avatar}
+      status={status}
       isOwnProfile={isOwnProfile}
       isAvatarDialogOpen={isAvatarDialogOpen}
       isBannerDialogOpen={isBannerDialogOpen}
