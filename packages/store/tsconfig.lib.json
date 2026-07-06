@@ -19,6 +19,9 @@
   "references": [
     {
       "path": "../types/tsconfig.lib.json"
+    },
+    {
+      "path": "../api-core/tsconfig.lib.json"
     }
   ],
   "exports": {

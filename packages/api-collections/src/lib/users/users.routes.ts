@@ -6,4 +6,5 @@ import { CreateUserSchema, UpdateUserSchema } from './users.validators.js';
 export const usersRouter: Router = createCrudRouter(usersService, {
   onCreate: CreateUserSchema,
   onUpdate: UpdateUserSchema,
+  forcePagination: true,
 });
