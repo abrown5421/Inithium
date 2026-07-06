@@ -11,6 +11,7 @@ import {
   RootState,
   useReadAllSettingsQuery,
   selectAllSettings,
+  useActivityHeartbeat,
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
 import type { Page } from '@inithium/types';
@@ -31,6 +32,7 @@ const App: React.FC = () => {
   
   useDarkMode(activeUser?.dark_mode);
   useFriendNotifications();
+  useActivityHeartbeat();
   
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();

@@ -7,3 +7,4 @@ export * from './lib/utils/channel.utils.js';
 export * from './lib/transport/socket.types.js';
 export * from './lib/transport/socket-auth.js';
 export * from './lib/transport/create-socket-server.js';
+export * from './lib/presence/presence-tracker.js';

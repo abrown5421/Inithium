@@ -27,6 +27,31 @@ const statusSizeMap = {
   xl: 'w-6 h-6 bottom-1 right-1 border-2'
 };
 
+const tooltipPositionMap = {
+  sm: 'bottom-3 left-1/2',
+  md: 'bottom-4 left-1/2',
+  lg: 'bottom-5 left-1/2',
+  xl: 'bottom-7 left-1/2'
+};
+
+const tooltipBaseClasses = [
+  'absolute',
+  '-translate-x-1/2',
+  'scale-0',
+  'group-hover:scale-100',
+  'transition-all',
+  'duration-150',
+  'bg-black',
+  'text-white',
+  'text-[10px]',
+  'px-1.5',
+  'py-0.5',
+  'rounded',
+  'pointer-events-none',
+  'z-10',
+  'capitalize'
+].join(' ');
+
 export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
   fontColor,
   background,
@@ -58,9 +83,15 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
   const statusClasses = status ? [
     'absolute',
     'rounded-full',
+    'group',
     statusColorMap[status],
     statusSizeMap[size]
   ].filter(Boolean).join(' ') : '';
+
+  const tooltipClasses = status ? [
+    tooltipBaseClasses,
+    tooltipPositionMap[size]
+  ].join(' ') : '';
 
   const inlineStyle: React.CSSProperties = {
     ...(background ? { background } : {}),
@@ -75,7 +106,13 @@ export const Avatar: React.FC<AvatarProps & { children?: React.ReactNode }> = ({
         onClick={onClick}
       >
         {children}
-        {status && <span className={statusClasses} aria-hidden="true" />}
+        {status && (
+          <span className={statusClasses} aria-hidden="true">
+            <span className={tooltipClasses}>
+              {status}
+            </span>
+          </span>
+        )}
       </div>
     </AvatarContext.Provider>
   );

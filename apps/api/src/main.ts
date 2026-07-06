@@ -32,7 +32,13 @@ import {
   appendToFile,
   removeLineFromFile,
 } from '@inithium/file-manager';
-import { createDefaultAdapter, createPubSub, createSocketServer } from '@inithium/pubsub';
+import {
+  createDefaultAdapter,
+  createPubSub,
+  createSocketServer,
+  createPresenceTracker,
+  buildChannel,
+} from '@inithium/pubsub';
 import type { AccessTokenPayload } from '@inithium/types';
 import { triggerEngagementDeploy } from './deploy-hook.service';
 import { runHydration } from './run-hydration';
@@ -42,6 +48,11 @@ import { SeedManifestModel } from './seed/manifest.model';
 const host = process.env['HOST'] ?? 'localhost';
 const port = process.env['PORT'] ? Number(process.env['PORT']) : 3000;
 const mongoUri = process.env['MONGO_URI'] ?? 'mongodb://localhost:27017/my-app';
+
+const AWAY_TIMEOUT_MS = 10 * 60 * 1000;
+const PRESENCE_DOMAIN = 'presence';
+const PRESENCE_ACTIVITY_EVENT = 'presence:activity';
+const PRESENCE_STATUS_EVENT = 'status-changed';
 
 const allowedOrigins = process.env['CORS_ORIGINS']
   ? process.env['CORS_ORIGINS'].split(',').map((o) => o.trim())
@@ -179,6 +190,13 @@ async function bootstrap() {
   const pubsub = createPubSub(createDefaultAdapter());
   setFriendsPubSub(pubsub);
 
+  const presenceTracker = createPresenceTracker({
+    awayTimeoutMs: AWAY_TIMEOUT_MS,
+    onStatusChange: (userId, status) => {
+      pubsub.publish(buildChannel(PRESENCE_DOMAIN, userId), PRESENCE_STATUS_EVENT, { userId, status });
+    },
+  });
+
   if (process.env['NODE_ENV'] !== 'production') {
     app.post('/api/debug/publish', async (req, res) => {
       const { channel, event, payload } = req.body;
@@ -193,13 +211,23 @@ async function bootstrap() {
   });
 
   const canJoinChannel = async (user: AccessTokenPayload, channel: string): Promise<boolean> =>
-    channel.startsWith(`user:${user.sub}`);
+    channel.startsWith(`user:${user.sub}`) || channel.startsWith(`${PRESENCE_DOMAIN}:`);
 
   createSocketServer({
     httpServer,
     pubsub,
     canJoinChannel,
     corsOrigins: allowedOrigins,
+    onConnect: (_socket, user) => presenceTracker.recordConnect(user.sub),
+    onDisconnect: (_socket, user) => presenceTracker.recordDisconnect(user.sub),
+    onChannelJoined: (socket, _user, channel) => {
+      if (!channel.startsWith(`${PRESENCE_DOMAIN}:`)) return;
+      const userId = channel.slice(`${PRESENCE_DOMAIN}:`.length);
+      socket.emit(PRESENCE_STATUS_EVENT, { userId, status: presenceTracker.getStatus(userId) });
+    },
+    registerSocketHandlers: (socket, user) => {
+      socket.on(PRESENCE_ACTIVITY_EVENT, () => presenceTracker.recordActivity(user.sub));
+    },
   });
 }
 

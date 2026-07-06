@@ -2,12 +2,17 @@ import { Server, type Socket } from 'socket.io';
 import { extractSocketUser } from './socket-auth.js';
 import type { CreateSocketServerOptions } from './socket.types.js';
 import type { ChannelMessage } from '../types/pubsub.types.js';
+import type { AccessTokenPayload } from '@inithium/types';
 
 export const createSocketServer = ({
   httpServer,
   pubsub,
   canJoinChannel,
   corsOrigins,
+  onConnect,
+  onDisconnect,
+  onChannelJoined,
+  registerSocketHandlers,
 }: CreateSocketServerOptions): Server => {
   const io = new Server(httpServer, {
     cors: {
@@ -54,10 +59,13 @@ export const createSocketServer = ({
   });
 
   io.on('connection', (socket: Socket) => {
+    const user = socket.data['user'] as AccessTokenPayload;
     const joinedChannels = new Set<string>();
 
+    onConnect?.(socket, user);
+    registerSocketHandlers?.(socket, user);
+
     socket.on('channel:join', async (channel: string, ack?: (ok: boolean) => void) => {
-      const user = socket.data['user'];
       const authorized = await canJoinChannel(user, channel);
       if (!authorized) {
         ack?.(false);
@@ -67,6 +75,7 @@ export const createSocketServer = ({
       await socket.join(channel);
       await ensureChannelBridge(channel);
       joinedChannels.add(channel);
+      onChannelJoined?.(socket, user, channel);
       ack?.(true);
     });
 
@@ -82,6 +91,7 @@ export const createSocketServer = ({
         await releaseChannelBridge(channel);
       }
       joinedChannels.clear();
+      onDisconnect?.(socket, user);
     });
   });
 

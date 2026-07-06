@@ -2,6 +2,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage, Box, Text } from '@inithium/ui';
 import { User } from '@inithium/types';
 import { useNavigation } from '@inithium/router';
+import { usePresence } from '@inithium/store';
 
 const getFallback = (user: User) =>
   `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase();
@@ -16,6 +17,7 @@ interface FriendUserRowProps {
 export const FriendUserRow: React.FC<FriendUserRowProps> = ({ user, meta, actions, linkable = false }) => {
   const fallback = getFallback(user);
   const { navigate } = useNavigation();
+  const status = usePresence(user._id);
 
   const avatarNode = (
     <Avatar
@@ -23,6 +25,7 @@ export const FriendUserRow: React.FC<FriendUserRowProps> = ({ user, meta, action
       alt={user.user_avatar?.alt}
       fallback={fallback}
       size="sm"
+      status={status}
       shape="circle"
       background={user.user_avatar?.background}
       fontColor={user.user_avatar?.fontColor}
