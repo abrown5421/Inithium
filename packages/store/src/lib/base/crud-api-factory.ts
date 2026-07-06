@@ -1,4 +1,5 @@
 import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import type { PaginationQuery, PaginatedResult } from '@inithium/api-core';
 
 export const createCrudEndpoints = <T extends { _id: string }, CreateDto, UpdateDto>(
   entityPath: string,
@@ -30,6 +31,17 @@ export const createCrudEndpoints = <T extends { _id: string }, CreateDto, Update
       providesTags: (result: any) =>
         result
           ? [...result.map(({ _id }: any) => ({ type: tagType, id: _id })), tagType as any]
+          : [tagType as any],
+    }),
+
+    [`readPage${t}`]: builder.query<PaginatedResult<T>, PaginationQuery | void>({
+      query: (params) => ({
+        url: `/${entityPath}`,
+        params: params ?? {},
+      }),
+      providesTags: (result: any) =>
+        result?.data
+          ? [...result.data.map(({ _id }: any) => ({ type: tagType, id: _id })), tagType as any]
           : [tagType as any],
     }),
 

@@ -59,12 +59,6 @@ const CmsUsersPage: React.FC = () => {
     loggedInRole === 'admin' ||
     loggedInRole === 'editor';
 
-  const { data, isLoading, error } = useReadAllUsersQuery();
-  const [createUser] = useCreateUserMutation();
-  const [updateUser] = useUpdateUserMutation();
-  const [deleteUser] = useDeleteUserMutation();
-  const [deleteUsersBatch] = useDeleteUsersBatchMutation();
-
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,15 +71,18 @@ const CmsUsersPage: React.FC = () => {
     label: string;
   } | null>(null);
 
-  const users: readonly User[] = useMemo(() => data ?? [], [data]);
+  const { data, isLoading, error } = useReadAllUsersQuery({ page: currentPage, limit: PAGE_SIZE });
+  const [createUser] = useCreateUserMutation();
+  const [updateUser] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
+  const [deleteUsersBatch] = useDeleteUsersBatchMutation();
+
+  const users: readonly User[] = useMemo(() => data?.data ?? [], [data]);
+  const totalItems = data?.meta.total ?? 0;
+
   const filteredUsers = useMemo(() => filterUsers(searchQuery)(users), [searchQuery, users]);
 
-  const pagedUsers = useMemo(
-    () => filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
-    [currentPage, filteredUsers],
-  );
-
-  const pageIds = useMemo(() => pagedUsers.map((u) => u._id), [pagedUsers]);
+  const pageIds = useMemo(() => filteredUsers.map((u) => u._id), [filteredUsers]);
 
   const isAllSelected = useMemo(
     () => pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id)),
@@ -223,15 +220,15 @@ const CmsUsersPage: React.FC = () => {
         onBulkDelete={handleBulkDeleteTrigger}
         pagination={
           <Pagination
-            totalItems={filteredUsers.length}
+            totalItems={totalItems}
             itemsPerPage={PAGE_SIZE}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
           />
         }
       >
-        {pagedUsers.length > 0 ? (
-          pagedUsers.map((user: User) => (
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user: User) => (
             <UserItem
               key={user._id}
               user={user}

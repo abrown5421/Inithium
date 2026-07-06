@@ -12,7 +12,8 @@ interface AddFriendsViewProps {
 }
 
 export const AddFriendsView: React.FC<AddFriendsViewProps> = ({ activeUser, existingFriends }) => {
-  const { data: allUsers = [], isLoading } = useReadAllUsersQuery();
+  const { data, isLoading } = useReadAllUsersQuery();
+  const allUsers = data?.data ?? [];
   const [createFriend, { isLoading: isSending }] = useCreateFriendMutation();
 
   const friendUserIds = new Set(

@@ -1,6 +1,7 @@
 import { Router, Request, Response, RequestHandler } from 'express';
 import { ZodSchema } from 'zod';
 import { CrudService } from '../service/base-crud-service.js';
+import { PaginationQuery } from '../../types/pagination.js';
 
 const asyncHandler = (fn: RequestHandler): RequestHandler =>
   (req, res, next) => {
@@ -21,7 +22,15 @@ export const validate = (schema: ZodSchema): RequestHandler =>
 export interface CrudRouterHooks {
   onCreate?: ZodSchema;
   onUpdate?: ZodSchema;
+  readonly forcePagination?: boolean;
 }
+
+const parsePaginationQuery = (req: Request): PaginationQuery => ({
+  page: req.query.page ? Number(req.query.page) : undefined,
+  limit: req.query.limit ? Number(req.query.limit) : undefined,
+  sort: typeof req.query.sort === 'string' ? req.query.sort : undefined,
+  order: req.query.order === 'desc' ? 'desc' : 'asc',
+});
 
 export const createCrudRouter = <T>(
   service: CrudService<T>,
@@ -49,7 +58,15 @@ export const createCrudRouter = <T>(
 
   router.get(
     '/',
-    asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    asyncHandler(async (req: Request, res: Response): Promise<void> => {
+      const hasPaginationParams = req.query.page !== undefined || req.query.limit !== undefined;
+
+      if (hasPaginationParams || hooks.forcePagination) {
+        const result = await service.readPage(parsePaginationQuery(req));
+        res.status(200).json(result);
+        return;
+      }
+
       const records = await service.readAll();
       res.status(200).json(records);
     })

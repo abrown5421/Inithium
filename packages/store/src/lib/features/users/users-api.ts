@@ -1,4 +1,5 @@
 import type { User } from '@inithium/types';
+import type { PaginatedResult, PaginationQuery } from '@inithium/api-core';
 import { createCrudEndpoints } from '../../base/crud-api-factory.js';
 import { baseApi } from '../../base/base-api.js';
 
@@ -10,8 +11,8 @@ const endpoints = createCrudEndpoints<User, CreateUserDto, UpdateUserDto>('users
 export const usersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     ...endpoints(builder),
-    readAllUsers: builder.query<readonly User[], void>({
-      query: () => '/users',
+    readAllUsers: builder.query<PaginatedResult<User>, PaginationQuery | void>({
+      query: (params) => ({ url: '/users', params: params ?? {} }),
       providesTags: ['User'],
     }),
   }),
@@ -23,6 +24,7 @@ const {
   useReadOneUserQuery:        useUserQuery,
   useLazyReadOneUserQuery:    useLazyUserQuery,
   useReadManyUserQuery:       useUsersBatchQuery,
+  useReadPageUserQuery:       useUsersPageQuery,
   useUpdateOneUserMutation:   useUpdateUserMutation,
   useDeleteOneUserMutation:   useDeleteUserMutation,
   useDeleteManyUserMutation:  useDeleteUsersBatchMutation,
@@ -34,6 +36,7 @@ export {
   useUserQuery,
   useLazyUserQuery,
   useUsersBatchQuery,
+  useUsersPageQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useDeleteUsersBatchMutation,
