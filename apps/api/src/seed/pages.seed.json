@@ -24,31 +24,6 @@
     "seedPolicy": "assert"
   },
   {
-    "key": "documentaion",
-    "path": "/documentation",
-    "componentKey": "DocumentationPage",
-    "entry": "fadeIn",
-    "exit": "fadeOut",
-    "entrySpeed": "fast",
-    "exitSpeed": "fast",
-    "bg": "surface",
-    "color": "surface-contrast",
-    "navigation": {
-      "label": "Documentation",
-      "location": "main",
-      "order": 2,
-      "authenticated": false,
-      "anonymous": false,
-      "isButton": false,
-      "resolveNavPath": null
-    },
-    "centered": false,
-    "is_system_page": false,
-    "isActive": true,
-    "isErrorPage": false,
-    "seedPolicy": "once"
-  },
-  {
     "key": "privacy-policy",
     "path": "/privacy-policy",
     "componentKey": "PrivacyPolicyPage",
@@ -232,6 +207,30 @@
       "order": 4,
       "authenticated": true,
       "anonymous": false,
+      "isButton": false,
+      "resolveNavPath": null
+    },
+    "centered": false,
+    "is_system_page": true,
+    "isActive": true,
+    "seedPolicy": "assert"
+  },
+  {
+    "key": "cms-dashboard",
+    "path": "/cms/dashboard/:id",
+    "componentKey": "CmsDashboardPage",
+    "entry": "fadeIn",
+    "exit": "fadeOut",
+    "entrySpeed": "fast",
+    "exitSpeed": "fast",
+    "bg": "surface",
+    "color": "surface-contrast",
+    "navigation": {
+      "label": "My Dashboard",
+      "location": "cms-profile",
+      "order": 1,
+      "authenticated": true,
+      "anonymous": true,
       "isButton": false,
       "resolveNavPath": null
     },
