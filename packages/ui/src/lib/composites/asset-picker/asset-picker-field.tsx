@@ -1,4 +1,6 @@
-import { Box, Button, Text } from '@inithium/ui';
+import { Box } from '../../components/box';
+import { Text } from '../../components/text';
+import { Button } from '../../components/button';
 import React, { useState } from 'react';
 import AssetPickerDialog, { type AssetPickerItem } from './asset-picker-dialog';
 

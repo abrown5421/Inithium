@@ -1,4 +1,8 @@
-import { Box, Dialog, Input, Pagination, Text } from '@inithium/ui';
+import { Box } from '../../components/box';
+import { Dialog } from '../../components/dialog';
+import { Input } from '../../components/input';
+import { Pagination } from '../pagination';
+import { Text } from '../../components/text';
 import React, { useMemo, useState } from 'react';
 
 const PAGE_SIZE = 12;
