@@ -1,5 +1,5 @@
-import { TransitionRouter, NavigationLink, useNavigation } from '@inithium/router';
-import { Box, Navbar, Text, Loader, Alert, FontLoader } from '@inithium/ui';
+import { TransitionRouter, NavigationLink, useNavigation, navigationService } from '@inithium/router';
+import { Box, Navbar, Text, Loader, Alert, FontLoader, useDarkMode } from '@inithium/ui';
 import React, { useEffect, useMemo } from 'react';
 import {
   useReadAllPagesQuery,
@@ -10,7 +10,8 @@ import {
   clearAlert,
   RootState,
   useReadAllSettingsQuery,
-  selectAllSettings,
+  useFriendNotifications,
+  useActivityHeartbeat,
 } from '@inithium/store';
 import { useSelector, useDispatch } from 'react-redux';
 import type { Page } from '@inithium/types';
@@ -24,18 +25,21 @@ const App: React.FC = () => {
   const { data, isLoading, error } = useReadAllPagesQuery();
   useReadAllSettingsQuery();
   const activeUser = useSelector(selectActiveUser);
-  const settings = useSelector(selectAllSettings);
   const alertData = useSelector((state: RootState) => state.alert.current);
   const [logout] = useLogoutMutation();
   const { navigateToKey } = useNavigation();
-
-  useEffect(() => console.log(activeUser), [activeUser]);
+  useDarkMode(activeUser?.dark_mode);
+  useFriendNotifications();
+  useActivityHeartbeat();
 
   useEffect(() => {
-    if (settings.length > 0) {
-      console.log('Global Settings Root Log:', settings);
+    const isRootPath = window.location.pathname === '/';
+    const hasValidSession = activeUser && activeUser._id;
+
+    if (isRootPath && hasValidSession) {
+      navigationService.navigate(`/cms/dashboard/${activeUser._id}`)
     }
-  }, [settings]);
+  }, [activeUser, navigateToKey]);
 
   const mainNavPages = useMemo<Page[]>(() => {
     if (!data) return [];

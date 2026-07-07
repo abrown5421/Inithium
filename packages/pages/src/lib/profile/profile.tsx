@@ -1,6 +1,6 @@
 import { selectActiveUser, selectAllSettings, usePresence, useReadFriendsByUserQuery, useUserQuery } from '@inithium/store';
 import { Avatar, AvatarFallback, AvatarImage, Banner, Box, Button, Text } from '@inithium/ui';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { BannerEditDialog } from './banner/banner-edit-dialog';
