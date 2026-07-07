@@ -118,15 +118,17 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
         `${import.meta.env['VITE_API_ORIGIN'] ?? 'http://localhost:3000'}/api/auth/me`,
         { credentials: 'include' }
       );
-      if (meRes.ok) {
-        const user = await meRes.json();
-        if (restrictedRoles.length > 0 && restrictedRoles.includes(user.role)) {
-          logout();
-          setApiError('You do not have permission to access this area.');
-          return;
-        }
-        dispatch(setActiveUser(user));
+      if (!meRes.ok) {
+        setApiError('Invalid email or password.');
+        return;
       }
+      const user = await meRes.json();
+      if (restrictedRoles.length > 0 && restrictedRoles.includes(user.role)) {
+        logout();
+        setApiError('You do not have permission to access this area.');
+        return;
+      }
+      dispatch(setActiveUser(user));
     } catch (err: any) {
       const message = err?.data?.message ?? err?.error ?? 'Invalid email or password.';
       setApiError(typeof message === 'string' ? message : 'Login failed. Please try again.');

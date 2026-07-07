@@ -24,7 +24,7 @@ export const AddFriendsView: React.FC<AddFriendsViewProps> = ({ activeUser, exis
   );
 
   const candidates = (allUsers as User[]).filter(
-    (u) => u._id !== activeUser._id && !friendUserIds.has(u._id),
+    (u) => u._id !== activeUser._id && !friendUserIds.has(u._id) && u.email !== 'admin@inithium.com',
   );
 
   const { query, setQuery, page, setPage, paginated, totalItems, pageSize } = useFriendSearch(
