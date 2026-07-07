@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input, Button, Text, Box } from '@inithium/ui';
-import { NavigationLink } from '@inithium/router';
+import { NavigationLink, navigationService } from '@inithium/router';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation, useLogoutMutation, useUserQuery, setActiveUser, showAlert } from '@inithium/store';
 
@@ -129,6 +129,9 @@ const Login: React.FC<LoginProps> = ({ cmsMode, restrictedRoles = [] }) => {
         return;
       }
       dispatch(setActiveUser(user));
+      if (cmsMode) {
+        navigationService.navigate(`/cms/dashboard/${user._id}`);
+      }
     } catch (err: any) {
       const message = err?.data?.message ?? err?.error ?? 'Invalid email or password.';
       setApiError(typeof message === 'string' ? message : 'Login failed. Please try again.');

@@ -115,9 +115,9 @@ export const AssetUploadDialog: React.FC<AssetUploadDialogProps> = ({
   const [userQuery, setUserQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: users, isLoading: usersLoading } = useReadAllUsersQuery();
+  const { data: usersResult, isLoading: usersLoading } = useReadAllUsersQuery();
 
-  const typedUsers = (users ?? []) as StoreUser[];
+  const typedUsers = (usersResult?.data ?? []) as unknown as StoreUser[];
 
   const comboboxOptions = React.useMemo((): ComboboxOption<string>[] => {
     const q = userQuery.toLowerCase();

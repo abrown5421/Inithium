@@ -2,8 +2,11 @@ import bcrypt from 'bcryptjs';
 import type { User } from '@inithium/types';
 import { createCrudService, CrudService } from '@inithium/api-core';
 import { UserModel } from './users.model.js';
+import type { GrowthRange, GrowthStatsResult } from '@inithium/api-core';
 
-export interface UsersService extends CrudService<User> {}
+export interface UsersService extends CrudService<User> {
+  readonly getUserGrowthStats: (range?: GrowthRange) => Promise<GrowthStatsResult>;
+}
 
 const base = createCrudService<User>(UserModel);
 
@@ -30,8 +33,46 @@ const createDefaultBanner = (): NonNullable<User['user_banner']> => ({
   y_colors: ['#1e293b', '#64748b', '#e2e8f0'],
 });
 
+const RANGE_TO_MS: Record<Exclude<GrowthRange, 'all'>, number> = {
+  week: 7 * 86_400_000,
+  month: 30 * 86_400_000,
+  quarter: 90 * 86_400_000,
+  year: 365 * 86_400_000,
+};
+
+const BUCKET_FORMAT: Record<GrowthRange, string> = {
+  week: '%Y-%m-%d',
+  month: '%Y-%m-%d',
+  quarter: '%Y-%m-%d', 
+  year: '%Y-%m',
+  all: '%Y-%m',
+};
+
+export const getUserGrowthStats = async (range: GrowthRange = 'month'): Promise<GrowthStatsResult> => {
+  const cutoff = range === 'all' ? null : new Date(Date.now() - RANGE_TO_MS[range]);
+  const format = BUCKET_FORMAT[range];
+
+  const [buckets, baselineCount] = await Promise.all([
+    UserModel.aggregate([
+      ...(cutoff ? [{ $match: { createdAt: { $gte: cutoff } } }] : []),
+      {
+        $group: {
+          _id: { $dateToString: { format, date: '$createdAt' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { _id: 0, bucket: '$_id', count: 1 } },
+    ]).exec(),
+    cutoff ? UserModel.countDocuments({ createdAt: { $lt: cutoff } }).exec() : Promise.resolve(0),
+  ]);
+
+  return { data: buckets, baselineCount };
+};
+
 export const usersService: UsersService = {
   ...base,
+  getUserGrowthStats, 
 
   createOne: async (data) => {
     const rawInput = data as Partial<User>;
