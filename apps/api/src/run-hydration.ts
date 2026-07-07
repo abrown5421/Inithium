@@ -16,8 +16,36 @@ interface CollectionConfig {
   naturalKey: string;
 }
 
+const ENV_PLACEHOLDER_PATTERN = /\{\{(\w+)\}\}/g;
+
+function interpolateEnvPlaceholders<T>(value: T): T {
+  if (typeof value === 'string') {
+    return value.replace(ENV_PLACEHOLDER_PATTERN, (_match, envKey: string) => {
+      const envValue = process.env[envKey];
+      if (envValue === undefined) {
+        throw new Error(`[hydration] Missing environment variable "${envKey}" referenced in seed data`);
+      }
+      return envValue;
+    }) as unknown as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => interpolateEnvPlaceholders(item)) as unknown as T;
+  }
+
+  if (value !== null && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      result[key] = interpolateEnvPlaceholders(val);
+    }
+    return result as T;
+  }
+
+  return value;
+}
+
 async function hydrateCollection(
-  config: CollectionConfig, 
+  config: CollectionConfig,
   ManifestModel: Model<any>
 ): Promise<void> {
   const { name, model, seedFile, naturalKey } = config;
@@ -27,7 +55,8 @@ async function hydrateCollection(
     return;
   }
 
-  const seeds: SeedRecord[] = JSON.parse(fs.readFileSync(seedFile, 'utf-8'));
+  const rawSeeds: SeedRecord[] = JSON.parse(fs.readFileSync(seedFile, 'utf-8'));
+  const seeds: SeedRecord[] = interpolateEnvPlaceholders(rawSeeds);
 
   let asserted = 0;
   let inserted = 0;
@@ -70,7 +99,7 @@ export async function runHydration(models: {
   SettingModel:  Model<any>;
   UserModel:     Model<any>;
   AssetModel:    Model<any>;
-  ManifestModel: Model<any>; 
+  ManifestModel: Model<any>;
 }): Promise<void> {
   console.log('[hydration] Starting seed hydration...');
 
