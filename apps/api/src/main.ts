@@ -9,7 +9,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { z } from 'zod';
-import { connectDB, errorHandler } from '@inithium/api-core';
+import { connectDB, createErrorHandler } from '@inithium/api-core';
 import {
   usersRouter,
   pagesRouter,
@@ -22,6 +22,8 @@ import {
   SettingModel,
   UserModel,
   friendsRouter,
+  systemErrorsRouter,
+  SystemErrorModel,
 } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 import {
@@ -158,12 +160,21 @@ app.use('/api/auth', authRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/file-manager', fileManagerRouter);
 app.use('/api/friends', friendsRouter);
+app.use('/api/system-errors', systemErrorsRouter);
 
 app.get('/', (_req, res) => {
-  res.send({ message: 'Hello API' });
+  res.send({ message: 'Inithium API' });
 });
 
-app.use(errorHandler);
+app.get('/api/debug/test-error', () => {
+  throw new Error('Monorepo boundary decoupling test successful!');
+});
+
+app.use(
+  createErrorHandler(async (payload) => {
+    await SystemErrorModel.create(payload);
+  })
+);
 
 async function bootstrap() {
   await connectDB(mongoUri);
@@ -228,6 +239,19 @@ async function bootstrap() {
     registerSocketHandlers: (socket, user) => {
       socket.on(PRESENCE_ACTIVITY_EVENT, () => presenceTracker.recordActivity(user.sub));
     },
+  });
+
+  process.on('unhandledRejection', async (reason: any) => {
+    console.error('UNHANDLED REJECTION:', reason);
+    try {
+      await SystemErrorModel.create({
+        message: reason?.message ?? String(reason),
+        stack: reason?.stack,
+        statusCode: 500,
+      });
+    } catch (e) {
+      console.error('Failed processing unhandled promise backup log', e);
+    }
   });
 }
 

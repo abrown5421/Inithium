@@ -3,6 +3,7 @@ import { useUserQuery } from '@inithium/store';
 import { Box, Loader, Text } from '@inithium/ui';
 import { useParams } from 'react-router-dom';
 import UserGrowthChart from './user-growth-chart';
+import ErrorLogView from './error-log-view';
 
 const UserNotFoundErrorState: React.FC = () => (
   <Box color="surface-contrast" flex direction="col" align="center" padding="xl" className="rounded-xl">
@@ -41,11 +42,11 @@ const CmsDashboardPage: React.FC = () => {
 
   return (
     <Box padding="md" className="h-full w-full">
-      <Text variant="h5" color="surface2-contrast" overrideClassName="primary-font">
-        {profileUser.first_name}'s CMS Dashboard
-      </Text>
       <Box margin="md">
         <UserGrowthChart />
+      </Box>
+      <Box margin="md">
+        <ErrorLogView />
       </Box>
     </Box>
   );
