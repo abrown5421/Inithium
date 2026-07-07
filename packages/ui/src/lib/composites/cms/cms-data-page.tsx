@@ -1,5 +1,10 @@
 import React from 'react';
-import { Box, Button, Checkbox, Input, Loader, Text } from '@inithium/ui';
+import { Box } from '../../components/box';
+import { Button } from '../../components/button';
+import { Checkbox } from '../../components/checkbox';
+import { Input } from '../../components/input';
+import { Loader } from '../../components/loader';
+import { Text } from '../../components/text';
 
 export interface CmsDataPageProps {
   isLoading: boolean;

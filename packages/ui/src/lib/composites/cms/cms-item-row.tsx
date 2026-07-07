@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Checkbox } from '@inithium/ui';
+import { Box } from '../../components/box';
+import { Checkbox } from '../../components/checkbox';
 
 export interface CmsItemRowProps {
   isSelected?: boolean;

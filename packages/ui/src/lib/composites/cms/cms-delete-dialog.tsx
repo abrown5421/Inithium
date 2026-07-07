@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dialog, Text } from '@inithium/ui';
+import { Text } from '../../components/text';
+import { Dialog } from '../../components/dialog';
 
 export interface ConfirmDeleteDialogProps {
   open: boolean;
