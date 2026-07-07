@@ -22,30 +22,33 @@ const rawBaseQuery = fetchBaseQuery({
   credentials: 'include',
 });
 
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/signup', '/auth/refresh'];
+
+const isAuthEndpoint = (args: string | FetchArgs): boolean => {
+  const url = typeof args === 'string' ? args : args.url;
+  return AUTH_ENDPOINTS.some((path) => url.includes(path));
+};
+
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
   api,
   extraOptions,
 ) => {
-  let result = await rawBaseQuery(args, api, extraOptions);
+  const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
+  if (result.error?.status === 401 && !isAuthEndpoint(args)) {
     const refreshResult = await rawBaseQuery(
-      {
-        url:         '/auth/refresh',
-        method:      'POST',
-        credentials: 'include',
-      },
+      { url: '/auth/refresh', method: 'POST', credentials: 'include' },
       api,
       extraOptions,
     );
 
     if (refreshResult.data) {
-      result = await rawBaseQuery(args, api, extraOptions);
-    } else {
-      api.dispatch(clearActiveUser());
-      window.location.href = getLoginPath();
+      return rawBaseQuery(args, api, extraOptions);
     }
+
+    api.dispatch(clearActiveUser());
+    window.location.href = getLoginPath();
   }
 
   return result;
