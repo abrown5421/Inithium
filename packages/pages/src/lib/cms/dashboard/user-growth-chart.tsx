@@ -1,4 +1,4 @@
-import { Box, Text } from '@inithium/ui';
+import { Box, Button, Text } from '@inithium/ui';
 import React from 'react';
 import {
   Area,
@@ -23,24 +23,23 @@ const UserGrowthChart: React.FC = () => {
   const { range, setRange, chartData } = useUserGrowthChart();
 
   return (
-    <Box color="surface-contrast" flex direction="col" padding="md" className="rounded-xl w-full">
+    <Box color="surface3-contrast" flex direction="col" padding="md" className="rounded-xl w-full">
       <Box flex direction="row" align="center" justify="between" className="w-full mb-4">
         <Text variant="h6" color="surface" decoration={{ bold: true }}>
           User Growth
         </Text>
         <Box flex direction="row" className="gap-2">
           {RANGE_OPTIONS.map((opt) => (
-            <button
+            <Button
               key={opt.value}
               onClick={() => setRange(opt.value)}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                range === opt.value
-                  ? 'bg-primary text-primary-contrast'
-                  : 'bg-transparent text-surface2-contrast opacity-60 hover:opacity-100'
-              }`}
+              color={range === opt.value ? "primary" : "surface"}
+              variant={range === opt.value ? "solid" : "ghost"}
+              size="sm"
+              rounded
             >
               {opt.label}
-            </button>
+            </Button>
           ))}
         </Box>
       </Box>

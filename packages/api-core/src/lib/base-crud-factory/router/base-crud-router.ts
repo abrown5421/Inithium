@@ -12,8 +12,15 @@ export const validate = (schema: ZodSchema): RequestHandler =>
   (req: Request, res: Response, next) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      res.status(400).json({ errors: result.error.flatten() });
-      return;
+      const validationError = new Error(`Validation failed on ${req.method} ${req.originalUrl}`);
+      
+      Object.assign(validationError, {
+        statusCode: 400,
+        type: 'ValidationError',
+        details: result.error.flatten(),
+      });
+
+      return next(validationError);
     }
     req.body = result.data;
     next();
