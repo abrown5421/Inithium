@@ -21,7 +21,7 @@ interface ProfileRowProps {
 }
 
 const ProfileRow: React.FC<ProfileRowProps> = ({ left, right = null, className = '' }) => (
-  <div className={`flex flex-row w-auto mx-8 ${className}`}>
+  <div className={`flex flex-col sm:flex-row w-auto mx-8 ${className}`}>
     <div className="flex flex-col flex-1/4 items-center">
       {left}
     </div>
@@ -152,7 +152,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
       </Box>
     }
     right={
-      <Box className="h-full w-full py-3 px-6">
+      <Box className="h-full w-full p-3 md:py-3 md:px-6">
         <ProfileTabs profileUser={profileUser} isOwnProfile={isOwnProfile} activeUser={activeUser} />
       </Box>
     }
