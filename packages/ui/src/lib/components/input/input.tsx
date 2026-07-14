@@ -48,7 +48,6 @@ const variantBaseStyles: Record<VariantKey, string> = {
   standard: 'bg-transparent border-b-2 border-slate-300 rounded-none! px-0!',
 };
 
-// Maps variants cleanly to theme dynamic border/rings while using semantic text color tokens
 const focusColorStyles: Record<ColorKey, string> = {
   primary: 'focus:border-primary focus:ring-primary',
   secondary: 'focus:border-secondary focus:ring-secondary',
@@ -161,6 +160,8 @@ export const Input: React.FC<InputProps> = ({
   value,
   defaultValue,
   disabled,
+  error = false,
+  helperText,
   ...props
 }) => {
   const generatedId = React.useId();
@@ -188,6 +189,10 @@ export const Input: React.FC<InputProps> = ({
     ? 'bg-slate-100! text-slate-400! border-slate-200! cursor-not-allowed select-none' 
     : '';
 
+  const errorBorderStyles = error
+    ? 'border-danger! focus:border-danger!'
+    : '';
+
   const builtInputClasses = overrideClassName
     ? [INPUT_BASE, overrideClassName, disabledStyles].filter(Boolean).join(' ')
     : [
@@ -196,6 +201,7 @@ export const Input: React.FC<InputProps> = ({
         variantBaseStyles[variant],
         focusColorStyles[color],
         textColorStyles[color],
+        errorBorderStyles,
         rounded && variant !== 'standard' ? 'rounded-md' : 'rounded-none',
         leadingIcon ? currentSize.leadingIconSpacer : '',
         trailingIcon ? 'pr-10' : '',
@@ -214,57 +220,67 @@ export const Input: React.FC<InputProps> = ({
     : '';
 
   return (
-    <div
-      className={[
-        CONTAINER_BASE,
-        currentSize.container,
-        fullWidth ? 'w-full' : 'w-72',
-        disabled ? 'cursor-not-allowed' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={style}
-    >
-      {leadingIcon && (
-        <span 
-          className={`absolute flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}
-          style={{ left: variant === 'standard' ? '0px' : '12px' }}
-        >
-          <SafeIcon name={leadingIcon} size={currentSize.iconSize} />
-        </span>
-      )}
-
-      <HeadlessInput
-        id={inputId}
-        placeholder={label}
-        value={value}
-        defaultValue={defaultValue}
-        className={builtInputClasses}
-        onChange={handleInputChange}
-        disabled={disabled}
-        {...props}
-      />
-
-      <label
-        htmlFor={inputId}
-        data-floating={isFloating}
+    <div className={fullWidth ? 'w-full' : 'w-72'} style={style}>
+      <div
         className={[
-          'absolute text-slate-400 pointer-events-none origin-top-left transition-all duration-200 ease-in-out z-10',
-          ANIMATION_STATE_CLASSES,
-          labelPlacementClasses,
-          shiftedLabelPadding,
-          disabled ? 'peer-focus:text-slate-400! data-[floating=true]:text-slate-400!' : labelColorStyles[color],
+          CONTAINER_BASE,
+          currentSize.container,
+          'w-full',
+          disabled ? 'cursor-not-allowed' : '',
         ]
           .filter(Boolean)
           .join(' ')}
       >
-        {label}
-      </label>
+        {leadingIcon && (
+          <span 
+            className={`absolute flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}
+            style={{ left: variant === 'standard' ? '0px' : '12px' }}
+          >
+            <SafeIcon name={leadingIcon} size={currentSize.iconSize} />
+          </span>
+        )}
 
-      {trailingIcon && (
-        <span className={`absolute right-3 flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}>
-          <SafeIcon name={trailingIcon} size={currentSize.iconSize} />
-        </span>
+        <HeadlessInput
+          id={inputId}
+          placeholder={label}
+          value={value}
+          defaultValue={defaultValue}
+          className={builtInputClasses}
+          onChange={handleInputChange}
+          disabled={disabled}
+          {...props}
+        />
+
+        <label
+          htmlFor={inputId}
+          data-floating={isFloating}
+          className={[
+            'absolute text-slate-400 pointer-events-none origin-top-left transition-all duration-200 ease-in-out z-10',
+            ANIMATION_STATE_CLASSES,
+            labelPlacementClasses,
+            shiftedLabelPadding,
+            disabled 
+              ? 'peer-focus:text-slate-400! data-[floating=true]:text-slate-400!' 
+              : error 
+                ? 'peer-focus:text-danger! data-[floating=true]:text-danger!' 
+                : labelColorStyles[color],
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {label}
+        </label>
+
+        {trailingIcon && (
+          <span className={`absolute right-3 flex items-center pointer-events-none transition-colors z-10 ${disabled ? 'text-slate-300' : 'text-slate-400 peer-focus:text-slate-600'}`}>
+            <SafeIcon name={trailingIcon} size={currentSize.iconSize} />
+          </span>
+        )}
+      </div>
+      {helperText && (
+        <p className={`mt-1 text-[11px] leading-tight ${error ? 'text-danger' : 'text-slate-500'}`}>
+          {helperText}
+        </p>
       )}
     </div>
   );

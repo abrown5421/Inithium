@@ -15,4 +15,6 @@ export interface InputProps extends Omit<HeadlessInputProps, 'style' | 'onChange
   overrideClassName?: string;
   style?: React.CSSProperties;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => unknown;
+  error?: boolean;
+  helperText?: string;
 }
